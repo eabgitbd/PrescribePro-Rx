@@ -5,6 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>PrescribePro Rx</title>
 <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,300;0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<!-- Google Identity Services -->
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<!-- Google API client for Drive -->
+<script src="https://apis.google.com/js/api.js" async defer onload="gapiLoaded()"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <style>
@@ -274,16 +278,27 @@
 <body>
 
 <!-- LOGIN PAGE -->
-<div id="page-login" class="page active">
+<div id="page-login" class="page active" style="min-height:100vh; display:flex; align-items:center; justify-content:center; background:linear-gradient(135deg,#e8f0f8 0%,#f7f6f2 50%,#eef2ea 100%);">
   <div class="login-card">
     <div class="login-logo">Prescribe<span>Pro</span> <span style="font-size:18px; color:var(--text-3)">Rx</span></div>
     <div class="login-sub">Professional Medical Prescription Software</div>
     <div class="login-title">Sign in to your account</div>
-    <button class="btn-google" onclick="googleLogin()">
+    <!-- Google One-Tap / Sign-In button rendered here -->
+    <div id="g_id_onload"
+      data-client_id="744204331957-vnium3sdih08go5iuv0rlpctvgqhjara.apps.googleusercontent.com"
+      data-context="signin"
+      data-ux_mode="popup"
+      data-callback="handleGoogleCredential"
+      data-auto_prompt="false">
+    </div>
+    <div id="google-signin-btn" style="display:flex; justify-content:center; margin-bottom:10px"></div>
+    <!-- Fallback manual button -->
+    <button class="btn-google" id="btn-google-manual" onclick="triggerGoogleSignIn()">
       <svg class="google-icon" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
       Continue with Google
     </button>
-    <p class="login-note">Your data is stored locally and optionally backed up to Google Drive. We never share your patient data.</p>
+    <p class="login-note">Your data is stored locally and backed up to Google Drive. We never share your patient data.</p>
+    <p id="login-error" style="color:var(--danger); font-size:12px; margin-top:10px; display:none"></p>
   </div>
 </div>
 
@@ -291,12 +306,12 @@
 <div id="topnav" class="hidden">
   <div class="nav-brand">Prescribe<span>Pro</span> <span style="font-size:14px; color:var(--text-3); font-family:'DM Sans'">Rx</span></div>
   <div class="nav-right">
-    <div class="drive-status" id="drive-status">
-      <div class="drive-dot"></div>
-      <span style="color:var(--text-3)">Drive Synced</span>
+    <div class="drive-status" id="drive-status" style="display:none">
+      <div class="drive-dot" id="drive-dot" style="background:var(--text-3)"></div>
+      <span id="drive-status-text" style="color:var(--text-3)">Drive</span>
     </div>
-    <button class="btn-icon" onclick="syncDrive()" title="Sync to Google Drive">☁️</button>
-    <div id="user-avatar" onclick="showPage('profile')">E</div>
+    <button class="btn-icon" onclick="syncDrive()" title="Sync to Google Drive" id="btn-sync">☁️</button>
+    <div id="user-avatar" onclick="showSection('profile')" title="View Profile">E</div>
   </div>
 </div>
 
@@ -699,11 +714,14 @@ function loadState() {
 
 // ── INIT ──
 loadState();
-if (state.loggedIn) {
-  showApp();
-} else {
-  updateGreeting();
-}
+document.addEventListener('DOMContentLoaded', () => {
+  if (state.loggedIn) {
+    showApp();
+  } else {
+    document.getElementById('page-login').style.display = 'flex';
+    updateGreeting();
+  }
+});
 
 function updateGreeting() {
   const h = new Date().getHours();
@@ -712,34 +730,310 @@ function updateGreeting() {
   if (el) el.textContent = `${g}, ${state.profile.name || 'Doctor'}`;
 }
 
-// ── LOGIN ──
-function googleLogin() {
-  // Simulate Google OAuth login
-  const name = state.profile.name || 'Dr. Gazi Md. Emran Ahmed';
-  state.loggedIn = true;
-  state.user.name = name;
-  state.user.initials = name.split(' ').map(w => w[0]).join('').substring(0, 2).toUpperCase();
-  saveState();
-  showApp();
-  toast('✅ Signed in successfully');
+// ══════════════════════════════════════════════════════
+// GOOGLE AUTH & DRIVE CONFIGURATION
+// ══════════════════════════════════════════════════════
+const GOOGLE_CLIENT_ID = '744204331957-vnium3sdih08go5iuv0rlpctvgqhjara.apps.googleusercontent.com';
+const DRIVE_SCOPES = 'https://www.googleapis.com/auth/drive.appdata https://www.googleapis.com/auth/drive.file';
+const DRIVE_FILE_NAME = 'prescribepro_backup.json';
+
+let googleAccessToken = null;
+let driveFileId = null;
+let gapiReady = false;
+let gsiReady = false;
+let tokenClient = null;
+
+// Called when gapi.js loads
+function gapiLoaded() {
+  gapi.load('client', async () => {
+    await gapi.client.init({});
+    await gapi.client.load('https://www.googleapis.com/discovery/v1/apis/drive/v3/rest');
+    gapiReady = true;
+    // If we have a stored token, try to restore it
+    if (state.driveToken) {
+      googleAccessToken = state.driveToken;
+      gapi.client.setToken({ access_token: googleAccessToken });
+      updateDriveStatus(true);
+    }
+  });
 }
 
+// Called when Google Identity Services (accounts.google.com/gsi/client) is ready
+window.addEventListener('load', () => {
+  // Render GSI button
+  if (window.google && google.accounts) {
+    initGSI();
+  } else {
+    // Wait for GSI script to load
+    const interval = setInterval(() => {
+      if (window.google && google.accounts) {
+        clearInterval(interval);
+        initGSI();
+      }
+    }, 200);
+  }
+});
+
+function initGSI() {
+  gsiReady = true;
+  // Render official Google Sign-In button
+  google.accounts.id.initialize({
+    client_id: GOOGLE_CLIENT_ID,
+    callback: handleGoogleCredential,
+    auto_select: false,
+    cancel_on_tap_outside: true,
+  });
+  google.accounts.id.renderButton(
+    document.getElementById('google-signin-btn'),
+    { theme: 'outline', size: 'large', width: 320, text: 'signin_with', shape: 'rectangular', logo_alignment: 'left' }
+  );
+  // Hide the manual fallback button since official button is rendered
+  const manualBtn = document.getElementById('btn-google-manual');
+  if (manualBtn) manualBtn.style.display = 'none';
+
+  // Initialize OAuth2 token client for Drive access (separate from ID token)
+  tokenClient = google.accounts.oauth2.initTokenClient({
+    client_id: GOOGLE_CLIENT_ID,
+    scope: DRIVE_SCOPES,
+    callback: handleDriveToken,
+  });
+}
+
+// Fallback button click — triggers Google sign-in popup
+function triggerGoogleSignIn() {
+  if (gsiReady && google.accounts) {
+    google.accounts.id.prompt((notification) => {
+      if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
+        // One-tap blocked, use OAuth popup instead
+        if (tokenClient) {
+          tokenClient.requestAccessToken({ prompt: 'consent' });
+        } else {
+          showLoginError('Google Sign-In is not ready yet. Please try again in a moment.');
+        }
+      }
+    });
+  } else {
+    showLoginError('Google Sign-In library is loading. Please wait a moment and try again.');
+  }
+}
+
+// Called by Google Identity Services with ID token after sign-in
+function handleGoogleCredential(response) {
+  try {
+    // Decode JWT payload (the ID token)
+    const payload = JSON.parse(atob(response.credential.split('.')[1]));
+    const fullName = payload.name || 'Doctor';
+    const email = payload.email || '';
+    const picture = payload.picture || '';
+
+    // Update state with real Google user info
+    state.loggedIn = true;
+    state.user.name = fullName;
+    state.user.email = email;
+    state.user.picture = picture;
+    state.user.initials = fullName.split(' ').filter(Boolean).map(w => w[0]).join('').substring(0, 2).toUpperCase();
+
+    // Pre-fill profile only if not already set
+    if (!state.profile.name || state.profile.name === 'Dr. Gazi Md. Emran Ahmed' && email) {
+      // Keep existing profile — don't override custom doctor profile
+    }
+
+    saveState();
+    showApp();
+    toast('✅ Signed in as ' + fullName);
+
+    // After login, request Drive access token for sync
+    if (tokenClient) {
+      setTimeout(() => tokenClient.requestAccessToken({ prompt: '' }), 1000);
+    }
+  } catch (e) {
+    showLoginError('Sign-in failed: ' + e.message);
+  }
+}
+
+// Called when OAuth2 Drive access token is granted
+function handleDriveToken(tokenResponse) {
+  if (tokenResponse.error) {
+    console.warn('Drive token error:', tokenResponse.error);
+    updateDriveStatus(false);
+    return;
+  }
+  googleAccessToken = tokenResponse.access_token;
+  state.driveToken = googleAccessToken;
+  if (gapiReady) gapi.client.setToken({ access_token: googleAccessToken });
+  updateDriveStatus(true);
+  saveState();
+  toast('☁️ Google Drive connected');
+}
+
+function showLoginError(msg) {
+  const el = document.getElementById('login-error');
+  if (el) { el.textContent = msg; el.style.display = 'block'; }
+}
+
+function updateDriveStatus(connected) {
+  const dot = document.getElementById('drive-dot');
+  const txt = document.getElementById('drive-status-text');
+  const wrap = document.getElementById('drive-status');
+  if (!dot || !txt || !wrap) return;
+  wrap.style.display = 'flex';
+  if (connected) {
+    dot.style.background = 'var(--success)';
+    dot.style.animation = 'pulse 2s infinite';
+    txt.textContent = 'Drive Connected';
+    txt.style.color = 'var(--success)';
+  } else {
+    dot.style.background = 'var(--text-3)';
+    dot.style.animation = 'none';
+    txt.textContent = 'Drive Disconnected';
+    txt.style.color = 'var(--text-3)';
+  }
+}
+
+// ══════════════════════════════════════════════════════
+// GOOGLE DRIVE SYNC — REAL IMPLEMENTATION
+// ══════════════════════════════════════════════════════
+async function syncDrive() {
+  if (!googleAccessToken) {
+    // Request Drive access first
+    if (tokenClient) {
+      tokenClient.requestAccessToken({ prompt: 'consent' });
+    } else {
+      toast('❌ Please sign in first to use Drive sync');
+    }
+    return;
+  }
+  if (!gapiReady) { toast('⏳ Drive API loading, please wait...'); return; }
+
+  const btn = document.getElementById('btn-sync');
+  if (btn) btn.textContent = '⏳';
+  toast('☁️ Syncing to Google Drive...');
+
+  try {
+    const data = JSON.stringify({ ...state, driveToken: undefined }); // don't save token in drive
+    const metadata = { name: DRIVE_FILE_NAME, mimeType: 'application/json', parents: driveFileId ? undefined : ['appDataFolder'] };
+
+    if (driveFileId) {
+      // Update existing file
+      await fetch(`https://www.googleapis.com/upload/drive/v3/files/${driveFileId}?uploadType=multipart`, {
+        method: 'PATCH',
+        headers: { 'Authorization': 'Bearer ' + googleAccessToken, 'Content-Type': 'multipart/related; boundary=BOUNDARY' },
+        body: buildMultipart(metadata, data)
+      });
+    } else {
+      // Search for existing file first
+      const searchRes = await fetch(
+        `https://www.googleapis.com/drive/v3/files?spaces=appDataFolder&q=name%3D%27${DRIVE_FILE_NAME}%27&fields=files(id,name)`,
+        { headers: { 'Authorization': 'Bearer ' + googleAccessToken } }
+      );
+      const searchData = await searchRes.json();
+      if (searchData.files && searchData.files.length > 0) {
+        driveFileId = searchData.files[0].id;
+        // Update
+        await fetch(`https://www.googleapis.com/upload/drive/v3/files/${driveFileId}?uploadType=multipart`, {
+          method: 'PATCH',
+          headers: { 'Authorization': 'Bearer ' + googleAccessToken, 'Content-Type': 'multipart/related; boundary=BOUNDARY' },
+          body: buildMultipart({name: DRIVE_FILE_NAME, mimeType: 'application/json'}, data)
+        });
+      } else {
+        // Create new
+        const createRes = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
+          method: 'POST',
+          headers: { 'Authorization': 'Bearer ' + googleAccessToken, 'Content-Type': 'multipart/related; boundary=BOUNDARY' },
+          body: buildMultipart(metadata, data)
+        });
+        const created = await createRes.json();
+        driveFileId = created.id;
+      }
+    }
+    updateDriveStatus(true);
+    toast('✅ Synced to Google Drive successfully');
+  } catch (e) {
+    toast('❌ Drive sync failed: ' + e.message);
+    updateDriveStatus(false);
+    console.error('Drive sync error:', e);
+  } finally {
+    if (btn) btn.textContent = '☁️';
+  }
+}
+
+async function restoreFromDrive() {
+  if (!googleAccessToken || !gapiReady) { toast('❌ Connect Drive first'); return; }
+  try {
+    toast('⏳ Restoring from Google Drive...');
+    const searchRes = await fetch(
+      `https://www.googleapis.com/drive/v3/files?spaces=appDataFolder&q=name%3D%27${DRIVE_FILE_NAME}%27&fields=files(id,name)`,
+      { headers: { 'Authorization': 'Bearer ' + googleAccessToken } }
+    );
+    const searchData = await searchRes.json();
+    if (!searchData.files || !searchData.files.length) { toast('ℹ️ No backup found on Drive'); return; }
+    driveFileId = searchData.files[0].id;
+    const fileRes = await fetch(
+      `https://www.googleapis.com/drive/v3/files/${driveFileId}?alt=media`,
+      { headers: { 'Authorization': 'Bearer ' + googleAccessToken } }
+    );
+    const backup = await fileRes.json();
+    const token = googleAccessToken; // preserve
+    Object.assign(state, backup);
+    state.driveToken = token;
+    saveState();
+    renderDashboard(); renderPatients(); renderAllRx();
+    toast('✅ Data restored from Google Drive');
+  } catch (e) {
+    toast('❌ Restore failed: ' + e.message);
+  }
+}
+
+function buildMultipart(metadata, body) {
+  const boundary = 'BOUNDARY';
+  return [
+    `--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n`,
+    JSON.stringify(metadata),
+    `\r\n--${boundary}\r\nContent-Type: application/json\r\n\r\n`,
+    body,
+    `\r\n--${boundary}--`
+  ].join('');
+}
+
+// ── LOGIN / LOGOUT ──
 function showApp() {
-  document.getElementById('page-login').classList.remove('active');
+  document.getElementById('page-login').style.display = 'none';
   document.getElementById('topnav').classList.remove('hidden');
   document.getElementById('main-layout').classList.remove('hidden');
-  document.getElementById('user-avatar').textContent = state.user.initials || 'Dr';
+  // Update avatar: use Google profile picture if available
+  const avatar = document.getElementById('user-avatar');
+  if (state.user.picture) {
+    avatar.innerHTML = `<img src="${state.user.picture}" style="width:100%;height:100%;border-radius:50%;object-fit:cover" onerror="this.parentElement.textContent='${state.user.initials||'Dr'}'">`;
+  } else {
+    avatar.textContent = state.user.initials || 'Dr';
+  }
   loadProfileForm();
   loadPadSettings();
   updateGreeting();
   renderDashboard();
   renderPatients();
   renderAllRx();
+  // Restore drive status
+  if (state.driveToken) updateDriveStatus(true);
 }
 
 function logOut() {
   if (!confirm('Sign out of PrescribePro Rx?')) return;
+  // Sign out from Google
+  if (window.google && google.accounts) {
+    google.accounts.id.disableAutoSelect();
+    if (state.user.email) {
+      google.accounts.id.revoke(state.user.email, () => {});
+    }
+  }
+  // Revoke Drive token
+  if (googleAccessToken && window.google && google.accounts) {
+    google.accounts.oauth2.revoke(googleAccessToken, () => {});
+  }
   state.loggedIn = false;
+  state.driveToken = null;
+  googleAccessToken = null;
+  driveFileId = null;
   saveState();
   location.reload();
 }
@@ -1291,18 +1585,7 @@ function deleteRx(id) {
   saveState(); renderAllRx(); renderDashboard(); toast('🗑️ Prescription deleted');
 }
 
-// ── GOOGLE DRIVE SYNC (simulated) ──
-function syncDrive() {
-  toast('☁️ Syncing to Google Drive...');
-  setTimeout(() => {
-    // In production, use Google Drive API to upload state JSON
-    // gapi.client.drive.files.create(...)
-    const data = JSON.stringify(state);
-    const blob = new Blob([data], { type: 'application/json' });
-    // Simulate sync
-    toast('✅ Synced to Google Drive');
-  }, 1500);
-}
+// syncDrive and restoreFromDrive defined above in Google Auth section
 
 // ── MODAL UTILS ──
 function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
