@@ -701,12 +701,23 @@ const DRUGS = [
   { name: 'Insulin (Mixtard)', generic: 'Biphasic Insulin', form: 'Injection' },
 ];
 
-// ── PERSISTENCE ──
+// ── PERSISTENCE — keyed per Google account so different doctors don't share data ──
+function getStorageKey() {
+  const email = (state.user && state.user.email) ? state.user.email : 'default';
+  return 'prescribepro_state_' + email;
+}
 function saveState() {
-  localStorage.setItem('prescribepro_state', JSON.stringify(state));
+  localStorage.setItem(getStorageKey(), JSON.stringify(state));
+  // Also keep a lightweight "last logged in email" pointer for seamless reload
+  if (state.user && state.user.email) {
+    localStorage.setItem('prescribepro_last_email', state.user.email);
+  }
 }
 function loadState() {
-  const s = localStorage.getItem('prescribepro_state');
+  // Try to load for the last known email first; fallback to legacy key
+  const lastEmail = localStorage.getItem('prescribepro_last_email');
+  const key = lastEmail ? ('prescribepro_state_' + lastEmail) : 'prescribepro_state';
+  const s = localStorage.getItem(key) || localStorage.getItem('prescribepro_state');
   if (s) {
     const loaded = JSON.parse(s);
     Object.assign(state, loaded);
@@ -734,7 +745,11 @@ function updateGreeting() {
 const GOOGLE_CLIENT_ID = '744204331957-vnium3sdih08go5iuv0rlpctvgqhjara.apps.googleusercontent.com';
 // Single combined scope: identity + Drive appdata — ONE popup, ONE consent screen
 const GOOGLE_SCOPES = 'openid profile email https://www.googleapis.com/auth/drive.appdata';
-const DRIVE_FILE_NAME = 'prescribepro_backup.json';
+// Drive file name is per-account so each doctor's profile is isolated
+function getDriveFileName() {
+  const email = (state.user && state.user.email) ? state.user.email.replace(/[^a-zA-Z0-9]/g, '_') : 'default';
+  return `prescribepro_backup_${email}.json`;
+}
 
 let googleAccessToken = null;
 let tokenClient = null;
@@ -802,11 +817,44 @@ function onTokenReceived(tokenResponse) {
   .then(r => r.json())
   .then(info => {
     const name = info.name || info.email || 'Doctor';
+    const email = info.email || '';
+    // Check if this is a different account from what was previously loaded
+    const previousEmail = state.user.email;
+    const isAccountSwitch = previousEmail && previousEmail !== email;
+
     state.loggedIn = true;
     state.user.name = name;
-    state.user.email = info.email || '';
+    state.user.email = email;
     state.user.picture = info.picture || '';
     state.user.initials = name.split(' ').filter(Boolean).map(w => w[0]).join('').substring(0, 2).toUpperCase();
+
+    // If switching accounts, reset to fresh state for the new account
+    // (Drive backup will restore their saved data below)
+    if (isAccountSwitch) {
+      state.patients = [];
+      state.prescriptions = [];
+      state.profile = {
+        name: name,
+        qualifications: '', designation: '', hospital: '',
+        reg: '', phone: '', address: '', hours: '',
+        footer: 'নিয়ম মাফিক ঔষধ খাবেন। ডাক্তারের পরামর্শ ব্যতীত ঔষধ পরিবর্তন নিষেধ।'
+      };
+      state.padSettings = { align: 'center', leftWidth: 165, color: '#1a3a5c', showHistory: true, showFindings: true, showInvestigation: true, showAdvice: true, showFollowup: true };
+    } else if (!previousEmail) {
+      // Check if there's a saved state for this account in localStorage already
+      const existingKey = 'prescribepro_state_' + email;
+      const existing = localStorage.getItem(existingKey);
+      if (existing) {
+        try {
+          const parsed = JSON.parse(existing);
+          if (parsed.patients) state.patients = parsed.patients;
+          if (parsed.prescriptions) state.prescriptions = parsed.prescriptions;
+          if (parsed.profile) state.profile = { ...state.profile, ...parsed.profile };
+          if (parsed.padSettings) state.padSettings = { ...state.padSettings, ...parsed.padSettings };
+        } catch(e) {}
+      }
+    }
+
     saveState();
     setLoginLoading(true, 'Loading your data from Drive…');
     loadFromDrive().then(() => {
@@ -881,25 +929,27 @@ async function driveRequest(url, options = {}) {
 }
 
 async function getDriveFileId() {
+  const fileName = getDriveFileName();
   const res = await driveRequest(
-    `https://www.googleapis.com/drive/v3/files?spaces=appDataFolder&q=name='${DRIVE_FILE_NAME}'&fields=files(id)`
+    `https://www.googleapis.com/drive/v3/files?spaces=appDataFolder&q=name='${fileName}'&fields=files(id)`
   );
   const data = await res.json();
   return (data.files && data.files[0]) ? data.files[0].id : null;
 }
 
-async function syncDrive() {
+async function syncDrive(silent = false) {
   if (!googleAccessToken) {
-    toast('⚠️ Reconnecting to Drive…');
-    try { await refreshDriveTokenSilent(); } catch(e) { toast('❌ Please sign out and back in to reconnect Drive.'); return; }
+    if (!silent) toast('⚠️ Reconnecting to Drive…');
+    try { await refreshDriveTokenSilent(); } catch(e) { if (!silent) toast('❌ Please sign out and back in to reconnect Drive.'); return; }
   }
-  toast('☁️ Syncing…');
+  if (!silent) toast('☁️ Syncing…');
   try {
     const fileId = await getDriveFileId();
+    const fileName = getDriveFileName();
     const { currentRx, editingPatientId, ...backupData } = state;
     const content = JSON.stringify(backupData);
     const boundary = 'ppro_' + Date.now();
-    const meta = JSON.stringify(fileId ? { name: DRIVE_FILE_NAME } : { name: DRIVE_FILE_NAME, parents: ['appDataFolder'] });
+    const meta = JSON.stringify(fileId ? { name: fileName } : { name: fileName, parents: ['appDataFolder'] });
     const body =
       `--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${meta}\r\n` +
       `--${boundary}\r\nContent-Type: application/json\r\n\r\n${content}\r\n` +
@@ -912,11 +962,12 @@ async function syncDrive() {
     );
     if (!res.ok) throw new Error(await res.text());
     updateDriveStatus(true);
-    toast('✅ Synced to Google Drive');
+    if (!silent) toast('✅ Synced to Google Drive');
   } catch(e) {
     console.error('Drive sync error:', e);
     updateDriveStatus(false);
-    toast('❌ Sync failed. Check your connection.');
+    if (!silent) toast('❌ Sync failed. Check your connection.');
+    throw e; // re-throw so callers (like saveProfile) can handle
   }
 }
 
@@ -924,15 +975,21 @@ async function loadFromDrive() {
   if (!googleAccessToken) return;
   try {
     const fileId = await getDriveFileId();
-    if (!fileId) return;
+    if (!fileId) return; // No backup yet for this account — first time user
     const res = await driveRequest(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`);
     if (!res.ok) return;
     const d = await res.json();
+    // Restore all data fields from Drive backup (profile is the critical one)
     if (d.patients)      state.patients = d.patients;
     if (d.prescriptions) state.prescriptions = d.prescriptions;
-    if (d.profile)       state.profile = d.profile;
-    if (d.padSettings)   state.padSettings = d.padSettings;
-    if (d.user)          Object.assign(state.user, d.user);
+    if (d.profile)       state.profile = { ...state.profile, ...d.profile };
+    if (d.padSettings)   state.padSettings = { ...state.padSettings, ...d.padSettings };
+    // user.email/picture/initials come from fresh Google auth, not Drive backup
+    if (d.user) {
+      const { email, picture, ...safeUserFields } = d.user;
+      Object.assign(state.user, safeUserFields);
+    }
+    // Save under the correct per-account key now that email is set
     saveState();
   } catch(e) {
     console.warn('Drive load skipped:', e.message || e);
@@ -973,6 +1030,8 @@ function logOut() {
   }
   googleAccessToken = null;
   tokenClient = null;
+  // Clear the last email pointer so next load starts fresh
+  localStorage.removeItem('prescribepro_last_email');
   state.loggedIn = false;
   saveState();
   location.reload();
@@ -1003,7 +1062,16 @@ function saveProfile() {
   state.user.initials = state.profile.name.split(' ').filter(Boolean).map(w => w[0]).join('').substring(0, 2).toUpperCase();
   document.getElementById('user-avatar').textContent = state.user.initials;
   saveState();
-  toast('✅ Profile saved');
+  // Auto-backup profile to Google Drive so it's restored on re-login
+  if (googleAccessToken) {
+    syncDrive(true).then(() => {
+      toast('✅ Profile saved & synced to Drive');
+    }).catch(() => {
+      toast('✅ Profile saved locally (Drive sync failed — try ☁️)');
+    });
+  } else {
+    toast('✅ Profile saved (not synced — sign in to Drive to backup)');
+  }
 }
 
 function loadProfileForm() {
@@ -1028,7 +1096,15 @@ function savePadSettings() {
   };
   saveState();
   updatePadPreview();
-  toast('✅ Pad settings saved');
+  if (googleAccessToken) {
+    syncDrive(true).then(() => {
+      toast('✅ Pad settings saved & synced to Drive');
+    }).catch(() => {
+      toast('✅ Pad settings saved locally (Drive sync failed — try ☁️)');
+    });
+  } else {
+    toast('✅ Pad settings saved');
+  }
 }
 
 function loadPadSettings() {
