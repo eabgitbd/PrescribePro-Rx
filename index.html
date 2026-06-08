@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -9,571 +9,571 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script src="https://accounts.google.com/gsi/client" async></script>
 <style>
- :root {
-   --bg: #f7f6f2;
-   --surface: #ffffff;
-   --surface2: #f0ede6;
-   --border: #d8d3c8;
-   --border-strong: #b0a898;
-   --text: #1a1814;
-   --text-2: #5a5448;
-   --text-3: #8a8278;
-   --accent: #2c5f8a;
-   --accent-light: #e8f0f8;
-   --accent-hover: #1e4a6e;
-   --danger: #c0392b;
-   --success: #27ae60;
-   --warn: #e67e22;
-   --rx-blue: #1a3a5c;
- }
- * { box-sizing: border-box; margin: 0; padding: 0; }
- body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
+  :root {
+    --bg: #f7f6f2;
+    --surface: #ffffff;
+    --surface2: #f0ede6;
+    --border: #d8d3c8;
+    --border-strong: #b0a898;
+    --text: #1a1814;
+    --text-2: #5a5448;
+    --text-3: #8a8278;
+    --accent: #2c5f8a;
+    --accent-light: #e8f0f8;
+    --accent-hover: #1e4a6e;
+    --danger: #c0392b;
+    --success: #27ae60;
+    --warn: #e67e22;
+    --rx-blue: #1a3a5c;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'DM Sans', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; }
 
- /* ── TOP NAV ── */
- #topnav {
-   background: var(--surface);
-   border-bottom: 1px solid var(--border);
-   display: flex; align-items: center; justify-content: space-between;
-   padding: 0 28px; height: 56px; position: sticky; top: 0; z-index: 100;
-   box-shadow: 0 1px 4px rgba(0,0,0,.06);
- }
- .nav-brand { font-family: 'Crimson Pro', serif; font-size: 22px; font-weight: 700; color: var(--rx-blue); letter-spacing: -.3px; }
- .nav-brand span { color: var(--accent); }
- .nav-right { display: flex; align-items: center; gap: 12px; }
- .nav-tabs { display: flex; gap: 4px; }
- .nav-tab { padding: 6px 16px; border-radius: 6px; border: none; background: transparent; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; color: var(--text-2); cursor: pointer; transition: all .15s; }
- .nav-tab:hover { background: var(--surface2); color: var(--text); }
- .nav-tab.active { background: var(--accent-light); color: var(--accent); }
- .btn-icon { width: 36px; height: 36px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--text-2); font-size: 16px; transition: all .15s; }
- .btn-icon:hover { background: var(--surface2); color: var(--text); }
- #user-avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--accent); color: white; font-weight: 600; font-size: 14px; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 2px solid var(--accent-light); }
+  /* ── TOP NAV ── */
+  #topnav {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 28px; height: 56px; position: sticky; top: 0; z-index: 100;
+    box-shadow: 0 1px 4px rgba(0,0,0,.06);
+  }
+  .nav-brand { font-family: 'Crimson Pro', serif; font-size: 22px; font-weight: 700; color: var(--rx-blue); letter-spacing: -.3px; }
+  .nav-brand span { color: var(--accent); }
+  .nav-right { display: flex; align-items: center; gap: 12px; }
+  .nav-tabs { display: flex; gap: 4px; }
+  .nav-tab { padding: 6px 16px; border-radius: 6px; border: none; background: transparent; font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500; color: var(--text-2); cursor: pointer; transition: all .15s; }
+  .nav-tab:hover { background: var(--surface2); color: var(--text); }
+  .nav-tab.active { background: var(--accent-light); color: var(--accent); }
+  .btn-icon { width: 36px; height: 36px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface); cursor: pointer; display: flex; align-items: center; justify-content: center; color: var(--text-2); font-size: 16px; transition: all .15s; }
+  .btn-icon:hover { background: var(--surface2); color: var(--text); }
+  #user-avatar { width: 36px; height: 36px; border-radius: 50%; background: var(--accent); color: white; font-weight: 600; font-size: 14px; display: flex; align-items: center; justify-content: center; cursor: pointer; border: 2px solid var(--accent-light); }
 
- /* ── PAGES ── */
- .page { display: none; }
- .page.active { display: block; }
+  /* ── PAGES ── */
+  .page { display: none; }
+  .page.active { display: block; }
 
- /* ── LOGIN PAGE ── */
- #page-login {
-   min-height: 100vh; display: flex !important; align-items: center; justify-content: center;
-   background: linear-gradient(135deg, #e8f0f8 0%, #f7f6f2 50%, #eef2ea 100%);
- }
- .login-card {
-   background: var(--surface); border-radius: 20px; padding: 56px 48px;
-   width: 420px; box-shadow: 0 8px 40px rgba(0,0,0,.1); text-align: center;
- }
- .login-logo { font-family: 'Crimson Pro', serif; font-size: 36px; font-weight: 700; color: var(--rx-blue); margin-bottom: 4px; }
- .login-logo span { color: var(--accent); }
- .login-sub { color: var(--text-3); font-size: 13px; margin-bottom: 40px; }
- .login-title { font-size: 18px; font-weight: 600; margin-bottom: 24px; color: var(--text); }
- .btn-google {
-   width: 100%; padding: 14px; border-radius: 10px; border: 1.5px solid var(--border);
-   background: var(--surface); font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 500;
-   cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 12px;
-   transition: all .2s; color: var(--text);
- }
- .btn-google:hover { background: var(--surface2); border-color: var(--border-strong); box-shadow: 0 2px 8px rgba(0,0,0,.08); }
- .google-icon { width: 20px; height: 20px; }
- .login-note { font-size: 11.5px; color: var(--text-3); margin-top: 20px; line-height: 1.6; }
+  /* ── LOGIN PAGE ── */
+  #page-login {
+    min-height: 100vh; display: flex !important; align-items: center; justify-content: center;
+    background: linear-gradient(135deg, #e8f0f8 0%, #f7f6f2 50%, #eef2ea 100%);
+  }
+  .login-card {
+    background: var(--surface); border-radius: 20px; padding: 56px 48px;
+    width: 420px; box-shadow: 0 8px 40px rgba(0,0,0,.1); text-align: center;
+  }
+  .login-logo { font-family: 'Crimson Pro', serif; font-size: 36px; font-weight: 700; color: var(--rx-blue); margin-bottom: 4px; }
+  .login-logo span { color: var(--accent); }
+  .login-sub { color: var(--text-3); font-size: 13px; margin-bottom: 40px; }
+  .login-title { font-size: 18px; font-weight: 600; margin-bottom: 24px; color: var(--text); }
+  .btn-google {
+    width: 100%; padding: 14px; border-radius: 10px; border: 1.5px solid var(--border);
+    background: var(--surface); font-family: 'DM Sans', sans-serif; font-size: 15px; font-weight: 500;
+    cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 12px;
+    transition: all .2s; color: var(--text);
+  }
+  .btn-google:hover { background: var(--surface2); border-color: var(--border-strong); box-shadow: 0 2px 8px rgba(0,0,0,.08); }
+  .google-icon { width: 20px; height: 20px; }
+  .login-note { font-size: 11.5px; color: var(--text-3); margin-top: 20px; line-height: 1.6; }
 
- /* ── MAIN LAYOUT ── */
- #main-layout { display: flex; min-height: calc(100vh - 56px); }
- #sidebar {
-   width: 220px; background: var(--surface); border-right: 1px solid var(--border);
-   padding: 20px 12px; flex-shrink: 0; display: flex; flex-direction: column; gap: 4px;
- }
- .sidebar-section { font-size: 10px; font-weight: 600; letter-spacing: 1.2px; color: var(--text-3); text-transform: uppercase; padding: 8px 8px 4px; }
- .sidebar-btn {
-   display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 8px;
-   border: none; background: transparent; font-family: 'DM Sans', sans-serif;
-   font-size: 13.5px; font-weight: 400; color: var(--text-2); cursor: pointer; width: 100%; text-align: left; transition: all .15s;
- }
- .sidebar-btn:hover { background: var(--surface2); color: var(--text); }
- .sidebar-btn.active { background: var(--accent-light); color: var(--accent); font-weight: 500; }
- .sidebar-btn .ico { font-size: 16px; width: 20px; text-align: center; }
- #content { flex: 1; padding: 28px 32px; overflow-y: auto; }
+  /* ── MAIN LAYOUT ── */
+  #main-layout { display: flex; min-height: calc(100vh - 56px); }
+  #sidebar {
+    width: 220px; background: var(--surface); border-right: 1px solid var(--border);
+    padding: 20px 12px; flex-shrink: 0; display: flex; flex-direction: column; gap: 4px;
+  }
+  .sidebar-section { font-size: 10px; font-weight: 600; letter-spacing: 1.2px; color: var(--text-3); text-transform: uppercase; padding: 8px 8px 4px; }
+  .sidebar-btn {
+    display: flex; align-items: center; gap: 10px; padding: 9px 12px; border-radius: 8px;
+    border: none; background: transparent; font-family: 'DM Sans', sans-serif;
+    font-size: 13.5px; font-weight: 400; color: var(--text-2); cursor: pointer; width: 100%; text-align: left; transition: all .15s;
+  }
+  .sidebar-btn:hover { background: var(--surface2); color: var(--text); }
+  .sidebar-btn.active { background: var(--accent-light); color: var(--accent); font-weight: 500; }
+  .sidebar-btn .ico { font-size: 16px; width: 20px; text-align: center; }
+  #content { flex: 1; padding: 28px 32px; overflow-y: auto; }
 
- /* ── SECTION HEADERS ── */
- .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
- .section-title { font-family: 'Crimson Pro', serif; font-size: 26px; font-weight: 600; color: var(--rx-blue); }
- .section-sub { font-size: 13px; color: var(--text-3); margin-top: 2px; }
+  /* ── SECTION HEADERS ── */
+  .section-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
+  .section-title { font-family: 'Crimson Pro', serif; font-size: 26px; font-weight: 600; color: var(--rx-blue); }
+  .section-sub { font-size: 13px; color: var(--text-3); margin-top: 2px; }
 
- /* ── BUTTONS ── */
- .btn { padding: 9px 18px; border-radius: 8px; border: none; font-family: 'DM Sans', sans-serif; font-size: 13.5px; font-weight: 500; cursor: pointer; transition: all .15s; display: inline-flex; align-items: center; gap: 7px; }
- .btn-primary { background: var(--accent); color: white; }
- .btn-primary:hover { background: var(--accent-hover); }
- .btn-secondary { background: var(--surface); color: var(--text); border: 1px solid var(--border); }
- .btn-secondary:hover { background: var(--surface2); }
- .btn-danger { background: #fdf0ee; color: var(--danger); border: 1px solid #f5c6c2; }
- .btn-danger:hover { background: #fbe0dc; }
- .btn-sm { padding: 6px 12px; font-size: 12px; }
- .btn-success { background: var(--success); color: white; }
- .btn-success:hover { background: #1e8a4e; }
+  /* ── BUTTONS ── */
+  .btn { padding: 9px 18px; border-radius: 8px; border: none; font-family: 'DM Sans', sans-serif; font-size: 13.5px; font-weight: 500; cursor: pointer; transition: all .15s; display: inline-flex; align-items: center; gap: 7px; }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-primary:hover { background: var(--accent-hover); }
+  .btn-secondary { background: var(--surface); color: var(--text); border: 1px solid var(--border); }
+  .btn-secondary:hover { background: var(--surface2); }
+  .btn-danger { background: #fdf0ee; color: var(--danger); border: 1px solid #f5c6c2; }
+  .btn-danger:hover { background: #fbe0dc; }
+  .btn-sm { padding: 6px 12px; font-size: 12px; }
+  .btn-success { background: var(--success); color: white; }
+  .btn-success:hover { background: #1e8a4e; }
 
- /* ── CARDS ── */
- .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 24px; }
- .card + .card { margin-top: 16px; }
+  /* ── CARDS ── */
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 24px; }
+  .card + .card { margin-top: 16px; }
 
- /* ── FORM ELEMENTS ── */
- .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
- .form-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
- .form-group { display: flex; flex-direction: column; gap: 5px; }
- .form-group.full { grid-column: 1 / -1; }
- label { font-size: 12px; font-weight: 500; color: var(--text-2); letter-spacing: .2px; }
- input, select, textarea {
-   padding: 9px 12px; border: 1px solid var(--border); border-radius: 8px;
-   font-family: 'DM Sans', sans-serif; font-size: 13.5px; color: var(--text);
-   background: var(--surface); transition: border-color .15s; outline: none;
-   width: 100%;
- }
- input:focus, select:focus, textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(44,95,138,.1); }
- textarea { resize: vertical; min-height: 72px; }
- .form-row { display: flex; gap: 12px; align-items: flex-end; }
+  /* ── FORM ELEMENTS ── */
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .form-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }
+  .form-group { display: flex; flex-direction: column; gap: 5px; }
+  .form-group.full { grid-column: 1 / -1; }
+  label { font-size: 12px; font-weight: 500; color: var(--text-2); letter-spacing: .2px; }
+  input, select, textarea {
+    padding: 9px 12px; border: 1px solid var(--border); border-radius: 8px;
+    font-family: 'DM Sans', sans-serif; font-size: 13.5px; color: var(--text);
+    background: var(--surface); transition: border-color .15s; outline: none;
+    width: 100%;
+  }
+  input:focus, select:focus, textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(44,95,138,.1); }
+  textarea { resize: vertical; min-height: 72px; }
+  .form-row { display: flex; gap: 12px; align-items: flex-end; }
 
- /* ── PATIENT LIST ── */
- .patient-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
- .patient-card {
-   background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
-   padding: 18px; cursor: pointer; transition: all .2s; position: relative;
- }
- .patient-card:hover { border-color: var(--accent); box-shadow: 0 4px 16px rgba(44,95,138,.12); transform: translateY(-1px); }
- .patient-avatar { width: 44px; height: 44px; border-radius: 50%; background: var(--accent-light); color: var(--accent); font-weight: 700; font-size: 18px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px; }
- .patient-avatar.female { background: #fce8f3; color: #9b2d7a; }
- .patient-name { font-weight: 600; font-size: 15px; color: var(--text); margin-bottom: 3px; }
- .patient-meta { font-size: 12px; color: var(--text-3); display: flex; gap: 8px; }
- .patient-badge { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 20px; font-size: 11px; font-weight: 500; }
- .badge-m { background: #e8f0f8; color: var(--accent); }
- .badge-f { background: #fce8f3; color: #9b2d7a; }
- .patient-actions { position: absolute; top: 12px; right: 12px; display: flex; gap: 6px; opacity: 0; transition: opacity .2s; }
- .patient-card:hover .patient-actions { opacity: 1; }
+  /* ── PATIENT LIST ── */
+  .patient-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
+  .patient-card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 12px;
+    padding: 18px; cursor: pointer; transition: all .2s; position: relative;
+  }
+  .patient-card:hover { border-color: var(--accent); box-shadow: 0 4px 16px rgba(44,95,138,.12); transform: translateY(-1px); }
+  .patient-avatar { width: 44px; height: 44px; border-radius: 50%; background: var(--accent-light); color: var(--accent); font-weight: 700; font-size: 18px; display: flex; align-items: center; justify-content: center; margin-bottom: 12px; }
+  .patient-avatar.female { background: #fce8f3; color: #9b2d7a; }
+  .patient-name { font-weight: 600; font-size: 15px; color: var(--text); margin-bottom: 3px; }
+  .patient-meta { font-size: 12px; color: var(--text-3); display: flex; gap: 8px; }
+  .patient-badge { display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 20px; font-size: 11px; font-weight: 500; }
+  .badge-m { background: #e8f0f8; color: var(--accent); }
+  .badge-f { background: #fce8f3; color: #9b2d7a; }
+  .patient-actions { position: absolute; top: 12px; right: 12px; display: flex; gap: 6px; opacity: 0; transition: opacity .2s; }
+  .patient-card:hover .patient-actions { opacity: 1; }
 
- /* ── SEARCH BAR ── */
- .search-bar { position: relative; }
- .search-bar input { padding-left: 36px; }
- .search-bar::before { content: '🔍'; position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-size: 13px; }
+  /* ── SEARCH BAR ── */
+  .search-bar { position: relative; }
+  .search-bar input { padding-left: 36px; }
+  .search-bar::before { content: '🔍'; position: absolute; left: 10px; top: 50%; transform: translateY(-50%); font-size: 13px; }
 
- /* ── DRUG ENTRY ── */
- .drug-table { width: 100%; border-collapse: collapse; }
- .drug-table th { font-size: 11px; font-weight: 600; letter-spacing: .5px; color: var(--text-3); text-transform: uppercase; padding: 8px 10px; background: var(--surface2); text-align: left; border-bottom: 1px solid var(--border); }
- .drug-table td { padding: 6px 8px; border-bottom: 1px solid var(--border); vertical-align: middle; }
- .drug-table tr:last-child td { border-bottom: none; }
- .drug-table input, .drug-table select { padding: 6px 8px; font-size: 12.5px; }
- .drug-row { position: relative; }
- .drug-name-wrap { position: relative; }
- .drug-autocomplete {
-   position: absolute; top: 100%; left: 0; right: 0; background: white;
-   border: 1px solid var(--border); border-top: none; border-radius: 0 0 8px 8px;
-   max-height: 250px; overflow-y: auto; z-index: 200; box-shadow: 0 4px 16px rgba(0,0,0,.15);
- }
- .drug-ac-item { padding: 10px 12px; cursor: pointer; border-bottom: 1px solid var(--border); transition: background .15s; }
- .drug-ac-item:hover { background: var(--accent-light); }
- .drug-ac-item:last-child { border-bottom: none; }
- 
- .del-btn { background: none; border: none; color: var(--danger); cursor: pointer; font-size: 16px; padding: 2px 6px; border-radius: 4px; }
- .del-btn:hover { background: #fdf0ee; }
+  /* ── DRUG ENTRY ── */
+  .drug-table { width: 100%; border-collapse: collapse; }
+  .drug-table th { font-size: 11px; font-weight: 600; letter-spacing: .5px; color: var(--text-3); text-transform: uppercase; padding: 8px 10px; background: var(--surface2); text-align: left; border-bottom: 1px solid var(--border); }
+  .drug-table td { padding: 6px 8px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+  .drug-table tr:last-child td { border-bottom: none; }
+  .drug-table input, .drug-table select { padding: 6px 8px; font-size: 12.5px; }
+  .drug-row { position: relative; }
+  .drug-name-wrap { position: relative; }
+  .drug-autocomplete {
+    position: absolute; top: 100%; left: 0; right: 0; background: white;
+    border: 1px solid var(--border); border-top: none; border-radius: 0 0 8px 8px;
+    max-height: 250px; overflow-y: auto; z-index: 200; box-shadow: 0 4px 16px rgba(0,0,0,.15);
+  }
+  .drug-ac-item { padding: 10px 12px; cursor: pointer; border-bottom: 1px solid var(--border); transition: background .15s; }
+  .drug-ac-item:hover { background: var(--accent-light); }
+  .drug-ac-item:last-child { border-bottom: none; }
+  
+  .del-btn { background: none; border: none; color: var(--danger); cursor: pointer; font-size: 16px; padding: 2px 6px; border-radius: 4px; }
+  .del-btn:hover { background: #fdf0ee; }
 
- /* ── MODALS ── */
- .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.4); z-index: 500; display: flex; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(4px); }
- .modal { background: var(--surface); border-radius: 16px; width: 100%; max-width: 640px; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,.2); }
- .modal-lg { max-width: 900px; }
- .modal-header { padding: 24px 28px 0; display: flex; justify-content: space-between; align-items: flex-start; }
- .modal-title { font-family: 'Crimson Pro', serif; font-size: 22px; font-weight: 600; color: var(--rx-blue); }
- .modal-close { background: none; border: none; font-size: 20px; cursor: pointer; color: var(--text-3); line-height: 1; padding: 4px; border-radius: 6px; }
- .modal-close:hover { background: var(--surface2); color: var(--text); }
- .modal-body { padding: 20px 28px 28px; }
- .modal-footer { padding: 0 28px 24px; display: flex; justify-content: flex-end; gap: 10px; }
+  /* ── MODALS ── */
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.4); z-index: 500; display: flex; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(4px); }
+  .modal { background: var(--surface); border-radius: 16px; width: 100%; max-width: 640px; max-height: 90vh; overflow-y: auto; box-shadow: 0 20px 60px rgba(0,0,0,.2); }
+  .modal-lg { max-width: 900px; }
+  .modal-header { padding: 24px 28px 0; display: flex; justify-content: space-between; align-items: flex-start; }
+  .modal-title { font-family: 'Crimson Pro', serif; font-size: 22px; font-weight: 600; color: var(--rx-blue); }
+  .modal-close { background: none; border: none; font-size: 20px; cursor: pointer; color: var(--text-3); line-height: 1; padding: 4px; border-radius: 6px; }
+  .modal-close:hover { background: var(--surface2); color: var(--text); }
+  .modal-body { padding: 20px 28px 28px; }
+  .modal-footer { padding: 0 28px 24px; display: flex; justify-content: flex-end; gap: 10px; }
 
- /* ── PRESCRIPTION PREVIEW (A4) ── */
- #rx-preview-wrap { background: #666; padding: 24px; display: flex; justify-content: center; }
- #rx-a4 {
-   width: 794px; min-height: 1123px; background: white;
-   font-family: 'Crimson Pro', serif;
-   padding: 48px 52px 52px;
-   position: relative; box-shadow: 0 8px 32px rgba(0,0,0,.3);
-   color: #111;
- }
- .rx-header { text-align: center; margin-bottom: 0; }
- .rx-doc-name { font-size: 22px; font-weight: 700; letter-spacing: -.2px; color: #111; }
- .rx-doc-quals { font-size: 12.5px; color: #333; line-height: 1.5; font-family: 'DM Sans', sans-serif; }
- .rx-divider { border: none; border-top: 1.5px solid #111; margin: 8px 0 6px; }
- .rx-patient-row { display: flex; gap: 0; font-size: 13px; font-family: 'DM Sans', sans-serif; border-bottom: 1px solid #111; padding-bottom: 6px; margin-bottom: 0; }
- .rx-pfield { flex: 1; }
- .rx-pfield strong { margin-right: 4px; }
- .rx-body { display: flex; min-height: 800px; border-bottom: 1px solid #111; }
- .rx-left { width: 165px; flex-shrink: 0; border-right: 1px solid #111; padding: 12px 12px 12px 0; display: flex; flex-direction: column; gap: 24px; }
- .rx-section-label { font-size: 11.5px; font-weight: 700; font-family: 'DM Sans', sans-serif; letter-spacing: .8px; text-transform: uppercase; color: #111; }
- .rx-section-content { font-size: 12.5px; font-family: 'DM Sans', sans-serif; color: #222; line-height: 1.55; white-space: pre-wrap; margin-top: 4px; }
- .rx-right { flex: 1; padding: 12px 0 12px 16px; }
- .rx-rx-title { font-size: 18px; font-weight: 700; color: #111; margin-bottom: 10px; }
- .rx-drug-item { margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px dotted #ccc; }
- .rx-drug-item:last-child { border-bottom: none; }
- .rx-drug-name { font-size: 14px; font-weight: 600; color: #111; }
- .rx-drug-name span { font-size: 12px; font-weight: 400; color: #555; font-family: 'DM Sans', sans-serif; }
- .rx-drug-sig { font-size: 12.5px; color: #333; font-family: 'DM Sans', sans-serif; margin-top: 2px; }
- .rx-advice-section { margin-top: 16px; }
- .rx-advice-label { font-size: 11px; font-weight: 700; font-family: 'DM Sans', sans-serif; letter-spacing: .8px; text-transform: uppercase; color: #111; margin-bottom: 4px; }
- .rx-advice-text { font-size: 12.5px; font-family: 'DM Sans', sans-serif; color: #333; line-height: 1.6; }
- .rx-footer-note { text-align: center; font-size: 13px; font-family: 'DM Sans', sans-serif; padding-top: 10px; color: #333; }
- .rx-followup { font-size: 12.5px; font-family: 'DM Sans', sans-serif; color: #333; margin-top: 8px; }
+  /* ── PRESCRIPTION PREVIEW (A4) ── */
+  #rx-preview-wrap { background: #666; padding: 24px; display: flex; justify-content: center; }
+  #rx-a4 {
+    width: 794px; min-height: 1123px; background: white;
+    font-family: 'Crimson Pro', serif;
+    padding: 48px 52px 52px;
+    position: relative; box-shadow: 0 8px 32px rgba(0,0,0,.3);
+    color: #111;
+  }
+  .rx-header { text-align: center; margin-bottom: 0; }
+  .rx-doc-name { font-size: 22px; font-weight: 700; letter-spacing: -.2px; color: #111; }
+  .rx-doc-quals { font-size: 12.5px; color: #333; line-height: 1.5; font-family: 'DM Sans', sans-serif; }
+  .rx-divider { border: none; border-top: 1.5px solid #111; margin: 8px 0 6px; }
+  .rx-patient-row { display: flex; gap: 0; font-size: 13px; font-family: 'DM Sans', sans-serif; border-bottom: 1px solid #111; padding-bottom: 6px; margin-bottom: 0; }
+  .rx-pfield { flex: 1; }
+  .rx-pfield strong { margin-right: 4px; }
+  .rx-body { display: flex; min-height: 800px; border-bottom: 1px solid #111; }
+  .rx-left { width: 165px; flex-shrink: 0; border-right: 1px solid #111; padding: 12px 12px 12px 0; display: flex; flex-direction: column; gap: 24px; }
+  .rx-section-label { font-size: 11.5px; font-weight: 700; font-family: 'DM Sans', sans-serif; letter-spacing: .8px; text-transform: uppercase; color: #111; }
+  .rx-section-content { font-size: 12.5px; font-family: 'DM Sans', sans-serif; color: #222; line-height: 1.55; white-space: pre-wrap; margin-top: 4px; }
+  .rx-right { flex: 1; padding: 12px 0 12px 16px; }
+  .rx-rx-title { font-size: 18px; font-weight: 700; color: #111; margin-bottom: 10px; }
+  .rx-drug-item { margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px dotted #ccc; }
+  .rx-drug-item:last-child { border-bottom: none; }
+  .rx-drug-name { font-size: 14px; font-weight: 600; color: #111; }
+  .rx-drug-name span { font-size: 12px; font-weight: 400; color: #555; font-family: 'DM Sans', sans-serif; }
+  .rx-drug-sig { font-size: 12.5px; color: #333; font-family: 'DM Sans', sans-serif; margin-top: 2px; }
+  .rx-advice-section { margin-top: 16px; }
+  .rx-advice-label { font-size: 11px; font-weight: 700; font-family: 'DM Sans', sans-serif; letter-spacing: .8px; text-transform: uppercase; color: #111; margin-bottom: 4px; }
+  .rx-advice-text { font-size: 12.5px; font-family: 'DM Sans', sans-serif; color: #333; line-height: 1.6; }
+  .rx-footer-note { text-align: center; font-size: 13px; font-family: 'DM Sans', sans-serif; padding-top: 10px; color: #333; }
+  .rx-followup { font-size: 12.5px; font-family: 'DM Sans', sans-serif; color: #333; margin-top: 8px; }
 
- /* ── PROFILE PAGE ── */
- .profile-header-card { background: linear-gradient(135deg, var(--rx-blue) 0%, var(--accent) 100%); border-radius: 16px; padding: 32px; color: white; display: flex; gap: 24px; align-items: center; margin-bottom: 24px; }
- .profile-avatar-lg { width: 80px; height: 80px; border-radius: 50%; background: rgba(255,255,255,.2); color: white; font-size: 32px; font-weight: 700; display: flex; align-items: center; justify-content: center; border: 3px solid rgba(255,255,255,.4); }
- .profile-info h2 { font-family: 'Crimson Pro', serif; font-size: 26px; font-weight: 700; }
- .profile-info p { opacity: .8; font-size: 14px; }
+  /* ── PROFILE PAGE ── */
+  .profile-header-card { background: linear-gradient(135deg, var(--rx-blue) 0%, var(--accent) 100%); border-radius: 16px; padding: 32px; color: white; display: flex; gap: 24px; align-items: center; margin-bottom: 24px; }
+  .profile-avatar-lg { width: 80px; height: 80px; border-radius: 50%; background: rgba(255,255,255,.2); color: white; font-size: 32px; font-weight: 700; display: flex; align-items: center; justify-content: center; border: 3px solid rgba(255,255,255,.4); }
+  .profile-info h2 { font-family: 'Crimson Pro', serif; font-size: 26px; font-weight: 700; }
+  .profile-info p { opacity: .8; font-size: 14px; }
 
- /* ── PAD PREVIEW ── */
- .pad-preview { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
- .pad-preview-inner { padding: 16px; background: white; }
+  /* ── PAD PREVIEW ── */
+  .pad-preview { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+  .pad-preview-inner { padding: 16px; background: white; }
 
- /* ── TOAST ── */
- #toast { position: fixed; bottom: 28px; right: 28px; background: #1a1814; color: white; padding: 12px 20px; border-radius: 10px; font-size: 14px; z-index: 9999; opacity: 0; transform: translateY(10px); transition: all .3s; pointer-events: none; }
- #toast.show { opacity: 1; transform: translateY(0); }
+  /* ── TOAST ── */
+  #toast { position: fixed; bottom: 28px; right: 28px; background: #1a1814; color: white; padding: 12px 20px; border-radius: 10px; font-size: 14px; z-index: 9999; opacity: 0; transform: translateY(10px); transition: all .3s; pointer-events: none; }
+  #toast.show { opacity: 1; transform: translateY(0); }
 
- /* ── EMPTY STATES ── */
- .empty-state { text-align: center; padding: 60px 20px; color: var(--text-3); }
- .empty-state .ico { font-size: 48px; margin-bottom: 12px; }
- .empty-state h3 { font-size: 18px; color: var(--text-2); margin-bottom: 6px; }
+  /* ── EMPTY STATES ── */
+  .empty-state { text-align: center; padding: 60px 20px; color: var(--text-3); }
+  .empty-state .ico { font-size: 48px; margin-bottom: 12px; }
+  .empty-state h3 { font-size: 18px; color: var(--text-2); margin-bottom: 6px; }
 
- /* ── TAGS ── */
- .tag { display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 20px; font-size: 11.5px; font-weight: 500; }
- .tag-blue { background: var(--accent-light); color: var(--accent); }
+  /* ── TAGS ── */
+  .tag { display: inline-flex; align-items: center; padding: 3px 10px; border-radius: 20px; font-size: 11.5px; font-weight: 500; }
+  .tag-blue { background: var(--accent-light); color: var(--accent); }
 
- /* ── STATS ROW ── */
- .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 24px; }
- .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; }
- .stat-num { font-family: 'Crimson Pro', serif; font-size: 32px; font-weight: 700; color: var(--rx-blue); line-height: 1; }
- .stat-label { font-size: 12px; color: var(--text-3); margin-top: 4px; }
+  /* ── STATS ROW ── */
+  .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 24px; }
+  .stat-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 18px 20px; }
+  .stat-num { font-family: 'Crimson Pro', serif; font-size: 32px; font-weight: 700; color: var(--rx-blue); line-height: 1; }
+  .stat-label { font-size: 12px; color: var(--text-3); margin-top: 4px; }
 
- /* ── HISTORY LIST ── */
- .rx-history-item { display: flex; align-items: center; gap: 14px; padding: 14px 16px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; margin-bottom: 10px; cursor: pointer; transition: all .15s; }
- .rx-history-item:hover { border-color: var(--accent); background: var(--accent-light); }
- .rx-date-badge { background: var(--surface2); padding: 6px 10px; border-radius: 8px; text-align: center; min-width: 52px; }
- .rx-date-badge .day { font-size: 20px; font-weight: 700; color: var(--rx-blue); font-family: 'Crimson Pro', serif; }
- .rx-date-badge .mon { font-size: 10px; color: var(--text-3); text-transform: uppercase; }
+  /* ── HISTORY LIST ── */
+  .rx-history-item { display: flex; align-items: center; gap: 14px; padding: 14px 16px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; margin-bottom: 10px; cursor: pointer; transition: all .15s; }
+  .rx-history-item:hover { border-color: var(--accent); background: var(--accent-light); }
+  .rx-date-badge { background: var(--surface2); padding: 6px 10px; border-radius: 8px; text-align: center; min-width: 52px; }
+  .rx-date-badge .day { font-size: 20px; font-weight: 700; color: var(--rx-blue); font-family: 'Crimson Pro', serif; }
+  .rx-date-badge .mon { font-size: 10px; color: var(--text-3); text-transform: uppercase; }
 
- /* ── DRIVE STATUS ── */
- .drive-status { display: flex; align-items: center; gap: 8px; font-size: 12.5px; }
- .drive-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--warn); animation: pulse 2s infinite; }
- @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
- @keyframes spin { to { transform: rotate(360deg); } }
+  /* ── DRIVE STATUS ── */
+  .drive-status { display: flex; align-items: center; gap: 8px; font-size: 12.5px; }
+  .drive-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--warn); animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+  @keyframes spin { to { transform: rotate(360deg); } }
 
- /* ── UTIL ── */
- .hidden { display: none !important; }
- .divider { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
- .text-muted { color: var(--text-3); font-size: 12.5px; }
- .mt-4 { margin-top: 16px; }
- .flex { display: flex; }
- .items-center { align-items: center; }
- .gap-2 { gap: 8px; }
- .gap-3 { gap: 12px; }
- .justify-between { justify-content: space-between; }
+  /* ── UTIL ── */
+  .hidden { display: none !important; }
+  .divider { border: none; border-top: 1px solid var(--border); margin: 20px 0; }
+  .text-muted { color: var(--text-3); font-size: 12.5px; }
+  .mt-4 { margin-top: 16px; }
+  .flex { display: flex; }
+  .items-center { align-items: center; }
+  .gap-2 { gap: 8px; }
+  .gap-3 { gap: 12px; }
+  .justify-between { justify-content: space-between; }
 
- @media print { body { background: white; } #topnav, #sidebar { display: none; } #content { padding: 0; } }
+  @media print { body { background: white; } #topnav, #sidebar { display: none; } #content { padding: 0; } }
 </style>
 </head>
 <body>
 
 <div id="page-login" class="page active">
- <div class="login-card">
-   <div class="login-logo">Prescribe<span>Pro</span> <span style="font-size:18px; color:var(--text-3)">Rx</span></div>
-   <div class="login-sub">Professional Medical Prescription Software</div>
-   <div class="login-title">Sign in to continue</div>
+  <div class="login-card">
+    <div class="login-logo">Prescribe<span>Pro</span> <span style="font-size:18px; color:var(--text-3)">Rx</span></div>
+    <div class="login-sub">Professional Medical Prescription Software</div>
+    <div class="login-title">Sign in to continue</div>
 
-   <button class="btn-google" id="btn-google-signin" onclick="startGoogleLogin()">
-     <svg class="google-icon" viewBox="0 0 24 24">
-       <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-       <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-       <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/>
-       <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-     </svg>
-     <span id="btn-google-text">Continue with Google</span>
-   </button>
+    <button class="btn-google" id="btn-google-signin" onclick="startGoogleLogin()">
+      <svg class="google-icon" viewBox="0 0 24 24">
+        <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+        <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+        <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"/>
+        <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+      </svg>
+      <span id="btn-google-text">Continue with Google</span>
+    </button>
 
-   <div id="login-loading" style="display:none; flex-direction:column; align-items:center; gap:12px; padding:16px 0">
-     <div style="width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite"></div>
-     <div id="login-loading-text" style="font-size:13px; color:var(--text-3)">Signing in with Google…</div>
-   </div>
+    <div id="login-loading" style="display:none; flex-direction:column; align-items:center; gap:12px; padding:16px 0">
+      <div style="width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite"></div>
+      <div id="login-loading-text" style="font-size:13px; color:var(--text-3)">Signing in with Google…</div>
+    </div>
 
-   <p class="login-note">Your data is stored locally and backed up to your Google Drive. We never share your patient data.</p>
- </div>
+    <p class="login-note">Your data is stored locally and backed up to your Google Drive. We never share your patient data.</p>
+  </div>
 </div>
 
 <div id="topnav" class="hidden">
- <div class="nav-brand">Prescribe<span>Pro</span> <span style="font-size:14px; color:var(--text-3); font-family:'DM Sans'">Rx</span></div>
- <div class="nav-right">
-   <div class="drive-status" id="drive-status">
-     <div class="drive-dot" style="background:var(--warn)"></div>
-     <span style="color:var(--text-3)">Drive Offline</span>
-   </div>
-   <button class="btn-icon" onclick="syncDrive()" title="Sync to Google Drive">☁️</button>
-   <div id="user-avatar" onclick="showSection('profile')">E</div>
- </div>
+  <div class="nav-brand">Prescribe<span>Pro</span> <span style="font-size:14px; color:var(--text-3); font-family:'DM Sans'">Rx</span></div>
+  <div class="nav-right">
+    <div class="drive-status" id="drive-status">
+      <div class="drive-dot" style="background:var(--warn)"></div>
+      <span style="color:var(--text-3)">Drive Offline</span>
+    </div>
+    <button class="btn-icon" onclick="syncDrive()" title="Sync to Google Drive">☁️</button>
+    <div id="user-avatar" onclick="showSection('profile')">E</div>
+  </div>
 </div>
 
 <div id="main-layout" class="hidden">
- <div id="sidebar">
-   <div class="sidebar-section">Main</div>
-   <button class="sidebar-btn active" onclick="showSection('dashboard')" id="sb-dashboard"><span class="ico">📊</span> Dashboard</button>
-   <button class="sidebar-btn" onclick="showSection('patients')" id="sb-patients"><span class="ico">👥</span> Patients</button>
-   <button class="sidebar-btn" onclick="showSection('prescriptions')" id="sb-prescriptions"><span class="ico">📋</span> Prescriptions</button>
-   <div class="sidebar-section" style="margin-top:8px">Settings</div>
-   <button class="sidebar-btn" onclick="showSection('profile')" id="sb-profile"><span class="ico">⚕️</span> Doctor Profile</button>
-   <button class="sidebar-btn" onclick="showSection('paddesign')" id="sb-paddesign"><span class="ico">🖊️</span> Pad Design</button>
-   <button class="sidebar-btn" onclick="showSection('about')" id="sb-about"><span class="ico">ℹ️</span> About</button>
-   <div style="flex:1"></div>
-   <button class="sidebar-btn" onclick="logOut()" style="color:var(--danger)"><span class="ico">🚪</span> Sign Out</button>
- </div>
+  <div id="sidebar">
+    <div class="sidebar-section">Main</div>
+    <button class="sidebar-btn active" onclick="showSection('dashboard')" id="sb-dashboard"><span class="ico">📊</span> Dashboard</button>
+    <button class="sidebar-btn" onclick="showSection('patients')" id="sb-patients"><span class="ico">👥</span> Patients</button>
+    <button class="sidebar-btn" onclick="showSection('prescriptions')" id="sb-prescriptions"><span class="ico">📋</span> Prescriptions</button>
+    <div class="sidebar-section" style="margin-top:8px">Settings</div>
+    <button class="sidebar-btn" onclick="showSection('profile')" id="sb-profile"><span class="ico">⚕️</span> Doctor Profile</button>
+    <button class="sidebar-btn" onclick="showSection('paddesign')" id="sb-paddesign"><span class="ico">🖊️</span> Pad Design</button>
+    <button class="sidebar-btn" onclick="showSection('about')" id="sb-about"><span class="ico">ℹ️</span> About</button>
+    <div style="flex:1"></div>
+    <button class="sidebar-btn" onclick="logOut()" style="color:var(--danger)"><span class="ico">🚪</span> Sign Out</button>
+  </div>
 
- <div id="content">
+  <div id="content">
 
-   <div id="section-dashboard" class="section-content">
-     <div class="section-header">
-       <div>
-         <div class="section-title">Dashboard</div>
-         <div class="section-sub" id="greeting-sub">Good morning, Doctor</div>
-       </div>
-       <button class="btn btn-primary" onclick="openNewRx()">+ New Prescription</button>
-     </div>
-     <div class="stats-row">
-       <div class="stat-card"><div class="stat-num" id="stat-patients">0</div><div class="stat-label">Total Patients</div></div>
-       <div class="stat-card"><div class="stat-num" id="stat-rx">0</div><div class="stat-label">Prescriptions</div></div>
-       <div class="stat-card"><div class="stat-num" id="stat-today">0</div><div class="stat-label">Today</div></div>
-       <div class="stat-card"><div class="stat-num" id="stat-month">0</div><div class="stat-label">This Month</div></div>
-     </div>
-     <div class="card">
-       <div class="flex justify-between items-center" style="margin-bottom:16px">
-         <div style="font-weight:600; font-size:15px;">Recent Prescriptions</div>
-       </div>
-       <div id="recent-rx-list"></div>
-     </div>
-   </div>
+    <div id="section-dashboard" class="section-content">
+      <div class="section-header">
+        <div>
+          <div class="section-title">Dashboard</div>
+          <div class="section-sub" id="greeting-sub">Good morning, Doctor</div>
+        </div>
+        <button class="btn btn-primary" onclick="openNewRx()">+ New Prescription</button>
+      </div>
+      <div class="stats-row">
+        <div class="stat-card"><div class="stat-num" id="stat-patients">0</div><div class="stat-label">Total Patients</div></div>
+        <div class="stat-card"><div class="stat-num" id="stat-rx">0</div><div class="stat-label">Prescriptions</div></div>
+        <div class="stat-card"><div class="stat-num" id="stat-today">0</div><div class="stat-label">Today</div></div>
+        <div class="stat-card"><div class="stat-num" id="stat-month">0</div><div class="stat-label">This Month</div></div>
+      </div>
+      <div class="card">
+        <div class="flex justify-between items-center" style="margin-bottom:16px">
+          <div style="font-weight:600; font-size:15px;">Recent Prescriptions</div>
+        </div>
+        <div id="recent-rx-list"></div>
+      </div>
+    </div>
 
-   <div id="section-patients" class="section-content hidden">
-     <div class="section-header">
-       <div>
-         <div class="section-title">Patients</div>
-         <div class="section-sub">Manage patient profiles</div>
-       </div>
-       <button class="btn btn-primary" onclick="openPatientModal()">+ New Patient</button>
-     </div>
-     <div style="margin-bottom:16px">
-       <div class="search-bar" style="max-width:340px">
-         <input type="text" id="patient-search" placeholder="Search patients..." oninput="renderPatients()">
-       </div>
-     </div>
-     <div id="patient-grid" class="patient-grid"></div>
-   </div>
+    <div id="section-patients" class="section-content hidden">
+      <div class="section-header">
+        <div>
+          <div class="section-title">Patients</div>
+          <div class="section-sub">Manage patient profiles</div>
+        </div>
+        <button class="btn btn-primary" onclick="openPatientModal()">+ New Patient</button>
+      </div>
+      <div style="margin-bottom:16px">
+        <div class="search-bar" style="max-width:340px">
+          <input type="text" id="patient-search" placeholder="Search patients..." oninput="renderPatients()">
+        </div>
+      </div>
+      <div id="patient-grid" class="patient-grid"></div>
+    </div>
 
-   <div id="section-prescriptions" class="section-content hidden">
-     <div class="section-header">
-       <div>
-         <div class="section-title">Prescriptions</div>
-         <div class="section-sub">All prescription history</div>
-       </div>
-       <button class="btn btn-primary" onclick="openNewRx()">+ New Prescription</button>
-     </div>
-     <div id="all-rx-list"></div>
-   </div>
+    <div id="section-prescriptions" class="section-content hidden">
+      <div class="section-header">
+        <div>
+          <div class="section-title">Prescriptions</div>
+          <div class="section-sub">All prescription history</div>
+        </div>
+        <button class="btn btn-primary" onclick="openNewRx()">+ New Prescription</button>
+      </div>
+      <div id="all-rx-list"></div>
+    </div>
 
-   <div id="section-profile" class="section-content hidden">
-     <div class="section-title" style="margin-bottom:20px">Doctor Profile</div>
-     <div class="card">
-       <div class="form-grid">
-         <div class="form-group"><label>Full Name</label><input type="text" id="doc-name" placeholder="Dr. Full Name"></div>
-         <div class="form-group"><label>Qualifications</label><input type="text" id="doc-qual" placeholder="MBBS (DU), FCPS"></div>
-         <div class="form-group"><label>Designation</label><input type="text" id="doc-designation" placeholder="Medical Officer"></div>
-         <div class="form-group"><label>Institution / Hospital</label><input type="text" id="doc-hospital" placeholder="Hospital Name"></div>
-         <div class="form-group"><label>Registration Number</label><input type="text" id="doc-reg" placeholder="Regi: A-000000"></div>
-         <div class="form-group"><label>Phone</label><input type="text" id="doc-phone" placeholder="+880..."></div>
-         <div class="form-group full"><label>Address / Chamber</label><input type="text" id="doc-address" placeholder="Chamber address"></div>
-         <div class="form-group"><label>Chamber Hours</label><input type="text" id="doc-hours" placeholder="Sat–Thu: 6–9 PM"></div>
-         <div class="form-group"><label>Footer Note (Bengali/English)</label><input type="text" id="doc-footer" placeholder="নিয়ম মাফিক ঔষধ খাবেন..."></div>
-       </div>
-       <div style="margin-top:20px; display:flex; gap:10px">
-         <button class="btn btn-primary" onclick="saveProfile()">Save Profile</button>
-         <button class="btn btn-secondary" onclick="showSection('paddesign')">Configure Pad →</button>
-       </div>
-     </div>
-   </div>
+    <div id="section-profile" class="section-content hidden">
+      <div class="section-title" style="margin-bottom:20px">Doctor Profile</div>
+      <div class="card">
+        <div class="form-grid">
+          <div class="form-group"><label>Full Name</label><input type="text" id="doc-name" placeholder="Dr. Full Name"></div>
+          <div class="form-group"><label>Qualifications</label><input type="text" id="doc-qual" placeholder="MBBS (DU), FCPS"></div>
+          <div class="form-group"><label>Designation</label><input type="text" id="doc-designation" placeholder="Medical Officer"></div>
+          <div class="form-group"><label>Institution / Hospital</label><input type="text" id="doc-hospital" placeholder="Hospital Name"></div>
+          <div class="form-group"><label>Registration Number</label><input type="text" id="doc-reg" placeholder="Regi: A-000000"></div>
+          <div class="form-group"><label>Phone</label><input type="text" id="doc-phone" placeholder="+880..."></div>
+          <div class="form-group full"><label>Address / Chamber</label><input type="text" id="doc-address" placeholder="Chamber address"></div>
+          <div class="form-group"><label>Chamber Hours</label><input type="text" id="doc-hours" placeholder="Sat–Thu: 6–9 PM"></div>
+          <div class="form-group"><label>Footer Note (Bengali/English)</label><input type="text" id="doc-footer" placeholder="নিয়ম মাফিক ঔষধ খাবেন..."></div>
+        </div>
+        <div style="margin-top:20px; display:flex; gap:10px">
+          <button class="btn btn-primary" onclick="saveProfile()">Save Profile</button>
+          <button class="btn btn-secondary" onclick="showSection('paddesign')">Configure Pad →</button>
+        </div>
+      </div>
+    </div>
 
-   <div id="section-paddesign" class="section-content hidden">
-     <div class="section-title" style="margin-bottom:20px">Prescription Pad Design</div>
-     <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; align-items:start">
-       <div class="card">
-         <div style="font-weight:600; margin-bottom:16px">Pad Settings</div>
-         <div class="form-group" style="margin-bottom:12px"><label>Header Alignment</label>
-           <select id="pad-align">
-             <option value="center">Center</option>
-             <option value="left">Left</option>
-             <option value="right">Right</option>
-           </select>
-         </div>
-         <div class="form-group" style="margin-bottom:12px"><label>Left Column Width (px)</label>
-           <input type="number" id="pad-left-width" value="165" min="120" max="250">
-         </div>
-         <div class="form-group" style="margin-bottom:12px"><label>Show Sections</label>
-           <div style="display:flex; flex-direction:column; gap:8px; margin-top:4px">
-             <label class="check-label"><input type="checkbox" id="show-history" checked> History</label>
-             <label class="check-label"><input type="checkbox" id="show-findings" checked> Findings</label>
-             <label class="check-label"><input type="checkbox" id="show-investigation" checked> Investigation</label>
-             <label class="check-label"><input type="checkbox" id="show-advice" checked> Advice</label>
-             <label class="check-label"><input type="checkbox" id="show-followup" checked> Follow-up</label>
-           </div>
-         </div>
-         <div class="form-group" style="margin-bottom:12px"><label>Accent Color</label>
-           <input type="color" id="pad-color" value="#1a3a5c" style="height:36px; padding:2px 4px">
-         </div>
-         <button class="btn btn-primary" onclick="savePadSettings()">Save Pad Settings</button>
-       </div>
-       <div>
-         <div style="font-weight:600; margin-bottom:12px; font-size:14px; color:var(--text-2)">Live Preview</div>
-         <div class="pad-preview">
-           <div class="pad-preview-inner" id="pad-preview-html" style="font-family:'Crimson Pro', serif; font-size:11px; transform-origin:top left; transform:scale(0.65); width:794px; min-height:400px;">
-           </div>
-         </div>
-       </div>
-     </div>
-   </div>
+    <div id="section-paddesign" class="section-content hidden">
+      <div class="section-title" style="margin-bottom:20px">Prescription Pad Design</div>
+      <div style="display:grid; grid-template-columns:1fr 1fr; gap:20px; align-items:start">
+        <div class="card">
+          <div style="font-weight:600; margin-bottom:16px">Pad Settings</div>
+          <div class="form-group" style="margin-bottom:12px"><label>Header Alignment</label>
+            <select id="pad-align">
+              <option value="center">Center</option>
+              <option value="left">Left</option>
+              <option value="right">Right</option>
+            </select>
+          </div>
+          <div class="form-group" style="margin-bottom:12px"><label>Left Column Width (px)</label>
+            <input type="number" id="pad-left-width" value="165" min="120" max="250">
+          </div>
+          <div class="form-group" style="margin-bottom:12px"><label>Show Sections</label>
+            <div style="display:flex; flex-direction:column; gap:8px; margin-top:4px">
+              <label class="check-label"><input type="checkbox" id="show-history" checked> History</label>
+              <label class="check-label"><input type="checkbox" id="show-findings" checked> Findings</label>
+              <label class="check-label"><input type="checkbox" id="show-investigation" checked> Investigation</label>
+              <label class="check-label"><input type="checkbox" id="show-advice" checked> Advice</label>
+              <label class="check-label"><input type="checkbox" id="show-followup" checked> Follow-up</label>
+            </div>
+          </div>
+          <div class="form-group" style="margin-bottom:12px"><label>Accent Color</label>
+            <input type="color" id="pad-color" value="#1a3a5c" style="height:36px; padding:2px 4px">
+          </div>
+          <button class="btn btn-primary" onclick="savePadSettings()">Save Pad Settings</button>
+        </div>
+        <div>
+          <div style="font-weight:600; margin-bottom:12px; font-size:14px; color:var(--text-2)">Live Preview</div>
+          <div class="pad-preview">
+            <div class="pad-preview-inner" id="pad-preview-html" style="font-family:'Crimson Pro', serif; font-size:11px; transform-origin:top left; transform:scale(0.65); width:794px; min-height:400px;">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
 
- 
-   <div id="section-about" class="section-content hidden">
-     <div class="section-title" style="margin-bottom:20px">About PrescribePro Rx</div>
-     <div class="card">
-       <h2 style="margin-bottom:12px">Dr. Gazi Md Emran Ahmed, MBBS (DU)</h2>
-       <p style="line-height:1.8">
-       Note: This project is free for all registered MBBS doctors across the world as a Sadakatul Jariya.
-       Please do not sell any part of it to any registered doctor.
-       </p>
-       <br>
-       <p style="line-height:1.8">
-       This app is made with various AI agents. If you find any error please send an email to:
-       <strong>emranahmed.bd@gmail.com</strong>
-       </p>
-       <br>
-       <p style="line-height:1.8">
-       Thanks for using this prescription software. Please pray for me, my family, and for all Muslims across the world.
-       </p>
-     </div>
-   </div>
+  
+    <div id="section-about" class="section-content hidden">
+      <div class="section-title" style="margin-bottom:20px">About PrescribePro Rx</div>
+      <div class="card">
+        <h2 style="margin-bottom:12px">Dr. Gazi Md Emran Ahmed, MBBS (DU)</h2>
+        <p style="line-height:1.8">
+        Note: This project is free for all registered MBBS doctors across the world as a Sadakatul Jariya.
+        Please do not sell any part of it to any registered doctor.
+        </p>
+        <br>
+        <p style="line-height:1.8">
+        This app is made with various AI agents. If you find any error please send an email to:
+        <strong>emranahmed.bd@gmail.com</strong>
+        </p>
+        <br>
+        <p style="line-height:1.8">
+        Thanks for using this prescription software. Please pray for me, my family, and for all Muslims across the world.
+        </p>
+      </div>
+    </div>
 
 </div></div><div id="modal-patient" class="modal-overlay hidden">
- <div class="modal">
-   <div class="modal-header">
-     <div class="modal-title" id="patient-modal-title">New Patient</div>
-     <button class="modal-close" onclick="closeModal('modal-patient')">✕</button>
-   </div>
-   <div class="modal-body">
-     <div class="form-grid">
-       <div class="form-group"><label>Full Name *</label><input type="text" id="p-name" placeholder="Patient full name"></div>
-       <div class="form-group"><label>Age</label><input type="text" id="p-age" placeholder="25 years / 6 months"></div>
-       <div class="form-group"><label>Gender</label>
-         <select id="p-gender"><option value="Male">Male</option><option value="Female">Female</option><option value="Other">Other</option></select>
-       </div>
-       <div class="form-group"><label>Weight (kg)</label><input type="number" id="p-weight" placeholder="70"></div>
-       <div class="form-group"><label>Blood Group</label>
-         <select id="p-blood"><option value="">Unknown</option><option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>AB+</option><option>AB-</option><option>O+</option><option>O-</option></select>
-       </div>
-       <div class="form-group"><label>Contact Number</label><input type="tel" id="p-contact" placeholder="+880..."></div>
-       <div class="form-group full"><label>Allergies / Known Conditions</label><input type="text" id="p-allergies" placeholder="e.g. Penicillin allergy, Diabetes"></div>
-     </div>
-   </div>
-   <div class="modal-footer">
-     <button class="btn btn-secondary" onclick="closeModal('modal-patient')">Cancel</button>
-     <button class="btn btn-primary" onclick="savePatient()">Save Patient</button>
-   </div>
- </div>
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="patient-modal-title">New Patient</div>
+      <button class="modal-close" onclick="closeModal('modal-patient')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group"><label>Full Name *</label><input type="text" id="p-name" placeholder="Patient full name"></div>
+        <div class="form-group"><label>Age</label><input type="text" id="p-age" placeholder="25 years / 6 months"></div>
+        <div class="form-group"><label>Gender</label>
+          <select id="p-gender"><option value="Male">Male</option><option value="Female">Female</option><option value="Other">Other</option></select>
+        </div>
+        <div class="form-group"><label>Weight (kg)</label><input type="number" id="p-weight" placeholder="70"></div>
+        <div class="form-group"><label>Blood Group</label>
+          <select id="p-blood"><option value="">Unknown</option><option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>AB+</option><option>AB-</option><option>O+</option><option>O-</option></select>
+        </div>
+        <div class="form-group"><label>Contact Number</label><input type="tel" id="p-contact" placeholder="+880..."></div>
+        <div class="form-group full"><label>Allergies / Known Conditions</label><input type="text" id="p-allergies" placeholder="e.g. Penicillin allergy, Diabetes"></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modal-patient')">Cancel</button>
+      <button class="btn btn-primary" onclick="savePatient()">Save Patient</button>
+    </div>
+  </div>
 </div>
 
 <div id="modal-rx" class="modal-overlay hidden">
- <div class="modal modal-lg">
-   <div class="modal-header">
-     <div>
-       <div class="modal-title">Write Prescription</div>
-       <div class="text-muted" id="rx-for-patient" style="margin-top:4px"></div>
-     </div>
-     <button class="modal-close" onclick="closeModal('modal-rx')">✕</button>
-   </div>
-   <div class="modal-body">
-     <div id="rx-select-patient-wrap" class="form-group" style="margin-bottom:16px">
-       <label>Patient</label>
-       <select id="rx-patient-select" onchange="updateRxPatientLabel()">
-         <option value="">-- Select Patient --</option>
-       </select>
-     </div>
-     <div class="form-grid" style="margin-bottom:14px">
-       <div class="form-group"><label>Date</label><input type="date" id="rx-date"></div>
-       <div class="form-group"><label>Visit Type</label>
-         <select id="rx-visit"><option>New Visit</option><option>Follow-up</option><option>Emergency</option></select>
-       </div>
-     </div>
-     <div class="form-group" style="margin-bottom:12px"><label>Chief Complaints</label><textarea id="rx-complaints" placeholder="Patient's main complaints..."></textarea></div>
-     <div class="form-group" style="margin-bottom:12px"><label>History</label><textarea id="rx-history" placeholder="Relevant history (past medical, drug, family)..."></textarea></div>
-     <div class="form-group" style="margin-bottom:12px"><label>Examination Findings</label><textarea id="rx-findings" placeholder="Vital signs, physical examination findings..."></textarea></div>
-     <div class="form-group" style="margin-bottom:12px"><label>Investigation / Advice</label><textarea id="rx-investigation" placeholder="Lab tests, imaging recommended..."></textarea></div>
-     <div class="form-group" style="margin-bottom:12px"><label>Advice to Patient</label><textarea id="rx-advice" placeholder="Dietary advice, lifestyle modifications..."></textarea></div>
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title">Write Prescription</div>
+        <div class="text-muted" id="rx-for-patient" style="margin-top:4px"></div>
+      </div>
+      <button class="modal-close" onclick="closeModal('modal-rx')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div id="rx-select-patient-wrap" class="form-group" style="margin-bottom:16px">
+        <label>Patient</label>
+        <select id="rx-patient-select" onchange="updateRxPatientLabel()">
+          <option value="">-- Select Patient --</option>
+        </select>
+      </div>
+      <div class="form-grid" style="margin-bottom:14px">
+        <div class="form-group"><label>Date</label><input type="date" id="rx-date"></div>
+        <div class="form-group"><label>Visit Type</label>
+          <select id="rx-visit"><option>New Visit</option><option>Follow-up</option><option>Emergency</option></select>
+        </div>
+      </div>
+      <div class="form-group" style="margin-bottom:12px"><label>Chief Complaints</label><textarea id="rx-complaints" placeholder="Patient's main complaints..."></textarea></div>
+      <div class="form-group" style="margin-bottom:12px"><label>History</label><textarea id="rx-history" placeholder="Relevant history (past medical, drug, family)..."></textarea></div>
+      <div class="form-group" style="margin-bottom:12px"><label>Examination Findings</label><textarea id="rx-findings" placeholder="Vital signs, physical examination findings..."></textarea></div>
+      <div class="form-group" style="margin-bottom:12px"><label>Investigation / Advice</label><textarea id="rx-investigation" placeholder="Lab tests, imaging recommended..."></textarea></div>
+      <div class="form-group" style="margin-bottom:12px"><label>Advice to Patient</label><textarea id="rx-advice" placeholder="Dietary advice, lifestyle modifications..."></textarea></div>
 
-     <hr class="divider">
-     <div style="font-weight:600; font-size:14px; margin-bottom:10px">💊 Medications (Rx)</div>
-     <div style="overflow-x:auto">
-       <table class="drug-table" id="drug-table">
-         <thead>
-           <tr>
-             <th style="min-width:200px">Drug Name</th>
-             <th style="min-width:100px">Preparation</th>
-             <th style="min-width:180px">Dose & Freq</th>
-             <th style="min-width:110px">Timing</th>
-             <th style="min-width:80px">Duration</th>
-             <th style="min-width:120px">Note</th>
-             <th></th>
-           </tr>
-         </thead>
-         <tbody id="drug-rows"></tbody>
-       </table>
-     </div>
-     <button class="btn btn-secondary btn-sm mt-4" onclick="addDrugRow()">+ Add Medication</button>
+      <hr class="divider">
+      <div style="font-weight:600; font-size:14px; margin-bottom:10px">💊 Medications (Rx)</div>
+      <div style="overflow-x:auto">
+        <table class="drug-table" id="drug-table">
+          <thead>
+            <tr>
+              <th style="min-width:200px">Drug Name</th>
+              <th style="min-width:100px">Preparation</th>
+              <th style="min-width:180px">Dose & Freq</th>
+              <th style="min-width:110px">Timing</th>
+              <th style="min-width:80px">Duration</th>
+              <th style="min-width:120px">Note</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="drug-rows"></tbody>
+        </table>
+      </div>
+      <button class="btn btn-secondary btn-sm mt-4" onclick="addDrugRow()">+ Add Medication</button>
 
-     <hr class="divider">
-     <div class="form-grid">
-       <div class="form-group">
-         <label>Follow-up After</label>
-         <div class="form-row">
-           <input type="number" id="rx-followup-days" placeholder="7" style="width:80px; flex-shrink:0">
-           <select id="rx-followup-unit" style="width:auto">
-             <option value="days">days</option>
-             <option value="weeks">weeks</option>
-             <option value="months">months</option>
-           </select>
-         </div>
-       </div>
-       <div class="form-group"><label>Special Notes</label><input type="text" id="rx-notes" placeholder="Any special instructions..."></div>
-     </div>
-   </div>
-   <div class="modal-footer">
-     <button class="btn btn-secondary" onclick="closeModal('modal-rx')">Cancel</button>
-     <button class="btn btn-primary" onclick="previewRx()">Preview & Generate PDF</button>
-   </div>
- </div>
+      <hr class="divider">
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Follow-up After</label>
+          <div class="form-row">
+            <input type="number" id="rx-followup-days" placeholder="7" style="width:80px; flex-shrink:0">
+            <select id="rx-followup-unit" style="width:auto">
+              <option value="days">days</option>
+              <option value="weeks">weeks</option>
+              <option value="months">months</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group"><label>Special Notes</label><input type="text" id="rx-notes" placeholder="Any special instructions..."></div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modal-rx')">Cancel</button>
+      <button class="btn btn-primary" onclick="previewRx()">Preview & Generate PDF</button>
+    </div>
+  </div>
 </div>
 
 <div id="modal-rx-preview" class="modal-overlay hidden">
- <div class="modal" style="max-width:900px; max-height:95vh">
-   <div class="modal-header">
-     <div class="modal-title">Prescription Preview</div>
-     <button class="modal-close" onclick="closeModal('modal-rx-preview')">✕</button>
-   </div>
-   <div class="modal-body" style="padding:0; overflow:auto; max-height:70vh">
-     <div id="rx-preview-wrap">
-       <div id="rx-a4"></div>
-     </div>
-   </div>
-   <div class="modal-footer" style="gap:10px">
-     <button class="btn btn-secondary" onclick="editRx()">← Edit</button>
-     <button class="btn btn-secondary" onclick="printRx()">🖨️ Print</button>
-     <button class="btn btn-secondary" onclick="saveRxImage()">🖼️ Save as Image</button>
-     <button class="btn btn-success" onclick="saveRxPDF()">📄 Save as PDF</button>
-     <button class="btn btn-primary" onclick="saveRxAndClose()">✅ Save & Close</button>
-   </div>
- </div>
+  <div class="modal" style="max-width:900px; max-height:95vh">
+    <div class="modal-header">
+      <div class="modal-title">Prescription Preview</div>
+      <button class="modal-close" onclick="closeModal('modal-rx-preview')">✕</button>
+    </div>
+    <div class="modal-body" style="padding:0; overflow:auto; max-height:70vh">
+      <div id="rx-preview-wrap">
+        <div id="rx-a4"></div>
+      </div>
+    </div>
+    <div class="modal-footer" style="gap:10px">
+      <button class="btn btn-secondary" onclick="editRx()">← Edit</button>
+      <button class="btn btn-secondary" onclick="printRx()">🖨️ Print</button>
+      <button class="btn btn-secondary" onclick="saveRxImage()">🖼️ Save as Image</button>
+      <button class="btn btn-success" onclick="saveRxPDF()">📄 Save as PDF</button>
+      <button class="btn btn-primary" onclick="saveRxAndClose()">✅ Save & Close</button>
+    </div>
+  </div>
 </div>
 
 <div id="toast"></div>
@@ -581,82 +581,82 @@
 <script>
 // ── STATE ──
 let state = {
- loggedIn: false,
- user: { name: 'Dr. Someone', email: '', initials: 'DS' },
- profile: {
-   name: 'Dr. Someone',
-   qualifications: 'Your Qualifications (e.g. MBBS)',
-   designation: 'Your Designation',
-   hospital: 'Your Hospital / Chamber Name / Location',
-   reg: 'Regi: 000000',
-   phone: '',
-   address: '',
-   hours: '',
-   footer: 'নিয়ম মাফিক ঔষধ খাবেন। ডাক্তারের পরামর্শ ব্যতীত ঔষধ পরিবর্তন নিষেধ।'
- },
- padSettings: { align: 'center', leftWidth: 165, color: '#1a3a5c', showHistory: true, showFindings: true, showInvestigation: true, showAdvice: true, showFollowup: true },
- patients: [],
- prescriptions: [],
- currentRx: null,
- editingPatientId: null
+  loggedIn: false,
+  user: { name: 'Dr. Someone', email: '', initials: 'DS' },
+  profile: {
+    name: 'Dr. Someone',
+    qualifications: 'Your Qualifications (e.g. MBBS)',
+    designation: 'Your Designation',
+    hospital: 'Your Hospital / Chamber Name / Location',
+    reg: 'Regi: 000000',
+    phone: '',
+    address: '',
+    hours: '',
+    footer: 'নিয়ম মাফিক ঔষধ খাবেন। ডাক্তারের পরামর্শ ব্যতীত ঔষধ পরিবর্তন নিষেধ।'
+  },
+  padSettings: { align: 'center', leftWidth: 165, color: '#1a3a5c', showHistory: true, showFindings: true, showInvestigation: true, showAdvice: true, showFollowup: true },
+  patients: [],
+  prescriptions: [],
+  currentRx: null,
+  editingPatientId: null
 };
 
 // ── DRUG DATABASE (common Bangladesh drugs Fallback) ──
 const DRUGS = [
- { name: 'Napa (Paracetamol)', generic: 'Paracetamol 500mg', form: 'Tablet' },
- { name: 'Napa Extra (Paracetamol+Caffeine)', generic: 'Paracetamol 500mg + Caffeine', form: 'Tablet' },
- { name: 'Ace (Paracetamol)', generic: 'Paracetamol 500mg', form: 'Tablet' },
- { name: 'Seclo (Omeprazole)', generic: 'Omeprazole 20mg', form: 'Capsule' }
+  { name: 'Napa (Paracetamol)', generic: 'Paracetamol 500mg', form: 'Tablet' },
+  { name: 'Napa Extra (Paracetamol+Caffeine)', generic: 'Paracetamol 500mg + Caffeine', form: 'Tablet' },
+  { name: 'Ace (Paracetamol)', generic: 'Paracetamol 500mg', form: 'Tablet' },
+  { name: 'Seclo (Omeprazole)', generic: 'Omeprazole 20mg', form: 'Capsule' }
 ];
 
 // Fetch EXTERNAL_DRUGS from csvjson.json
 let EXTERNAL_DRUGS = [];
 fetch('csvjson.json')
- .then(res => res.json())
- .then(data => {
-   EXTERNAL_DRUGS = data;
- })
- .catch(err => console.error("Error loading drug database:", err));
+  .then(res => res.json())
+  .then(data => {
+    EXTERNAL_DRUGS = data;
+  })
+  .catch(err => console.error("Error loading drug database:", err));
 
 
 // ── PERSISTENCE — keyed per Google account so different doctors don't share data ──
 function getStorageKey() {
- const email = (state.user && state.user.email) ? state.user.email : 'default';
- return 'prescribepro_state_' + email;
+  const email = (state.user && state.user.email) ? state.user.email : 'default';
+  return 'prescribepro_state_' + email;
 }
 function saveState() {
- localStorage.setItem(getStorageKey(), JSON.stringify(state));
- // Also keep a lightweight "last logged in email" pointer for seamless reload
- if (state.user && state.user.email) {
-   localStorage.setItem('prescribepro_last_email', state.user.email);
- }
+  localStorage.setItem(getStorageKey(), JSON.stringify(state));
+  // Also keep a lightweight "last logged in email" pointer for seamless reload
+  if (state.user && state.user.email) {
+    localStorage.setItem('prescribepro_last_email', state.user.email);
+  }
 }
 function loadState() {
- // Try to load for the last known email first; fallback to legacy key
- const lastEmail = localStorage.getItem('prescribepro_last_email');
- const key = lastEmail ? ('prescribepro_state_' + lastEmail) : 'prescribepro_state';
- const s = localStorage.getItem(key) || localStorage.getItem('prescribepro_state');
- if (s) {
-   const loaded = JSON.parse(s);
-   Object.assign(state, loaded);
- }
+  // Try to load for the last known email first; fallback to legacy key
+  const lastEmail = localStorage.getItem('prescribepro_last_email');
+  const key = lastEmail ? ('prescribepro_state_' + lastEmail) : 'prescribepro_state';
+  const s = localStorage.getItem(key) || localStorage.getItem('prescribepro_state');
+  if (s) {
+    const loaded = JSON.parse(s);
+    Object.assign(state, loaded);
+  }
 }
 
 // ── INIT ──
 loadState();
 if (state.loggedIn) {
- showApp();
- // For returning users: Drive token is gone (page reload), mark offline until re-auth
- updateDriveStatus(false);
+  showApp();
+  // For returning users: Drive token is gone (page reload), mark offline until re-auth
+  updateDriveStatus(false);
 } else {
- updateGreeting();
+  updateGreeting();
 }
 
 function updateGreeting() {
- const h = new Date().getHours();
- const g = h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
- const el = document.getElementById('greeting-sub');
- if (el) el.textContent = `${g}, ${state.profile.name || 'Doctor'}`;
+  const h = new Date().getHours();
+  const g = h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
+  const el = document.getElementById('greeting-sub');
+  if (el) el.textContent = `${g}, ${state.profile.name || 'Doctor'}`;
 }
 
 // ── GOOGLE AUTH ──
@@ -665,26 +665,26 @@ const GOOGLE_CLIENT_ID = '744204331957-vnium3sdih08go5iuv0rlpctvgqhjara.apps.goo
 const GOOGLE_SCOPES = 'openid profile email https://www.googleapis.com/auth/drive.appdata';
 // Drive file name is per-account so each doctor's profile is isolated
 function getDriveFileName() {
- const email = (state.user && state.user.email) ? state.user.email.replace(/[^a-zA-Z0-9]/g, '_') : 'default';
- return `prescribepro_backup_${email}.json`;
+  const email = (state.user && state.user.email) ? state.user.email.replace(/[^a-zA-Z0-9]/g, '_') : 'default';
+  return `prescribepro_backup_${email}.json`;
 }
 
 let googleAccessToken = null;
 let tokenClient = null;
 
 function initGoogleAuth() {
- if (typeof google === 'undefined' || !google.accounts || tokenClient) return;
- tokenClient = google.accounts.oauth2.initTokenClient({
-   client_id: GOOGLE_CLIENT_ID,
-   scope: GOOGLE_SCOPES,
-   callback: onTokenReceived,
-   error_callback: onTokenError,
- });
- // If user is already logged in (returning session), silently try to get a Drive token
- // prompt:'' = no popup if already consented; fails silently if not
- if (state.loggedIn && !googleAccessToken) {
-   tokenClient.requestAccessToken({ prompt: '' });
- }
+  if (typeof google === 'undefined' || !google.accounts || tokenClient) return;
+  tokenClient = google.accounts.oauth2.initTokenClient({
+    client_id: GOOGLE_CLIENT_ID,
+    scope: GOOGLE_SCOPES,
+    callback: onTokenReceived,
+    error_callback: onTokenError,
+  });
+  // If user is already logged in (returning session), silently try to get a Drive token
+  // prompt:'' = no popup if already consented; fails silently if not
+  if (state.loggedIn && !googleAccessToken) {
+    tokenClient.requestAccessToken({ prompt: '' });
+  }
 }
 
 // Init GSI when library is ready — set BEFORE the library loads to avoid race condition
@@ -694,988 +694,988 @@ if (typeof google !== 'undefined' && google.accounts) initGoogleAuth();
 
 // Called when user clicks "Continue with Google"
 function startGoogleLogin() {
- if (typeof google === 'undefined' || !google.accounts) {
-   toast('❌ Google sign-in unavailable. Check your internet connection.');
-   return;
- }
- initGoogleAuth();
- if (!tokenClient) { toast('❌ Google auth failed to initialize.'); return; }
- setLoginLoading(true, 'Opening Google sign-in…');
- tokenClient.requestAccessToken({ prompt: 'select_account' });
+  if (typeof google === 'undefined' || !google.accounts) {
+    toast('❌ Google sign-in unavailable. Check your internet connection.');
+    return;
+  }
+  initGoogleAuth();
+  if (!tokenClient) { toast('❌ Google auth failed to initialize.'); return; }
+  setLoginLoading(true, 'Opening Google sign-in…');
+  tokenClient.requestAccessToken({ prompt: 'select_account' });
 }
 
 // Single callback — fires for both fresh login AND silent re-auth
 function onTokenReceived(tokenResponse) {
- if (tokenResponse.error) {
-   // Silent re-auth failure is normal if user hasn't consented yet — don't show error
-   if (tokenResponse.error !== 'interaction_required' &&
-       tokenResponse.error !== 'access_denied') {
-     setLoginLoading(false);
-     toast('❌ Sign-in cancelled: ' + tokenResponse.error);
-   } else {
-     setLoginLoading(false); // just reset button, no error toast
-   }
-   return;
- }
+  if (tokenResponse.error) {
+    // Silent re-auth failure is normal if user hasn't consented yet — don't show error
+    if (tokenResponse.error !== 'interaction_required' &&
+        tokenResponse.error !== 'access_denied') {
+      setLoginLoading(false);
+      toast('❌ Sign-in cancelled: ' + tokenResponse.error);
+    } else {
+      setLoginLoading(false); // just reset button, no error toast
+    }
+    return;
+  }
 
- googleAccessToken = tokenResponse.access_token;
- const isReturningUser = state.loggedIn; // already logged in = silent re-auth
+  googleAccessToken = tokenResponse.access_token;
+  const isReturningUser = state.loggedIn; // already logged in = silent re-auth
 
- if (isReturningUser) {
-   // Returning user got a fresh token silently — just reconnect Drive
-   updateDriveStatus(true);
-   return;
- }
+  if (isReturningUser) {
+    // Returning user got a fresh token silently — just reconnect Drive
+    updateDriveStatus(true);
+    return;
+  }
 
- // ── Fresh login flow ──
- setLoginLoading(true, 'Getting your account info…');
- fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
-   headers: { Authorization: 'Bearer ' + googleAccessToken }
- })
- .then(r => r.json())
- .then(info => {
-   const name = info.name || info.email || 'Doctor';
-   const email = info.email || '';
-   // Check if this is a different account from what was previously loaded
-   const previousEmail = state.user.email;
-   const isAccountSwitch = previousEmail && previousEmail !== email;
+  // ── Fresh login flow ──
+  setLoginLoading(true, 'Getting your account info…');
+  fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+    headers: { Authorization: 'Bearer ' + googleAccessToken }
+  })
+  .then(r => r.json())
+  .then(info => {
+    const name = info.name || info.email || 'Doctor';
+    const email = info.email || '';
+    // Check if this is a different account from what was previously loaded
+    const previousEmail = state.user.email;
+    const isAccountSwitch = previousEmail && previousEmail !== email;
 
-   state.loggedIn = true;
-   state.user.name = name;
-   state.user.email = email;
-   state.user.picture = info.picture || '';
-   state.user.initials = name.split(' ').filter(Boolean).map(w => w[0]).join('').substring(0, 2).toUpperCase();
+    state.loggedIn = true;
+    state.user.name = name;
+    state.user.email = email;
+    state.user.picture = info.picture || '';
+    state.user.initials = name.split(' ').filter(Boolean).map(w => w[0]).join('').substring(0, 2).toUpperCase();
 
-   // If switching accounts, reset to fresh state for the new account
-   // (Drive backup will restore their saved data below)
-   if (isAccountSwitch) {
-     state.patients = [];
-     state.prescriptions = [];
-     state.profile = {
-       name: name,
-       qualifications: '', designation: '', hospital: '',
-       reg: '', phone: '', address: '', hours: '',
-       footer: 'নিয়ম মাফিক ঔষধ খাবেন। ডাক্তারের পরামর্শ ব্যতীত ঔষধ পরিবর্তন নিষেধ।'
-     };
-     state.padSettings = { align: 'center', leftWidth: 165, color: '#1a3a5c', showHistory: true, showFindings: true, showInvestigation: true, showAdvice: true, showFollowup: true };
-   } else if (!previousEmail) {
-     // Check if there's a saved state for this account in localStorage already
-     const existingKey = 'prescribepro_state_' + email;
-     const existing = localStorage.getItem(existingKey);
-     if (existing) {
-       try {
-         const parsed = JSON.parse(existing);
-         if (parsed.patients) state.patients = parsed.patients;
-         if (parsed.prescriptions) state.prescriptions = parsed.prescriptions;
-         if (parsed.profile) state.profile = { ...state.profile, ...parsed.profile };
-         if (parsed.padSettings) state.padSettings = { ...state.padSettings, ...parsed.padSettings };
-       } catch(e) {}
-     }
-   }
+    // If switching accounts, reset to fresh state for the new account
+    // (Drive backup will restore their saved data below)
+    if (isAccountSwitch) {
+      state.patients = [];
+      state.prescriptions = [];
+      state.profile = {
+        name: name,
+        qualifications: '', designation: '', hospital: '',
+        reg: '', phone: '', address: '', hours: '',
+        footer: 'নিয়ম মাফিক ঔষধ খাবেন। ডাক্তারের পরামর্শ ব্যতীত ঔষধ পরিবর্তন নিষেধ।'
+      };
+      state.padSettings = { align: 'center', leftWidth: 165, color: '#1a3a5c', showHistory: true, showFindings: true, showInvestigation: true, showAdvice: true, showFollowup: true };
+    } else if (!previousEmail) {
+      // Check if there's a saved state for this account in localStorage already
+      const existingKey = 'prescribepro_state_' + email;
+      const existing = localStorage.getItem(existingKey);
+      if (existing) {
+        try {
+          const parsed = JSON.parse(existing);
+          if (parsed.patients) state.patients = parsed.patients;
+          if (parsed.prescriptions) state.prescriptions = parsed.prescriptions;
+          if (parsed.profile) state.profile = { ...state.profile, ...parsed.profile };
+          if (parsed.padSettings) state.padSettings = { ...state.padSettings, ...parsed.padSettings };
+        } catch(e) {}
+      }
+    }
 
-   saveState();
-   setLoginLoading(true, 'Loading your data from Drive…');
-   loadFromDrive().then(() => {
-     setLoginLoading(false);
-     showApp();
-     toast('✅ Welcome, ' + name.split(' ')[0] + '!');
-     updateDriveStatus(true);
-   });
- })
- .catch(e => {
-   console.error('Userinfo fetch failed:', e);
-   setLoginLoading(false);
-   toast('❌ Could not fetch account info. Try again.');
- });
+    saveState();
+    setLoginLoading(true, 'Loading your data from Drive…');
+    loadFromDrive().then(() => {
+      setLoginLoading(false);
+      showApp();
+      toast('✅ Welcome, ' + name.split(' ')[0] + '!');
+      updateDriveStatus(true);
+    });
+  })
+  .catch(e => {
+    console.error('Userinfo fetch failed:', e);
+    setLoginLoading(false);
+    toast('❌ Could not fetch account info. Try again.');
+  });
 }
 
 function onTokenError(err) {
- setLoginLoading(false);
- if (err.type === 'popup_closed') toast('Sign-in window closed.');
- else toast('❌ Google sign-in error: ' + (err.type || 'unknown'));
+  setLoginLoading(false);
+  if (err.type === 'popup_closed') toast('Sign-in window closed.');
+  else toast('❌ Google sign-in error: ' + (err.type || 'unknown'));
 }
 
 function setLoginLoading(loading, message) {
- const btn = document.getElementById('btn-google-signin');
- const spinner = document.getElementById('login-loading');
- const txt = document.getElementById('login-loading-text');
- if (!btn || !spinner) return;
- btn.style.display = loading ? 'none' : 'flex';
- spinner.style.display = loading ? 'flex' : 'none';
- if (txt && message) txt.textContent = message;
+  const btn = document.getElementById('btn-google-signin');
+  const spinner = document.getElementById('login-loading');
+  const txt = document.getElementById('login-loading-text');
+  if (!btn || !spinner) return;
+  btn.style.display = loading ? 'none' : 'flex';
+  spinner.style.display = loading ? 'flex' : 'none';
+  if (txt && message) txt.textContent = message;
 }
 
 // Silent token refresh (no popup) for expired tokens during a session
 function refreshDriveTokenSilent() {
- return new Promise((resolve, reject) => {
-   if (!tokenClient) initGoogleAuth(); // try to init if page was reloaded
-   if (!tokenClient) { reject('Google auth not initialized'); return; }
-   const orig = tokenClient.callback;
-   tokenClient.callback = (resp) => {
-     tokenClient.callback = orig;
-     if (resp.error) { reject(resp.error); return; }
-     googleAccessToken = resp.access_token;
-     resolve(resp.access_token);
-   };
-   tokenClient.requestAccessToken({ prompt: '' });
- });
+  return new Promise((resolve, reject) => {
+    if (!tokenClient) initGoogleAuth(); // try to init if page was reloaded
+    if (!tokenClient) { reject('Google auth not initialized'); return; }
+    const orig = tokenClient.callback;
+    tokenClient.callback = (resp) => {
+      tokenClient.callback = orig;
+      if (resp.error) { reject(resp.error); return; }
+      googleAccessToken = resp.access_token;
+      resolve(resp.access_token);
+    };
+    tokenClient.requestAccessToken({ prompt: '' });
+  });
 }
 
 function updateDriveStatus(connected) {
- const dot = document.querySelector('.drive-dot');
- const label = document.querySelector('#drive-status span');
- if (!dot || !label) return;
- dot.style.background = connected ? 'var(--success)' : 'var(--warn)';
- label.textContent = connected ? 'Drive Synced' : 'Drive Offline';
+  const dot = document.querySelector('.drive-dot');
+  const label = document.querySelector('#drive-status span');
+  if (!dot || !label) return;
+  dot.style.background = connected ? 'var(--success)' : 'var(--warn)';
+  label.textContent = connected ? 'Drive Synced' : 'Drive Offline';
 }
 
 // ── DRIVE API HELPER — auto-retries on 401 ──
 async function driveRequest(url, options = {}) {
- if (!googleAccessToken) await refreshDriveTokenSilent();
- let res = await fetch(url, {
-   ...options,
-   headers: { Authorization: 'Bearer ' + googleAccessToken, ...(options.headers || {}) }
- });
- if (res.status === 401) {
-   await refreshDriveTokenSilent();
-   res = await fetch(url, {
-     ...options,
-     headers: { Authorization: 'Bearer ' + googleAccessToken, ...(options.headers || {}) }
-   });
- }
- return res;
+  if (!googleAccessToken) await refreshDriveTokenSilent();
+  let res = await fetch(url, {
+    ...options,
+    headers: { Authorization: 'Bearer ' + googleAccessToken, ...(options.headers || {}) }
+  });
+  if (res.status === 401) {
+    await refreshDriveTokenSilent();
+    res = await fetch(url, {
+      ...options,
+      headers: { Authorization: 'Bearer ' + googleAccessToken, ...(options.headers || {}) }
+    });
+  }
+  return res;
 }
 
 async function getDriveFileId() {
- const fileName = getDriveFileName();
- const res = await driveRequest(
-   `https://www.googleapis.com/drive/v3/files?spaces=appDataFolder&q=name='${fileName}'&fields=files(id)`
- );
- const data = await res.json();
- return (data.files && data.files[0]) ? data.files[0].id : null;
+  const fileName = getDriveFileName();
+  const res = await driveRequest(
+    `https://www.googleapis.com/drive/v3/files?spaces=appDataFolder&q=name='${fileName}'&fields=files(id)`
+  );
+  const data = await res.json();
+  return (data.files && data.files[0]) ? data.files[0].id : null;
 }
 
 async function syncDrive(silent = false) {
- if (!googleAccessToken) {
-   if (!silent) toast('⚠️ Reconnecting to Drive…');
-   try { await refreshDriveTokenSilent(); } catch(e) { if (!silent) toast('❌ Please sign out and back in to reconnect Drive.'); return; }
- }
- if (!silent) toast('☁️ Syncing…');
- try {
-   const fileId = await getDriveFileId();
-   const fileName = getDriveFileName();
-   const { currentRx, editingPatientId, ...backupData } = state;
-   const content = JSON.stringify(backupData);
-   const boundary = 'ppro_' + Date.now();
-   const meta = JSON.stringify(fileId ? { name: fileName } : { name: fileName, parents: ['appDataFolder'] });
-   const body =
-     `--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${meta}\r\n` +
-     `--${boundary}\r\nContent-Type: application/json\r\n\r\n${content}\r\n` +
-     `--${boundary}--`;
-   const res = await driveRequest(
-     fileId
-       ? `https://www.googleapis.com/upload/drive/v3/files/${fileId}?uploadType=multipart`
-       : `https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart`,
-     { method: fileId ? 'PATCH' : 'POST', headers: { 'Content-Type': `multipart/related; boundary=${boundary}` }, body }
-   );
-   if (!res.ok) throw new Error(await res.text());
-   updateDriveStatus(true);
-   if (!silent) toast('✅ Synced to Google Drive');
- } catch(e) {
-   console.error('Drive sync error:', e);
-   updateDriveStatus(false);
-   if (!silent) toast('❌ Sync failed. Check your connection.');
-   throw e; // re-throw so callers (like saveProfile) can handle
- }
+  if (!googleAccessToken) {
+    if (!silent) toast('⚠️ Reconnecting to Drive…');
+    try { await refreshDriveTokenSilent(); } catch(e) { if (!silent) toast('❌ Please sign out and back in to reconnect Drive.'); return; }
+  }
+  if (!silent) toast('☁️ Syncing…');
+  try {
+    const fileId = await getDriveFileId();
+    const fileName = getDriveFileName();
+    const { currentRx, editingPatientId, ...backupData } = state;
+    const content = JSON.stringify(backupData);
+    const boundary = 'ppro_' + Date.now();
+    const meta = JSON.stringify(fileId ? { name: fileName } : { name: fileName, parents: ['appDataFolder'] });
+    const body =
+      `--${boundary}\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n${meta}\r\n` +
+      `--${boundary}\r\nContent-Type: application/json\r\n\r\n${content}\r\n` +
+      `--${boundary}--`;
+    const res = await driveRequest(
+      fileId
+        ? `https://www.googleapis.com/upload/drive/v3/files/${fileId}?uploadType=multipart`
+        : `https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart`,
+      { method: fileId ? 'PATCH' : 'POST', headers: { 'Content-Type': `multipart/related; boundary=${boundary}` }, body }
+    );
+    if (!res.ok) throw new Error(await res.text());
+    updateDriveStatus(true);
+    if (!silent) toast('✅ Synced to Google Drive');
+  } catch(e) {
+    console.error('Drive sync error:', e);
+    updateDriveStatus(false);
+    if (!silent) toast('❌ Sync failed. Check your connection.');
+    throw e; // re-throw so callers (like saveProfile) can handle
+  }
 }
 
 async function loadFromDrive() {
- if (!googleAccessToken) return;
- try {
-   const fileId = await getDriveFileId();
-   if (!fileId) return; // No backup yet for this account — first time user
-   const res = await driveRequest(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`);
-   if (!res.ok) return;
-   const d = await res.json();
-   // Restore all data fields from Drive backup (profile is the critical one)
-   if (d.patients)      state.patients = d.patients;
-   if (d.prescriptions) state.prescriptions = d.prescriptions;
-   if (d.profile)       state.profile = { ...state.profile, ...d.profile };
-   if (d.padSettings)   state.padSettings = { ...state.padSettings, ...d.padSettings };
-   // user.email/picture/initials come from fresh Google auth, not Drive backup
-   if (d.user) {
-     const { email, picture, ...safeUserFields } = d.user;
-     Object.assign(state.user, safeUserFields);
-   }
-   // Save under the correct per-account key now that email is set
-   saveState();
- } catch(e) {
-   console.warn('Drive load skipped:', e.message || e);
- }
+  if (!googleAccessToken) return;
+  try {
+    const fileId = await getDriveFileId();
+    if (!fileId) return; // No backup yet for this account — first time user
+    const res = await driveRequest(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`);
+    if (!res.ok) return;
+    const d = await res.json();
+    // Restore all data fields from Drive backup (profile is the critical one)
+    if (d.patients)      state.patients = d.patients;
+    if (d.prescriptions) state.prescriptions = d.prescriptions;
+    if (d.profile)       state.profile = { ...state.profile, ...d.profile };
+    if (d.padSettings)   state.padSettings = { ...state.padSettings, ...d.padSettings };
+    // user.email/picture/initials come from fresh Google auth, not Drive backup
+    if (d.user) {
+      const { email, picture, ...safeUserFields } = d.user;
+      Object.assign(state.user, safeUserFields);
+    }
+    // Save under the correct per-account key now that email is set
+    saveState();
+  } catch(e) {
+    console.warn('Drive load skipped:', e.message || e);
+  }
 }
 
 
 function showApp() {
- document.getElementById('page-login').classList.remove('active');
- document.getElementById('topnav').classList.remove('hidden');
- document.getElementById('main-layout').classList.remove('hidden');
- window.scrollTo({ top: 0, behavior: 'instant' });
- // Scroll down to the main app content after a short delay so layout has rendered
- setTimeout(() => {
-   const layout = document.getElementById('main-layout');
-   if (layout) layout.scrollIntoView({ behavior: 'smooth', block: 'start' });
- }, 120);
- // Show profile picture or initials in avatar
- const avatar = document.getElementById('user-avatar');
- if (state.user.picture) {
-   avatar.innerHTML = `<img src="${state.user.picture}" style="width:100%;height:100%;border-radius:50%;object-fit:cover" onerror="this.parentElement.textContent='${state.user.initials || 'Dr'}'">`;
- } else {
-   avatar.textContent = state.user.initials || 'Dr';
- }
- loadProfileForm();
- loadPadSettings();
- updateGreeting();
- renderDashboard();
- renderPatients();
- renderAllRx();
+  document.getElementById('page-login').classList.remove('active');
+  document.getElementById('topnav').classList.remove('hidden');
+  document.getElementById('main-layout').classList.remove('hidden');
+  window.scrollTo({ top: 0, behavior: 'instant' });
+  // Scroll down to the main app content after a short delay so layout has rendered
+  setTimeout(() => {
+    const layout = document.getElementById('main-layout');
+    if (layout) layout.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 120);
+  // Show profile picture or initials in avatar
+  const avatar = document.getElementById('user-avatar');
+  if (state.user.picture) {
+    avatar.innerHTML = `<img src="${state.user.picture}" style="width:100%;height:100%;border-radius:50%;object-fit:cover" onerror="this.parentElement.textContent='${state.user.initials || 'Dr'}'">`;
+  } else {
+    avatar.textContent = state.user.initials || 'Dr';
+  }
+  loadProfileForm();
+  loadPadSettings();
+  updateGreeting();
+  renderDashboard();
+  renderPatients();
+  renderAllRx();
 }
 
 function logOut() {
- if (!confirm('Sign out of PrescribePro Rx?')) return;
- // Revoke the Google token so next login forces account selection
- if (googleAccessToken && typeof google !== 'undefined' && google.accounts) {
-   google.accounts.oauth2.revoke(googleAccessToken, () => {});
- }
- googleAccessToken = null;
- tokenClient = null;
- // Clear the last email pointer so next load starts fresh
- localStorage.removeItem('prescribepro_last_email');
- state.loggedIn = false;
- saveState();
- location.reload();
+  if (!confirm('Sign out of PrescribePro Rx?')) return;
+  // Revoke the Google token so next login forces account selection
+  if (googleAccessToken && typeof google !== 'undefined' && google.accounts) {
+    google.accounts.oauth2.revoke(googleAccessToken, () => {});
+  }
+  googleAccessToken = null;
+  tokenClient = null;
+  // Clear the last email pointer so next load starts fresh
+  localStorage.removeItem('prescribepro_last_email');
+  state.loggedIn = false;
+  saveState();
+  location.reload();
 }
 
 // ── SECTIONS ──
 function showSection(sec) {
- document.querySelectorAll('.section-content').forEach(el => el.classList.add('hidden'));
- document.querySelectorAll('.sidebar-btn').forEach(el => el.classList.remove('active'));
- document.getElementById('section-' + sec).classList.remove('hidden');
- const sb = document.getElementById('sb-' + sec);
- if (sb) sb.classList.add('active');
- if (sec === 'dashboard') { renderDashboard(); updateGreeting(); }
- if (sec === 'patients') renderPatients();
- if (sec === 'prescriptions') renderAllRx();
- if (sec === 'paddesign') { loadPadSettings(); updatePadPreview(); }
- if (sec === 'profile') loadProfileForm();
+  document.querySelectorAll('.section-content').forEach(el => el.classList.add('hidden'));
+  document.querySelectorAll('.sidebar-btn').forEach(el => el.classList.remove('active'));
+  document.getElementById('section-' + sec).classList.remove('hidden');
+  const sb = document.getElementById('sb-' + sec);
+  if (sb) sb.classList.add('active');
+  if (sec === 'dashboard') { renderDashboard(); updateGreeting(); }
+  if (sec === 'patients') renderPatients();
+  if (sec === 'prescriptions') renderAllRx();
+  if (sec === 'paddesign') { loadPadSettings(); updatePadPreview(); }
+  if (sec === 'profile') loadProfileForm();
 }
 
 // ── PROFILE ──
 function saveProfile() {
- state.profile = {
-   name: v('doc-name'), qualifications: v('doc-qual'), designation: v('doc-designation'),
-   hospital: v('doc-hospital'), reg: v('doc-reg'), phone: v('doc-phone'),
-   address: v('doc-address'), hours: v('doc-hours'), footer: v('doc-footer')
- };
- state.user.name = state.profile.name;
- state.user.initials = state.profile.name.split(' ').filter(Boolean).map(w => w[0]).join('').substring(0, 2).toUpperCase();
- document.getElementById('user-avatar').textContent = state.user.initials;
- saveState();
- // Auto-backup profile to Google Drive so it's restored on re-login
- if (googleAccessToken) {
-   syncDrive(true).then(() => {
-     toast('✅ Profile saved & synced to Drive');
-   }).catch(() => {
-     toast('✅ Profile saved locally (Drive sync failed — try ☁️)');
-   });
- } else {
-   toast('✅ Profile saved (not synced — sign in to Drive to backup)');
- }
+  state.profile = {
+    name: v('doc-name'), qualifications: v('doc-qual'), designation: v('doc-designation'),
+    hospital: v('doc-hospital'), reg: v('doc-reg'), phone: v('doc-phone'),
+    address: v('doc-address'), hours: v('doc-hours'), footer: v('doc-footer')
+  };
+  state.user.name = state.profile.name;
+  state.user.initials = state.profile.name.split(' ').filter(Boolean).map(w => w[0]).join('').substring(0, 2).toUpperCase();
+  document.getElementById('user-avatar').textContent = state.user.initials;
+  saveState();
+  // Auto-backup profile to Google Drive so it's restored on re-login
+  if (googleAccessToken) {
+    syncDrive(true).then(() => {
+      toast('✅ Profile saved & synced to Drive');
+    }).catch(() => {
+      toast('✅ Profile saved locally (Drive sync failed — try ☁️)');
+    });
+  } else {
+    toast('✅ Profile saved (not synced — sign in to Drive to backup)');
+  }
 }
 
 function loadProfileForm() {
- const p = state.profile;
- setV('doc-name', p.name || ''); setV('doc-qual', p.qualifications || '');
- setV('doc-designation', p.designation || ''); setV('doc-hospital', p.hospital || '');
- setV('doc-reg', p.reg || ''); setV('doc-phone', p.phone || '');
- setV('doc-address', p.address || ''); setV('doc-hours', p.hours || '');
- setV('doc-footer', p.footer || '');
+  const p = state.profile;
+  setV('doc-name', p.name || ''); setV('doc-qual', p.qualifications || '');
+  setV('doc-designation', p.designation || ''); setV('doc-hospital', p.hospital || '');
+  setV('doc-reg', p.reg || ''); setV('doc-phone', p.phone || '');
+  setV('doc-address', p.address || ''); setV('doc-hours', p.hours || '');
+  setV('doc-footer', p.footer || '');
 }
 
 // ── PAD SETTINGS ──
 function savePadSettings() {
- state.padSettings = {
-   align: v('pad-align'), leftWidth: parseInt(v('pad-left-width')) || 165,
-   color: v('pad-color'),
-   showHistory: document.getElementById('show-history').checked,
-   showFindings: document.getElementById('show-findings').checked,
-   showInvestigation: document.getElementById('show-investigation').checked,
-   showAdvice: document.getElementById('show-advice').checked,
-   showFollowup: document.getElementById('show-followup').checked
- };
- saveState();
- updatePadPreview();
- if (googleAccessToken) {
-   syncDrive(true).then(() => {
-     toast('✅ Pad settings saved & synced to Drive');
-   }).catch(() => {
-     toast('✅ Pad settings saved locally (Drive sync failed — try ☁️)');
-   });
- } else {
-   toast('✅ Pad settings saved');
- }
+  state.padSettings = {
+    align: v('pad-align'), leftWidth: parseInt(v('pad-left-width')) || 165,
+    color: v('pad-color'),
+    showHistory: document.getElementById('show-history').checked,
+    showFindings: document.getElementById('show-findings').checked,
+    showInvestigation: document.getElementById('show-investigation').checked,
+    showAdvice: document.getElementById('show-advice').checked,
+    showFollowup: document.getElementById('show-followup').checked
+  };
+  saveState();
+  updatePadPreview();
+  if (googleAccessToken) {
+    syncDrive(true).then(() => {
+      toast('✅ Pad settings saved & synced to Drive');
+    }).catch(() => {
+      toast('✅ Pad settings saved locally (Drive sync failed — try ☁️)');
+    });
+  } else {
+    toast('✅ Pad settings saved');
+  }
 }
 
 function loadPadSettings() {
- const ps = state.padSettings;
- setV('pad-align', ps.align || 'center');
- setV('pad-left-width', ps.leftWidth || 165);
- setV('pad-color', ps.color || '#1a3a5c');
- document.getElementById('show-history').checked = ps.showHistory !== false;
- document.getElementById('show-findings').checked = ps.showFindings !== false;
- document.getElementById('show-investigation').checked = ps.showInvestigation !== false;
- document.getElementById('show-advice').checked = ps.showAdvice !== false;
- document.getElementById('show-followup').checked = ps.showFollowup !== false;
+  const ps = state.padSettings;
+  setV('pad-align', ps.align || 'center');
+  setV('pad-left-width', ps.leftWidth || 165);
+  setV('pad-color', ps.color || '#1a3a5c');
+  document.getElementById('show-history').checked = ps.showHistory !== false;
+  document.getElementById('show-findings').checked = ps.showFindings !== false;
+  document.getElementById('show-investigation').checked = ps.showInvestigation !== false;
+  document.getElementById('show-advice').checked = ps.showAdvice !== false;
+  document.getElementById('show-followup').checked = ps.showFollowup !== false;
 }
 
 function updatePadPreview() {
- const pre = document.getElementById('pad-preview-html');
- const col = v('pad-color') || '#1a3a5c';
- const al = v('pad-align') || 'center';
- pre.innerHTML = buildRxHTML({
-   complaints: 'Chief complaint example',
-   history: 'History here',
-   findings: 'Normal',
-   investigation: 'CBC, RBS',
-   drugs: [{ name: 'Napa (Paracetamol)', form: 'Tablet', dose: '1', freq: '3 times/day', timing: 'After meal', duration: '5 days', note: 'If fever > 100F' }],
-   advice: 'Rest, adequate hydration',
-   followupDays: '7', followupUnit: 'days', notes: '',
-   patientName: 'Test Patient', patientAge: '30 years', patientGender: 'Male'
- }, { color: col, headerAlign: al, preview: true });
+  const pre = document.getElementById('pad-preview-html');
+  const col = v('pad-color') || '#1a3a5c';
+  const al = v('pad-align') || 'center';
+  pre.innerHTML = buildRxHTML({
+    complaints: 'Chief complaint example',
+    history: 'History here',
+    findings: 'Normal',
+    investigation: 'CBC, RBS',
+    drugs: [{ name: 'Napa (Paracetamol)', form: 'Tablet', dose: '1', freq: '3 times/day', timing: 'After meal', duration: '5 days', note: 'If fever > 100F' }],
+    advice: 'Rest, adequate hydration',
+    followupDays: '7', followupUnit: 'days', notes: '',
+    patientName: 'Test Patient', patientAge: '30 years', patientGender: 'Male'
+  }, { color: col, headerAlign: al, preview: true });
 }
 
 // ── PATIENTS ──
 function openPatientModal(id = null) {
- state.editingPatientId = id;
- document.getElementById('patient-modal-title').textContent = id ? 'Edit Patient' : 'New Patient';
- if (id) {
-   const p = state.patients.find(x => x.id === id);
-   if (p) {
-     setV('p-name', p.name); setV('p-age', p.age); setV('p-gender', p.gender);
-     setV('p-weight', p.weight); setV('p-blood', p.blood); setV('p-contact', p.contact);
-     setV('p-allergies', p.allergies || '');
-   }
- } else {
-   ['p-name','p-age','p-weight','p-contact','p-allergies'].forEach(id => setV(id, ''));
-   setV('p-gender', 'Male'); setV('p-blood', '');
- }
- openModal('modal-patient');
+  state.editingPatientId = id;
+  document.getElementById('patient-modal-title').textContent = id ? 'Edit Patient' : 'New Patient';
+  if (id) {
+    const p = state.patients.find(x => x.id === id);
+    if (p) {
+      setV('p-name', p.name); setV('p-age', p.age); setV('p-gender', p.gender);
+      setV('p-weight', p.weight); setV('p-blood', p.blood); setV('p-contact', p.contact);
+      setV('p-allergies', p.allergies || '');
+    }
+  } else {
+    ['p-name','p-age','p-weight','p-contact','p-allergies'].forEach(id => setV(id, ''));
+    setV('p-gender', 'Male'); setV('p-blood', '');
+  }
+  openModal('modal-patient');
 }
 
 function savePatient() {
- const name = v('p-name').trim();
- if (!name) { toast('❗ Patient name is required'); return; }
- if (state.editingPatientId) {
-   const idx = state.patients.findIndex(x => x.id === state.editingPatientId);
-   if (idx !== -1) {
-     state.patients[idx] = { ...state.patients[idx], name, age: v('p-age'), gender: v('p-gender'), weight: v('p-weight'), blood: v('p-blood'), contact: v('p-contact'), allergies: v('p-allergies') };
-   }
-   toast('✅ Patient updated');
- } else {
-   state.patients.push({ id: uid(), name, age: v('p-age'), gender: v('p-gender'), weight: v('p-weight'), blood: v('p-blood'), contact: v('p-contact'), allergies: v('p-allergies'), created: new Date().toISOString() });
-   toast('✅ Patient added');
- }
- saveState();
- closeModal('modal-patient');
- renderPatients();
- renderDashboard();
+  const name = v('p-name').trim();
+  if (!name) { toast('❗ Patient name is required'); return; }
+  if (state.editingPatientId) {
+    const idx = state.patients.findIndex(x => x.id === state.editingPatientId);
+    if (idx !== -1) {
+      state.patients[idx] = { ...state.patients[idx], name, age: v('p-age'), gender: v('p-gender'), weight: v('p-weight'), blood: v('p-blood'), contact: v('p-contact'), allergies: v('p-allergies') };
+    }
+    toast('✅ Patient updated');
+  } else {
+    state.patients.push({ id: uid(), name, age: v('p-age'), gender: v('p-gender'), weight: v('p-weight'), blood: v('p-blood'), contact: v('p-contact'), allergies: v('p-allergies'), created: new Date().toISOString() });
+    toast('✅ Patient added');
+  }
+  saveState();
+  closeModal('modal-patient');
+  renderPatients();
+  renderDashboard();
 }
 
 function deletePatient(id) {
- if (!confirm('Delete this patient and all their prescriptions?')) return;
- state.patients = state.patients.filter(p => p.id !== id);
- state.prescriptions = state.prescriptions.filter(rx => rx.patientId !== id);
- saveState(); renderPatients(); renderDashboard(); toast('🗑️ Patient deleted');
+  if (!confirm('Delete this patient and all their prescriptions?')) return;
+  state.patients = state.patients.filter(p => p.id !== id);
+  state.prescriptions = state.prescriptions.filter(rx => rx.patientId !== id);
+  saveState(); renderPatients(); renderDashboard(); toast('🗑️ Patient deleted');
 }
 
 function renderPatients() {
- const grid = document.getElementById('patient-grid');
- const q = v('patient-search').toLowerCase();
- const filtered = state.patients.filter(p => p.name.toLowerCase().includes(q) || (p.contact||'').includes(q));
- if (!filtered.length) {
-   grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><div class="ico">👥</div><h3>No patients found</h3><p>Add your first patient to get started</p></div>`;
-   return;
- }
- grid.innerHTML = filtered.map(p => {
-   const rxCount = state.prescriptions.filter(rx => rx.patientId === p.id).length;
-   const isFemale = p.gender === 'Female';
-   return `<div class="patient-card" onclick="openPatientDetail('${p.id}')">
-     <div class="patient-avatar ${isFemale ? 'female' : ''}">${p.name[0].toUpperCase()}</div>
-     <div class="patient-actions">
-       <button class="btn btn-secondary btn-sm" onclick="event.stopPropagation(); openNewRxForPatient('${p.id}')">+ Rx</button>
-       <button class="btn btn-secondary btn-sm" onclick="event.stopPropagation(); openPatientModal('${p.id}')">✏️</button>
-       <button class="btn btn-danger btn-sm" onclick="event.stopPropagation(); deletePatient('${p.id}')">🗑️</button>
-     </div>
-     <div class="patient-name">${p.name}</div>
-     <div class="patient-meta">
-       <span class="patient-badge ${isFemale ? 'badge-f' : 'badge-m'}">${p.gender || 'M'}</span>
-       ${p.age ? `<span>${p.age}</span>` : ''}
-       ${p.blood ? `<span>🩸 ${p.blood}</span>` : ''}
-     </div>
-     <div style="margin-top:8px; font-size:12px; color:var(--text-3)">${rxCount} prescription${rxCount !== 1 ? 's' : ''}</div>
-   </div>`;
- }).join('');
+  const grid = document.getElementById('patient-grid');
+  const q = v('patient-search').toLowerCase();
+  const filtered = state.patients.filter(p => p.name.toLowerCase().includes(q) || (p.contact||'').includes(q));
+  if (!filtered.length) {
+    grid.innerHTML = `<div class="empty-state" style="grid-column:1/-1"><div class="ico">👥</div><h3>No patients found</h3><p>Add your first patient to get started</p></div>`;
+    return;
+  }
+  grid.innerHTML = filtered.map(p => {
+    const rxCount = state.prescriptions.filter(rx => rx.patientId === p.id).length;
+    const isFemale = p.gender === 'Female';
+    return `<div class="patient-card" onclick="openPatientDetail('${p.id}')">
+      <div class="patient-avatar ${isFemale ? 'female' : ''}">${p.name[0].toUpperCase()}</div>
+      <div class="patient-actions">
+        <button class="btn btn-secondary btn-sm" onclick="event.stopPropagation(); openNewRxForPatient('${p.id}')">+ Rx</button>
+        <button class="btn btn-secondary btn-sm" onclick="event.stopPropagation(); openPatientModal('${p.id}')">✏️</button>
+        <button class="btn btn-danger btn-sm" onclick="event.stopPropagation(); deletePatient('${p.id}')">🗑️</button>
+      </div>
+      <div class="patient-name">${p.name}</div>
+      <div class="patient-meta">
+        <span class="patient-badge ${isFemale ? 'badge-f' : 'badge-m'}">${p.gender || 'M'}</span>
+        ${p.age ? `<span>${p.age}</span>` : ''}
+        ${p.blood ? `<span>🩸 ${p.blood}</span>` : ''}
+      </div>
+      <div style="margin-top:8px; font-size:12px; color:var(--text-3)">${rxCount} prescription${rxCount !== 1 ? 's' : ''}</div>
+    </div>`;
+  }).join('');
 }
 
 function openPatientDetail(id) {
- const p = state.patients.find(x => x.id === id);
- if (!p) return;
- const rxList = state.prescriptions.filter(rx => rx.patientId === id).sort((a,b) => new Date(b.date) - new Date(a.date));
- const modal = document.createElement('div');
- modal.className = 'modal-overlay';
- modal.id = 'modal-patient-detail';
- modal.innerHTML = `<div class="modal modal-lg">
-   <div class="modal-header">
-     <div>
-       <div class="modal-title">${p.name}</div>
-       <div class="text-muted">${p.age || ''} ${p.gender ? '· ' + p.gender : ''} ${p.blood ? '· ' + p.blood : ''} ${p.contact ? '· ' + p.contact : ''}</div>
-     </div>
-     <button class="modal-close" onclick="document.getElementById('modal-patient-detail').remove()">✕</button>
-   </div>
-   <div class="modal-body">
-     ${p.allergies ? `<div class="card" style="background:#fef9ec; border-color:#f5d96b; margin-bottom:16px"><strong>⚠️ Allergies / Conditions:</strong> ${p.allergies}</div>` : ''}
-     <div style="font-weight:600; margin-bottom:10px">Prescription History (${rxList.length})</div>
-     ${rxList.length ? rxList.map(rx => `
-       <div class="rx-history-item" onclick="viewRx('${rx.id}')">
-         <div class="rx-date-badge">
-           <div class="day">${new Date(rx.date).getDate()}</div>
-           <div class="mon">${new Date(rx.date).toLocaleString('en',{month:'short'})}</div>
-         </div>
-         <div style="flex:1">
-           <div style="font-weight:500; font-size:14px">${rx.visitType || 'Visit'} — ${new Date(rx.date).toLocaleDateString('en-GB', {year:'numeric',month:'long',day:'numeric'})}</div>
-           <div class="text-muted">${rx.complaints ? rx.complaints.substring(0, 60) + (rx.complaints.length > 60 ? '...' : '') : 'No complaints noted'}</div>
-           <div class="text-muted">${rx.drugs.length} medication${rx.drugs.length !== 1 ? 's' : ''}</div>
-         </div>
-         <button class="btn btn-secondary btn-sm" onclick="event.stopPropagation(); viewRx('${rx.id}')">View PDF</button>
-       </div>`).join('') : '<p class="text-muted">No prescriptions yet.</p>'}
-   </div>
-   <div class="modal-footer">
-     <button class="btn btn-secondary" onclick="document.getElementById('modal-patient-detail').remove()">Close</button>
-     <button class="btn btn-primary" onclick="document.getElementById('modal-patient-detail').remove(); openNewRxForPatient('${p.id}')">+ New Prescription</button>
-   </div>
- </div>`;
- document.body.appendChild(modal);
+  const p = state.patients.find(x => x.id === id);
+  if (!p) return;
+  const rxList = state.prescriptions.filter(rx => rx.patientId === id).sort((a,b) => new Date(b.date) - new Date(a.date));
+  const modal = document.createElement('div');
+  modal.className = 'modal-overlay';
+  modal.id = 'modal-patient-detail';
+  modal.innerHTML = `<div class="modal modal-lg">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title">${p.name}</div>
+        <div class="text-muted">${p.age || ''} ${p.gender ? '· ' + p.gender : ''} ${p.blood ? '· ' + p.blood : ''} ${p.contact ? '· ' + p.contact : ''}</div>
+      </div>
+      <button class="modal-close" onclick="document.getElementById('modal-patient-detail').remove()">✕</button>
+    </div>
+    <div class="modal-body">
+      ${p.allergies ? `<div class="card" style="background:#fef9ec; border-color:#f5d96b; margin-bottom:16px"><strong>⚠️ Allergies / Conditions:</strong> ${p.allergies}</div>` : ''}
+      <div style="font-weight:600; margin-bottom:10px">Prescription History (${rxList.length})</div>
+      ${rxList.length ? rxList.map(rx => `
+        <div class="rx-history-item" onclick="viewRx('${rx.id}')">
+          <div class="rx-date-badge">
+            <div class="day">${new Date(rx.date).getDate()}</div>
+            <div class="mon">${new Date(rx.date).toLocaleString('en',{month:'short'})}</div>
+          </div>
+          <div style="flex:1">
+            <div style="font-weight:500; font-size:14px">${rx.visitType || 'Visit'} — ${new Date(rx.date).toLocaleDateString('en-GB', {year:'numeric',month:'long',day:'numeric'})}</div>
+            <div class="text-muted">${rx.complaints ? rx.complaints.substring(0, 60) + (rx.complaints.length > 60 ? '...' : '') : 'No complaints noted'}</div>
+            <div class="text-muted">${rx.drugs.length} medication${rx.drugs.length !== 1 ? 's' : ''}</div>
+          </div>
+          <button class="btn btn-secondary btn-sm" onclick="event.stopPropagation(); viewRx('${rx.id}')">View PDF</button>
+        </div>`).join('') : '<p class="text-muted">No prescriptions yet.</p>'}
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="document.getElementById('modal-patient-detail').remove()">Close</button>
+      <button class="btn btn-primary" onclick="document.getElementById('modal-patient-detail').remove(); openNewRxForPatient('${p.id}')">+ New Prescription</button>
+    </div>
+  </div>`;
+  document.body.appendChild(modal);
 }
 
 // ── PRESCRIPTIONS ──
 function openNewRx() {
- populatePatientDropdown();
- document.getElementById('rx-select-patient-wrap').classList.remove('hidden');
- setV('rx-patient-select', '');
- setV('rx-date', new Date().toISOString().split('T')[0]);
- clearRxForm();
- state.currentRx = null;
- openModal('modal-rx');
+  populatePatientDropdown();
+  document.getElementById('rx-select-patient-wrap').classList.remove('hidden');
+  setV('rx-patient-select', '');
+  setV('rx-date', new Date().toISOString().split('T')[0]);
+  clearRxForm();
+  state.currentRx = null;
+  openModal('modal-rx');
 }
 
 function openNewRxForPatient(patientId) {
- const p = state.patients.find(x => x.id === patientId);
- if (!p) return;
- populatePatientDropdown();
- setV('rx-patient-select', patientId);
- updateRxPatientLabel();
- document.getElementById('rx-select-patient-wrap').classList.remove('hidden');
- setV('rx-date', new Date().toISOString().split('T')[0]);
- clearRxForm();
- state.currentRx = { patientId };
- openModal('modal-rx');
+  const p = state.patients.find(x => x.id === patientId);
+  if (!p) return;
+  populatePatientDropdown();
+  setV('rx-patient-select', patientId);
+  updateRxPatientLabel();
+  document.getElementById('rx-select-patient-wrap').classList.remove('hidden');
+  setV('rx-date', new Date().toISOString().split('T')[0]);
+  clearRxForm();
+  state.currentRx = { patientId };
+  openModal('modal-rx');
 }
 
 function populatePatientDropdown() {
- const sel = document.getElementById('rx-patient-select');
- sel.innerHTML = '<option value="">-- Select Patient --</option>' +
-   state.patients.map(p => `<option value="${p.id}">${p.name} (${p.age||''})</option>`).join('');
+  const sel = document.getElementById('rx-patient-select');
+  sel.innerHTML = '<option value="">-- Select Patient --</option>' +
+    state.patients.map(p => `<option value="${p.id}">${p.name} (${p.age||''})</option>`).join('');
 }
 
 function updateRxPatientLabel() {
- const pid = v('rx-patient-select');
- const p = state.patients.find(x => x.id === pid);
- document.getElementById('rx-for-patient').textContent = p ? `For: ${p.name} · ${p.age||''} · ${p.gender||''}` : '';
+  const pid = v('rx-patient-select');
+  const p = state.patients.find(x => x.id === pid);
+  document.getElementById('rx-for-patient').textContent = p ? `For: ${p.name} · ${p.age||''} · ${p.gender||''}` : '';
 }
 
 function clearRxForm() {
- ['rx-complaints','rx-history','rx-findings','rx-investigation','rx-advice','rx-notes'].forEach(id => setV(id, ''));
- setV('rx-visit', 'New Visit');
- setV('rx-followup-days', ''); setV('rx-followup-unit', 'days');
- document.getElementById('drug-rows').innerHTML = '';
- addDrugRow();
+  ['rx-complaints','rx-history','rx-findings','rx-investigation','rx-advice','rx-notes'].forEach(id => setV(id, ''));
+  setV('rx-visit', 'New Visit');
+  setV('rx-followup-days', ''); setV('rx-followup-unit', 'days');
+  document.getElementById('drug-rows').innerHTML = '';
+  addDrugRow();
 }
 
 // ── DRUG ROWS ──
 let drugRowId = 0;
 function addDrugRow() {
- const id = ++drugRowId;
- const tr = document.createElement('tr');
- tr.className = 'drug-row';
- tr.id = `dr-${id}`;
- tr.innerHTML = `
-   <td><div class="drug-name-wrap">
-     <input type="text" placeholder="Search drug..." oninput="drugSearch(this, ${id})" id="dname-${id}" autocomplete="off">
-     <div class="drug-autocomplete hidden" id="dac-${id}"></div>
-   </div></td>
-   <td><input type="text" id="dform-${id}" placeholder="e.g. Tablet" style="width:100%"></td>
-   <td>
-     <div class="flex gap-2">
-       <input type="text" id="ddose-${id}" placeholder="Dose" style="width:45%">
-       <select id="dfreq-${id}" style="width:55%">
-         <option value="1 time/day">1 time/day</option>
-         <option value="2 times/day">2 times/day</option>
-         <option value="3 times/day" selected>3 times/day</option>
-         <option value="4 times/day">4 times/day</option>
-         <option value="5 times/day">5 times/day</option>
-         <option value="When in pain (SOS)">When in pain (SOS)</option>
-       </select>
-     </div>
-   </td>
-   <td><select id="dtiming-${id}" style="width:100%">
-     <option value="Before meal">Before meal</option>
-     <option value="After meal" selected>After meal</option>
-     <option value="During meal">During meal</option>
-     <option value="Empty stomach">Empty stomach</option>
-     <option value="At bedtime">At bedtime</option>
-   </select></td>
-   <td><input type="text" id="ddur-${id}" placeholder="e.g. 5 days" style="width:100%"></td>
-   <td><input type="text" id="dnote-${id}" placeholder="Note..." style="width:100%"></td>
-   <td><button class="del-btn" onclick="removeDrugRow(${id})">✕</button></td>`;
- document.getElementById('drug-rows').appendChild(tr);
+  const id = ++drugRowId;
+  const tr = document.createElement('tr');
+  tr.className = 'drug-row';
+  tr.id = `dr-${id}`;
+  tr.innerHTML = `
+    <td><div class="drug-name-wrap">
+      <input type="text" placeholder="Search drug..." oninput="drugSearch(this, ${id})" id="dname-${id}" autocomplete="off">
+      <div class="drug-autocomplete hidden" id="dac-${id}"></div>
+    </div></td>
+    <td><input type="text" id="dform-${id}" placeholder="e.g. Tablet" style="width:100%"></td>
+    <td>
+      <div class="flex gap-2">
+        <input type="text" id="ddose-${id}" placeholder="Dose" style="width:45%">
+        <select id="dfreq-${id}" style="width:55%">
+          <option value="1 time/day">1 time/day</option>
+          <option value="2 times/day">2 times/day</option>
+          <option value="3 times/day" selected>3 times/day</option>
+          <option value="4 times/day">4 times/day</option>
+          <option value="5 times/day">5 times/day</option>
+          <option value="When in pain (SOS)">When in pain (SOS)</option>
+        </select>
+      </div>
+    </td>
+    <td><select id="dtiming-${id}" style="width:100%">
+      <option value="Before meal">Before meal</option>
+      <option value="After meal" selected>After meal</option>
+      <option value="During meal">During meal</option>
+      <option value="Empty stomach">Empty stomach</option>
+      <option value="At bedtime">At bedtime</option>
+    </select></td>
+    <td><input type="text" id="ddur-${id}" placeholder="e.g. 5 days" style="width:100%"></td>
+    <td><input type="text" id="dnote-${id}" placeholder="Note..." style="width:100%"></td>
+    <td><button class="del-btn" onclick="removeDrugRow(${id})">✕</button></td>`;
+  document.getElementById('drug-rows').appendChild(tr);
 }
 
 function removeDrugRow(id) {
- const el = document.getElementById(`dr-${id}`);
- if (el) el.remove();
+  const el = document.getElementById(`dr-${id}`);
+  if (el) el.remove();
 }
 
 function drugSearch(input, id) {
- const q = input.value.toLowerCase();
- const ac = document.getElementById(`dac-${id}`);
- if (!q || q.length < 2) { ac.classList.add('hidden'); return; }
- 
- const source = (typeof EXTERNAL_DRUGS !== 'undefined' && EXTERNAL_DRUGS.length > 0) ? EXTERNAL_DRUGS : DRUGS;
- 
- const matches = source.filter(d => {
-   const b = (d["brand name"] || d.name || "").toLowerCase();
-   const g = (d.generic || "").toLowerCase();
-   return b.includes(q) || g.includes(q);
- }).slice(0, 10);
- 
- if (!matches.length) { ac.classList.add('hidden'); return; }
- 
- ac.innerHTML = matches.map(d => {
-   const brand = d["brand name"] || d.name || "";
-   const generic = d.generic || "";
-   const form = d["dosage form"] || d.form || "";
-   const strength = d.strength || "";
-   
-   let displayName = brand;
-   if(strength) displayName += ' ' + strength;
-   
-   // Escaping to prevent HTML breaking
-   const displayNameEsc = displayName.replace(/'/g,"\\'").replace(/"/g,""");
-   const formEsc = form.replace(/'/g,"\\'").replace(/"/g,""");
-   
-   return `<div class="drug-ac-item" onclick="selectDrug(${id}, '${displayNameEsc}', '${formEsc}')">
-     <div style="font-size: 14.5px; font-weight: 700; color: var(--rx-blue); line-height: 1.2; margin-bottom: 2px;">${brand}</div>
-     <div style="font-size: 12.5px; color: var(--text-2); line-height: 1.2;">${generic}</div>
-     <div style="font-size: 11px; color: var(--text-3); margin-top: 2px;">${strength}</div>
-   </div>`;
- }).join('');
- 
- ac.classList.remove('hidden');
+  const q = input.value.toLowerCase();
+  const ac = document.getElementById(`dac-${id}`);
+  if (!q || q.length < 2) { ac.classList.add('hidden'); return; }
+  
+  const source = (typeof EXTERNAL_DRUGS !== 'undefined' && EXTERNAL_DRUGS.length > 0) ? EXTERNAL_DRUGS : DRUGS;
+  
+  const matches = source.filter(d => {
+    const b = (d["brand name"] || d.name || "").toLowerCase();
+    const g = (d.generic || "").toLowerCase();
+    return b.includes(q) || g.includes(q);
+  }).slice(0, 10);
+  
+  if (!matches.length) { ac.classList.add('hidden'); return; }
+  
+  ac.innerHTML = matches.map(d => {
+    const brand = d["brand name"] || d.name || "";
+    const generic = d.generic || "";
+    const form = d["dosage form"] || d.form || "";
+    const strength = d.strength || "";
+    
+    let displayName = brand;
+    if(strength) displayName += ' ' + strength;
+    
+    // Escaping to prevent HTML breaking
+    const displayNameEsc = displayName.replace(/'/g,"\\'").replace(/"/g,"&quot;");
+    const formEsc = form.replace(/'/g,"\\'").replace(/"/g,"&quot;");
+    
+    return `<div class="drug-ac-item" onclick="selectDrug(${id}, '${displayNameEsc}', '${formEsc}')">
+      <div style="font-size: 14.5px; font-weight: 700; color: var(--rx-blue); line-height: 1.2; margin-bottom: 2px;">${brand}</div>
+      <div style="font-size: 12.5px; color: var(--text-2); line-height: 1.2;">${generic}</div>
+      <div style="font-size: 11px; color: var(--text-3); margin-top: 2px;">${strength}</div>
+    </div>`;
+  }).join('');
+  
+  ac.classList.remove('hidden');
 }
 
 function selectDrug(id, name, form) {
- setV(`dname-${id}`, name);
- setV(`dform-${id}`, form);
- document.getElementById(`dac-${id}`).classList.add('hidden');
+  setV(`dname-${id}`, name);
+  setV(`dform-${id}`, form);
+  document.getElementById(`dac-${id}`).classList.add('hidden');
 }
 
 // Close autocompletes on outside click
 document.addEventListener('click', e => {
- if (!e.target.closest('.drug-name-wrap')) {
-   document.querySelectorAll('.drug-autocomplete').forEach(el => el.classList.add('hidden'));
- }
+  if (!e.target.closest('.drug-name-wrap')) {
+    document.querySelectorAll('.drug-autocomplete').forEach(el => el.classList.add('hidden'));
+  }
 });
 
 // ── COLLECT RX DATA ──
 function collectRxData() {
- const drugs = [];
- document.querySelectorAll('#drug-rows tr').forEach(tr => {
-   const id = tr.id.replace('dr-', '');
-   const name = v(`dname-${id}`);
-   if (!name) return;
-   
-   drugs.push({
-     name, 
-     form: v(`dform-${id}`), 
-     dose: v(`ddose-${id}`),
-     freq: v(`dfreq-${id}`),
-     timing: v(`dtiming-${id}`),
-     duration: v(`ddur-${id}`),
-     note: v(`dnote-${id}`)
-   });
- });
- const pid = v('rx-patient-select');
- const patient = state.patients.find(p => p.id === pid);
- return {
-   id: (state.currentRx && state.currentRx.id) ? state.currentRx.id : uid(),
-   patientId: pid,
-   patientName: patient ? patient.name : 'Unknown',
-   patientAge: patient ? patient.age : '',
-   patientGender: patient ? patient.gender : '',
-   date: v('rx-date') || new Date().toISOString().split('T')[0],
-   visitType: v('rx-visit'),
-   complaints: v('rx-complaints'),
-   history: v('rx-history'),
-   findings: v('rx-findings'),
-   investigation: v('rx-investigation'),
-   advice: v('rx-advice'),
-   notes: v('rx-notes'),
-   followupDays: v('rx-followup-days'),
-   followupUnit: v('rx-followup-unit'),
-   drugs,
-   createdAt: new Date().toISOString()
- };
+  const drugs = [];
+  document.querySelectorAll('#drug-rows tr').forEach(tr => {
+    const id = tr.id.replace('dr-', '');
+    const name = v(`dname-${id}`);
+    if (!name) return;
+    
+    drugs.push({
+      name, 
+      form: v(`dform-${id}`), 
+      dose: v(`ddose-${id}`),
+      freq: v(`dfreq-${id}`),
+      timing: v(`dtiming-${id}`),
+      duration: v(`ddur-${id}`),
+      note: v(`dnote-${id}`)
+    });
+  });
+  const pid = v('rx-patient-select');
+  const patient = state.patients.find(p => p.id === pid);
+  return {
+    id: (state.currentRx && state.currentRx.id) ? state.currentRx.id : uid(),
+    patientId: pid,
+    patientName: patient ? patient.name : 'Unknown',
+    patientAge: patient ? patient.age : '',
+    patientGender: patient ? patient.gender : '',
+    date: v('rx-date') || new Date().toISOString().split('T')[0],
+    visitType: v('rx-visit'),
+    complaints: v('rx-complaints'),
+    history: v('rx-history'),
+    findings: v('rx-findings'),
+    investigation: v('rx-investigation'),
+    advice: v('rx-advice'),
+    notes: v('rx-notes'),
+    followupDays: v('rx-followup-days'),
+    followupUnit: v('rx-followup-unit'),
+    drugs,
+    createdAt: new Date().toISOString()
+  };
 }
 
 // ── EDIT EXISTING RX ──
 function editRx() {
- const rx = state.currentRx;
- if (!rx) return;
- closeModal('modal-rx-preview');
+  const rx = state.currentRx;
+  if (!rx) return;
+  closeModal('modal-rx-preview');
 
- populatePatientDropdown();
- setV('rx-patient-select', rx.patientId || '');
- updateRxPatientLabel();
- document.getElementById('rx-select-patient-wrap').classList.remove('hidden');
+  populatePatientDropdown();
+  setV('rx-patient-select', rx.patientId || '');
+  updateRxPatientLabel();
+  document.getElementById('rx-select-patient-wrap').classList.remove('hidden');
 
- setV('rx-date', rx.date || new Date().toISOString().split('T')[0]);
- setV('rx-visit', rx.visitType || 'New Visit');
- setV('rx-complaints', rx.complaints || '');
- setV('rx-history', rx.history || '');
- setV('rx-findings', rx.findings || '');
- setV('rx-investigation', rx.investigation || '');
- setV('rx-advice', rx.advice || '');
- setV('rx-notes', rx.notes || '');
- setV('rx-followup-days', rx.followupDays || '');
- setV('rx-followup-unit', rx.followupUnit || 'days');
+  setV('rx-date', rx.date || new Date().toISOString().split('T')[0]);
+  setV('rx-visit', rx.visitType || 'New Visit');
+  setV('rx-complaints', rx.complaints || '');
+  setV('rx-history', rx.history || '');
+  setV('rx-findings', rx.findings || '');
+  setV('rx-investigation', rx.investigation || '');
+  setV('rx-advice', rx.advice || '');
+  setV('rx-notes', rx.notes || '');
+  setV('rx-followup-days', rx.followupDays || '');
+  setV('rx-followup-unit', rx.followupUnit || 'days');
 
- // Rebuild drug rows from saved data
- document.getElementById('drug-rows').innerHTML = '';
- (rx.drugs || []).forEach(drug => {
-   const id = ++drugRowId;
-   const tr = document.createElement('tr');
-   tr.className = 'drug-row';
-   tr.id = `dr-${id}`;
-   tr.innerHTML = `
-     <td><div class="drug-name-wrap">
-       <input type="text" placeholder="Search drug..." oninput="drugSearch(this, ${id})" id="dname-${id}" autocomplete="off" value="${(drug.name||'').replace(/"/g,'"')}">
-       <div class="drug-autocomplete hidden" id="dac-${id}"></div>
-     </div></td>
-     <td><input type="text" id="dform-${id}" placeholder="e.g. Tablet" style="width:100%" value="${(drug.form||'').replace(/"/g,'"')}"></td>
-     <td>
-       <div class="flex gap-2">
-         <input type="text" id="ddose-${id}" placeholder="Dose" style="width:45%" value="${(drug.dose||'').replace(/"/g,'"')}">
-         <select id="dfreq-${id}" style="width:55%">
-           <option value="1 time/day">1 time/day</option>
-           <option value="2 times/day">2 times/day</option>
-           <option value="3 times/day">3 times/day</option>
-           <option value="4 times/day">4 times/day</option>
-           <option value="5 times/day">5 times/day</option>
-           <option value="When in pain (SOS)">When in pain (SOS)</option>
-         </select>
-       </div>
-     </td>
-     <td><select id="dtiming-${id}" style="width:100%">
-       <option value="Before meal">Before meal</option>
-       <option value="After meal">After meal</option>
-       <option value="During meal">During meal</option>
-       <option value="Empty stomach">Empty stomach</option>
-       <option value="At bedtime">At bedtime</option>
-     </select></td>
-     <td><input type="text" id="ddur-${id}" placeholder="e.g. 5 days" style="width:100%" value="${(drug.duration||'').replace(/"/g,'"')}"></td>
-     <td><input type="text" id="dnote-${id}" placeholder="Note..." style="width:100%" value="${(drug.note||'').replace(/"/g,'"')}"></td>
-     <td><button class="del-btn" onclick="removeDrugRow(${id})">✕</button></td>`;
-   document.getElementById('drug-rows').appendChild(tr);
-   
-   // Auto-map old string frequencies to new standardized values to prevent UI breaks
-   let freqVal = drug.freq || '3 times/day';
-   const freqMap = {'1':'1 time/day','2':'2 times/day','3':'3 times/day','4':'4 times/day','6':'5 times/day','SOS':'When in pain (SOS)','stat':'1 time/day'};
-   if (freqMap[freqVal]) freqVal = freqMap[freqVal];
-   
-   // Set select values after appending to DOM
-   setV(`dfreq-${id}`, freqVal);
-   setV(`dtiming-${id}`, drug.timing || 'After meal');
- });
- if (!(rx.drugs && rx.drugs.length)) addDrugRow();
+  // Rebuild drug rows from saved data
+  document.getElementById('drug-rows').innerHTML = '';
+  (rx.drugs || []).forEach(drug => {
+    const id = ++drugRowId;
+    const tr = document.createElement('tr');
+    tr.className = 'drug-row';
+    tr.id = `dr-${id}`;
+    tr.innerHTML = `
+      <td><div class="drug-name-wrap">
+        <input type="text" placeholder="Search drug..." oninput="drugSearch(this, ${id})" id="dname-${id}" autocomplete="off" value="${(drug.name||'').replace(/"/g,'&quot;')}">
+        <div class="drug-autocomplete hidden" id="dac-${id}"></div>
+      </div></td>
+      <td><input type="text" id="dform-${id}" placeholder="e.g. Tablet" style="width:100%" value="${(drug.form||'').replace(/"/g,'&quot;')}"></td>
+      <td>
+        <div class="flex gap-2">
+          <input type="text" id="ddose-${id}" placeholder="Dose" style="width:45%" value="${(drug.dose||'').replace(/"/g,'&quot;')}">
+          <select id="dfreq-${id}" style="width:55%">
+            <option value="1 time/day">1 time/day</option>
+            <option value="2 times/day">2 times/day</option>
+            <option value="3 times/day">3 times/day</option>
+            <option value="4 times/day">4 times/day</option>
+            <option value="5 times/day">5 times/day</option>
+            <option value="When in pain (SOS)">When in pain (SOS)</option>
+          </select>
+        </div>
+      </td>
+      <td><select id="dtiming-${id}" style="width:100%">
+        <option value="Before meal">Before meal</option>
+        <option value="After meal">After meal</option>
+        <option value="During meal">During meal</option>
+        <option value="Empty stomach">Empty stomach</option>
+        <option value="At bedtime">At bedtime</option>
+      </select></td>
+      <td><input type="text" id="ddur-${id}" placeholder="e.g. 5 days" style="width:100%" value="${(drug.duration||'').replace(/"/g,'&quot;')}"></td>
+      <td><input type="text" id="dnote-${id}" placeholder="Note..." style="width:100%" value="${(drug.note||'').replace(/"/g,'&quot;')}"></td>
+      <td><button class="del-btn" onclick="removeDrugRow(${id})">✕</button></td>`;
+    document.getElementById('drug-rows').appendChild(tr);
+    
+    // Auto-map old string frequencies to new standardized values to prevent UI breaks
+    let freqVal = drug.freq || '3 times/day';
+    const freqMap = {'1':'1 time/day','2':'2 times/day','3':'3 times/day','4':'4 times/day','6':'5 times/day','SOS':'When in pain (SOS)','stat':'1 time/day'};
+    if (freqMap[freqVal]) freqVal = freqMap[freqVal];
+    
+    // Set select values after appending to DOM
+    setV(`dfreq-${id}`, freqVal);
+    setV(`dtiming-${id}`, drug.timing || 'After meal');
+  });
+  if (!(rx.drugs && rx.drugs.length)) addDrugRow();
 
- // Keep the same id so saving overwrites the original
- state.currentRx = rx;
- openModal('modal-rx');
+  // Keep the same id so saving overwrites the original
+  state.currentRx = rx;
+  openModal('modal-rx');
 }
 
 // ── PREVIEW RX ──
 function previewRx() {
- if (!v('rx-patient-select')) { toast('❗ Please select a patient'); return; }
- state.currentRx = collectRxData();
- renderRxPreview(state.currentRx);
- closeModal('modal-rx');
- openModal('modal-rx-preview');
+  if (!v('rx-patient-select')) { toast('❗ Please select a patient'); return; }
+  state.currentRx = collectRxData();
+  renderRxPreview(state.currentRx);
+  closeModal('modal-rx');
+  openModal('modal-rx-preview');
 }
 
 function renderRxPreview(rx) {
- document.getElementById('rx-a4').innerHTML = buildRxHTML(rx, state.padSettings);
+  document.getElementById('rx-a4').innerHTML = buildRxHTML(rx, state.padSettings);
 }
 
 function buildRxHTML(rx, opts = {}) {
- const p = state.profile;
- const ps = state.padSettings;
- const col = opts.color || ps.color || '#1a3a5c';
- const al = opts.headerAlign || ps.align || 'center';
- const lw = opts.leftWidth || ps.leftWidth || 165;
+  const p = state.profile;
+  const ps = state.padSettings;
+  const col = opts.color || ps.color || '#1a3a5c';
+  const al = opts.headerAlign || ps.align || 'center';
+  const lw = opts.leftWidth || ps.leftWidth || 165;
 
- const dateStr = rx.date ? new Date(rx.date + 'T00:00').toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' }) : '';
+  const dateStr = rx.date ? new Date(rx.date + 'T00:00').toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' }) : '';
 
- // For live pad-design preview, read the CURRENT checkbox states directly from the UI
- // For actual Rx preview/PDF, use the saved padSettings
- function showSection(key) {
-   if (opts.preview) {
-     // Read live checkbox state from the pad design UI
-     const el = document.getElementById('show-' + key);
-     return el ? el.checked : true;
-   }
-   return opts[key] !== false && ps['show' + key.charAt(0).toUpperCase() + key.slice(1)] !== false;
- }
+  // For live pad-design preview, read the CURRENT checkbox states directly from the UI
+  // For actual Rx preview/PDF, use the saved padSettings
+  function showSection(key) {
+    if (opts.preview) {
+      // Read live checkbox state from the pad design UI
+      const el = document.getElementById('show-' + key);
+      return el ? el.checked : true;
+    }
+    return opts[key] !== false && ps['show' + key.charAt(0).toUpperCase() + key.slice(1)] !== false;
+  }
 
- const leftSections = `
-   <div><div class="rx-section-label">COMPLAINTS</div><div class="rx-section-content">${rx.complaints || ''}</div></div>
-   ${showSection('history') ? `<div><div class="rx-section-label">HISTORY</div><div class="rx-section-content">${rx.history || ''}</div></div>` : ''}
-   ${showSection('findings') ? `<div><div class="rx-section-label">FINDINGS</div><div class="rx-section-content">${rx.findings || ''}</div></div>` : ''}
-   ${showSection('investigation') ? `<div><div class="rx-section-label">INVESTIGATION</div><div class="rx-section-content">${rx.investigation || ''}</div></div>` : ''}
- `;
+  const leftSections = `
+    <div><div class="rx-section-label">COMPLAINTS</div><div class="rx-section-content">${rx.complaints || ''}</div></div>
+    ${showSection('history') ? `<div><div class="rx-section-label">HISTORY</div><div class="rx-section-content">${rx.history || ''}</div></div>` : ''}
+    ${showSection('findings') ? `<div><div class="rx-section-label">FINDINGS</div><div class="rx-section-content">${rx.findings || ''}</div></div>` : ''}
+    ${showSection('investigation') ? `<div><div class="rx-section-label">INVESTIGATION</div><div class="rx-section-content">${rx.investigation || ''}</div></div>` : ''}
+  `;
 
- const drugsHTML = (rx.drugs || []).map((d, i) => `
-   <div class="rx-drug-item">
-     <div class="rx-drug-name">${i+1}. ${d.name} <span>${d.dose ? '— ' + d.dose : ''}</span></div>
-     <div class="rx-drug-sig">${d.form || ''} ${d.form && d.freq ? '·' : ''} ${d.freq ? d.freq : ''} ${d.freq && d.timing ? '·' : ''} ${d.timing || ''} ${d.timing && d.duration ? '·' : ''} ${d.duration ? d.duration : ''}</div>
-     ${d.note ? `<div class="rx-drug-sig" style="margin-top:2px; font-weight: 500; color: #1a3a5c;">Note: ${d.note}</div>` : ''}
-   </div>`).join('');
+  const drugsHTML = (rx.drugs || []).map((d, i) => `
+    <div class="rx-drug-item">
+      <div class="rx-drug-name">${i+1}. ${d.name} <span>${d.dose ? '— ' + d.dose : ''}</span></div>
+      <div class="rx-drug-sig">${d.form || ''} ${d.form && d.freq ? '·' : ''} ${d.freq ? d.freq : ''} ${d.freq && d.timing ? '·' : ''} ${d.timing || ''} ${d.timing && d.duration ? '·' : ''} ${d.duration ? d.duration : ''}</div>
+      ${d.note ? `<div class="rx-drug-sig" style="margin-top:2px; font-weight: 500; color: #1a3a5c;">Note: ${d.note}</div>` : ''}
+    </div>`).join('');
 
- const followupHTML = (rx.followupDays && showSection('followup')) ? `<div class="rx-followup"><strong>Follow-up:</strong> After ${rx.followupDays} ${rx.followupUnit || 'days'}</div>` : '';
- const adviceHTML = (rx.advice && showSection('advice')) ? `<div class="rx-advice-section"><div class="rx-advice-label">Advice</div><div class="rx-advice-text">${rx.advice}</div></div>` : '';
- const notesHTML = rx.notes ? `<div class="rx-advice-section"><div class="rx-advice-label">Note</div><div class="rx-advice-text">${rx.notes}</div></div>` : '';
+  const followupHTML = (rx.followupDays && showSection('followup')) ? `<div class="rx-followup"><strong>Follow-up:</strong> After ${rx.followupDays} ${rx.followupUnit || 'days'}</div>` : '';
+  const adviceHTML = (rx.advice && showSection('advice')) ? `<div class="rx-advice-section"><div class="rx-advice-label">Advice</div><div class="rx-advice-text">${rx.advice}</div></div>` : '';
+  const notesHTML = rx.notes ? `<div class="rx-advice-section"><div class="rx-advice-label">Note</div><div class="rx-advice-text">${rx.notes}</div></div>` : '';
 
- return `
-   <div class="rx-header" style="text-align:${al}">
-     <div class="rx-doc-name" style="color:${col}">${p.name || 'Doctor Name'}</div>
-     <div class="rx-doc-quals">${p.qualifications || ''}</div>
-     <div class="rx-doc-quals">${p.designation || ''}</div>
-     <div class="rx-doc-quals">${p.hospital || ''}</div>
-     <div class="rx-doc-quals">${p.reg || ''}</div>
-   </div>
-   <hr class="rx-divider" style="border-color:${col}">
-   <div class="rx-patient-row">
-     <div class="rx-pfield"><strong>Name:</strong> ${rx.patientName || '.'}</div>
-     <div class="rx-pfield" style="max-width:140px"><strong>Age:</strong> ${rx.patientAge || '.'}   ${rx.patientGender || ''}</div>
-     <div class="rx-pfield" style="max-width:160px"><strong>Date:</strong> ${dateStr}</div>
-   </div>
-   <div class="rx-body">
-     <div class="rx-left" style="width:${lw}px">${leftSections}</div>
-     <div class="rx-right">
-       <div class="rx-rx-title">Rx</div>
-       ${drugsHTML || '<div class="rx-section-content" style="color:#999">No medications</div>'}
-       ${adviceHTML}
-       ${followupHTML}
-       ${notesHTML}
-     </div>
-   </div>
-   <div class="rx-footer-note">${p.footer || 'নিয়ম মাফিক ঔষধ খাবেন। ডাক্তারের পরামর্শ ব্যতীত ঔষধ পরিবর্তন নিষেধ।'}</div>
- `;
+  return `
+    <div class="rx-header" style="text-align:${al}">
+      <div class="rx-doc-name" style="color:${col}">${p.name || 'Doctor Name'}</div>
+      <div class="rx-doc-quals">${p.qualifications || ''}</div>
+      <div class="rx-doc-quals">${p.designation || ''}</div>
+      <div class="rx-doc-quals">${p.hospital || ''}</div>
+      <div class="rx-doc-quals">${p.reg || ''}</div>
+    </div>
+    <hr class="rx-divider" style="border-color:${col}">
+    <div class="rx-patient-row">
+      <div class="rx-pfield"><strong>Name:</strong> ${rx.patientName || '.'}</div>
+      <div class="rx-pfield" style="max-width:140px"><strong>Age:</strong> ${rx.patientAge || '.'} &nbsp; ${rx.patientGender || ''}</div>
+      <div class="rx-pfield" style="max-width:160px"><strong>Date:</strong> ${dateStr}</div>
+    </div>
+    <div class="rx-body">
+      <div class="rx-left" style="width:${lw}px">${leftSections}</div>
+      <div class="rx-right">
+        <div class="rx-rx-title">Rx</div>
+        ${drugsHTML || '<div class="rx-section-content" style="color:#999">No medications</div>'}
+        ${adviceHTML}
+        ${followupHTML}
+        ${notesHTML}
+      </div>
+    </div>
+    <div class="rx-footer-note">${p.footer || 'নিয়ম মাফিক ঔষধ খাবেন। ডাক্তারের পরামর্শ ব্যতীত ঔষধ পরিবর্তন নিষেধ।'}</div>
+  `;
 }
 
 // ── PDF / IMAGE EXPORT ──
 async function saveRxPDF() {
- toast('⏳ Generating PDF...');
- try {
-   const rx = state.currentRx;
-   const { jsPDF } = window.jspdf;
+  toast('⏳ Generating PDF...');
+  try {
+    const rx = state.currentRx;
+    const { jsPDF } = window.jspdf;
 
-   // Render the full prescription into a hidden full-scale element
-   // so html2canvas can capture it at full resolution with fonts loaded
-   const hiddenWrap = document.createElement('div');
-   hiddenWrap.style.cssText = 'position:fixed;left:-9999px;top:0;z-index:-1;width:794px;background:white;';
-   const innerDiv = document.createElement('div');
-   innerDiv.style.cssText = 'width:794px;min-height:1123px;background:white;font-family:\'Crimson Pro\',serif;padding:48px 52px 52px;color:#111;';
-   innerDiv.innerHTML = buildRxHTML(rx, state.padSettings);
-   hiddenWrap.appendChild(innerDiv);
-   document.body.appendChild(hiddenWrap);
+    // Render the full prescription into a hidden full-scale element
+    // so html2canvas can capture it at full resolution with fonts loaded
+    const hiddenWrap = document.createElement('div');
+    hiddenWrap.style.cssText = 'position:fixed;left:-9999px;top:0;z-index:-1;width:794px;background:white;';
+    const innerDiv = document.createElement('div');
+    innerDiv.style.cssText = 'width:794px;min-height:1123px;background:white;font-family:\'Crimson Pro\',serif;padding:48px 52px 52px;color:#111;';
+    innerDiv.innerHTML = buildRxHTML(rx, state.padSettings);
+    hiddenWrap.appendChild(innerDiv);
+    document.body.appendChild(hiddenWrap);
 
-   // Wait a frame for fonts/layout to render
-   await new Promise(r => setTimeout(r, 300));
+    // Wait a frame for fonts/layout to render
+    await new Promise(r => setTimeout(r, 300));
 
-   const canvas = await html2canvas(innerDiv, {
-     scale: 2,
-     useCORS: true,
-     allowTaint: true,
-     backgroundColor: '#ffffff',
-     width: 794,
-     windowWidth: 794
-   });
+    const canvas = await html2canvas(innerDiv, {
+      scale: 2,
+      useCORS: true,
+      allowTaint: true,
+      backgroundColor: '#ffffff',
+      width: 794,
+      windowWidth: 794
+    });
 
-   document.body.removeChild(hiddenWrap);
+    document.body.removeChild(hiddenWrap);
 
-   const imgData = canvas.toDataURL('image/png');
-   const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-   const pdfW = 210;
-   const pdfH = (canvas.height / canvas.width) * pdfW;
+    const imgData = canvas.toDataURL('image/png');
+    const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
+    const pdfW = 210;
+    const pdfH = (canvas.height / canvas.width) * pdfW;
 
-   // If content is taller than one A4 page, split across pages
-   const pageH = 297;
-   if (pdfH <= pageH) {
-     pdf.addImage(imgData, 'PNG', 0, 0, pdfW, pdfH);
-   } else {
-     let yOffset = 0;
-     while (yOffset < pdfH) {
-       if (yOffset > 0) pdf.addPage();
-       pdf.addImage(imgData, 'PNG', 0, -yOffset, pdfW, pdfH);
-       yOffset += pageH;
-     }
-   }
+    // If content is taller than one A4 page, split across pages
+    const pageH = 297;
+    if (pdfH <= pageH) {
+      pdf.addImage(imgData, 'PNG', 0, 0, pdfW, pdfH);
+    } else {
+      let yOffset = 0;
+      while (yOffset < pdfH) {
+        if (yOffset > 0) pdf.addPage();
+        pdf.addImage(imgData, 'PNG', 0, -yOffset, pdfW, pdfH);
+        yOffset += pageH;
+      }
+    }
 
-   const fname = `Rx_${(rx.patientName||'Patient').replace(/\s+/g,'_')}_${rx.date||''}.pdf`;
-   pdf.save(fname);
-   toast('✅ PDF saved');
- } catch (e) { console.error(e); toast('❌ PDF error: ' + e.message); }
+    const fname = `Rx_${(rx.patientName||'Patient').replace(/\s+/g,'_')}_${rx.date||''}.pdf`;
+    pdf.save(fname);
+    toast('✅ PDF saved');
+  } catch (e) { console.error(e); toast('❌ PDF error: ' + e.message); }
 }
 
 async function saveRxImage() {
- toast('⏳ Saving image...');
- const el = document.getElementById('rx-a4');
- try {
-   const canvas = await html2canvas(el, { scale: 2, useCORS: true });
-   const a = document.createElement('a');
-   a.download = `Rx_${(state.currentRx?.patientName||'Patient').replace(/\s+/g,'_')}_${state.currentRx?.date||''}.png`;
-   a.href = canvas.toDataURL('image/png');
-   a.click();
-   toast('✅ Image saved');
- } catch (e) { toast('❌ Error: ' + e.message); }
+  toast('⏳ Saving image...');
+  const el = document.getElementById('rx-a4');
+  try {
+    const canvas = await html2canvas(el, { scale: 2, useCORS: true });
+    const a = document.createElement('a');
+    a.download = `Rx_${(state.currentRx?.patientName||'Patient').replace(/\s+/g,'_')}_${state.currentRx?.date||''}.png`;
+    a.href = canvas.toDataURL('image/png');
+    a.click();
+    toast('✅ Image saved');
+  } catch (e) { toast('❌ Error: ' + e.message); }
 }
 
 function printRx() {
- const w = window.open('', '_blank');
- const rxHTML = document.getElementById('rx-a4').innerHTML;
- w.document.write(`<!DOCTYPE html><html><head>
-   <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,300;0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
-   <style>
-     * { box-sizing:border-box; margin:0; padding:0; }
-     body { font-family:'Crimson Pro', serif; padding:0; background:white; }
-     .rx-header{text-align:center} .rx-doc-name{font-size:22px;font-weight:700;color:#1a3a5c}
-     .rx-doc-quals{font-size:12.5px;color:#333;line-height:1.5;font-family:'DM Sans',sans-serif}
-     .rx-divider{border:none;border-top:1.5px solid #111;margin:8px 0 6px}
-     .rx-patient-row{display:flex;font-size:13px;font-family:'DM Sans',sans-serif;border-bottom:1px solid #111;padding-bottom:6px}
-     .rx-pfield{flex:1} .rx-pfield strong{margin-right:4px}
-     .rx-body{display:flex;min-height:800px;border-bottom:1px solid #111}
-     .rx-left{width:165px;flex-shrink:0;border-right:1px solid #111;padding:12px 12px 12px 0;display:flex;flex-direction:column;gap:24px}
-     .rx-section-label{font-size:11.5px;font-weight:700;font-family:'DM Sans',sans-serif;letter-spacing:.8px;text-transform:uppercase;color:#111}
-     .rx-section-content{font-size:12.5px;font-family:'DM Sans',sans-serif;color:#222;line-height:1.55;white-space:pre-wrap;margin-top:4px}
-     .rx-right{flex:1;padding:12px 0 12px 16px}
-     .rx-rx-title{font-size:18px;font-weight:700;color:#111;margin-bottom:10px}
-     .rx-drug-item{margin-bottom:12px;padding-bottom:10px;border-bottom:1px dotted #ccc}
-     .rx-drug-name{font-size:14px;font-weight:600;color:#111}
-     .rx-drug-name span{font-size:12px;font-weight:400;color:#555;font-family:'DM Sans',sans-serif}
-     .rx-drug-sig{font-size:12.5px;color:#333;font-family:'DM Sans',sans-serif;margin-top:2px}
-     .rx-advice-section{margin-top:16px} .rx-advice-label{font-size:11px;font-weight:700;font-family:'DM Sans',sans-serif;letter-spacing:.8px;text-transform:uppercase;color:#111;margin-bottom:4px}
-     .rx-advice-text{font-size:12.5px;font-family:'DM Sans',sans-serif;color:#333;line-height:1.6}
-     .rx-followup{font-size:12.5px;font-family:'DM Sans',sans-serif;color:#333;margin-top:8px}
-     .rx-footer-note{text-align:center;font-size:13px;font-family:'DM Sans',sans-serif;padding-top:10px;color:#333}
-     @page{size:A4;margin:12mm 14mm}
-   </style>
-   </head><body>${rxHTML}</body></html>`);
- w.document.close();
- w.onload = () => { w.print(); };
+  const w = window.open('', '_blank');
+  const rxHTML = document.getElementById('rx-a4').innerHTML;
+  w.document.write(`<!DOCTYPE html><html><head>
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,300;0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+      * { box-sizing:border-box; margin:0; padding:0; }
+      body { font-family:'Crimson Pro', serif; padding:0; background:white; }
+      .rx-header{text-align:center} .rx-doc-name{font-size:22px;font-weight:700;color:#1a3a5c}
+      .rx-doc-quals{font-size:12.5px;color:#333;line-height:1.5;font-family:'DM Sans',sans-serif}
+      .rx-divider{border:none;border-top:1.5px solid #111;margin:8px 0 6px}
+      .rx-patient-row{display:flex;font-size:13px;font-family:'DM Sans',sans-serif;border-bottom:1px solid #111;padding-bottom:6px}
+      .rx-pfield{flex:1} .rx-pfield strong{margin-right:4px}
+      .rx-body{display:flex;min-height:800px;border-bottom:1px solid #111}
+      .rx-left{width:165px;flex-shrink:0;border-right:1px solid #111;padding:12px 12px 12px 0;display:flex;flex-direction:column;gap:24px}
+      .rx-section-label{font-size:11.5px;font-weight:700;font-family:'DM Sans',sans-serif;letter-spacing:.8px;text-transform:uppercase;color:#111}
+      .rx-section-content{font-size:12.5px;font-family:'DM Sans',sans-serif;color:#222;line-height:1.55;white-space:pre-wrap;margin-top:4px}
+      .rx-right{flex:1;padding:12px 0 12px 16px}
+      .rx-rx-title{font-size:18px;font-weight:700;color:#111;margin-bottom:10px}
+      .rx-drug-item{margin-bottom:12px;padding-bottom:10px;border-bottom:1px dotted #ccc}
+      .rx-drug-name{font-size:14px;font-weight:600;color:#111}
+      .rx-drug-name span{font-size:12px;font-weight:400;color:#555;font-family:'DM Sans',sans-serif}
+      .rx-drug-sig{font-size:12.5px;color:#333;font-family:'DM Sans',sans-serif;margin-top:2px}
+      .rx-advice-section{margin-top:16px} .rx-advice-label{font-size:11px;font-weight:700;font-family:'DM Sans',sans-serif;letter-spacing:.8px;text-transform:uppercase;color:#111;margin-bottom:4px}
+      .rx-advice-text{font-size:12.5px;font-family:'DM Sans',sans-serif;color:#333;line-height:1.6}
+      .rx-followup{font-size:12.5px;font-family:'DM Sans',sans-serif;color:#333;margin-top:8px}
+      .rx-footer-note{text-align:center;font-size:13px;font-family:'DM Sans',sans-serif;padding-top:10px;color:#333}
+      @page{size:A4;margin:12mm 14mm}
+    </style>
+    </head><body>${rxHTML}</body></html>`);
+  w.document.close();
+  w.onload = () => { w.print(); };
 }
 
 function saveRxAndClose() {
- if (!state.currentRx) return;
- // Check duplicate
- const existing = state.prescriptions.findIndex(rx => rx.id === state.currentRx.id);
- if (existing === -1) state.prescriptions.push(state.currentRx);
- else state.prescriptions[existing] = state.currentRx;
- saveState();
- closeModal('modal-rx-preview');
- renderDashboard(); renderAllRx();
- toast('✅ Prescription saved');
+  if (!state.currentRx) return;
+  // Check duplicate
+  const existing = state.prescriptions.findIndex(rx => rx.id === state.currentRx.id);
+  if (existing === -1) state.prescriptions.push(state.currentRx);
+  else state.prescriptions[existing] = state.currentRx;
+  saveState();
+  closeModal('modal-rx-preview');
+  renderDashboard(); renderAllRx();
+  toast('✅ Prescription saved');
 }
 
 function viewRx(id) {
- const rx = state.prescriptions.find(r => r.id === id);
- if (!rx) return;
- state.currentRx = rx;
- renderRxPreview(rx);
- openModal('modal-rx-preview');
+  const rx = state.prescriptions.find(r => r.id === id);
+  if (!rx) return;
+  state.currentRx = rx;
+  renderRxPreview(rx);
+  openModal('modal-rx-preview');
 }
 
 // ── RENDER DASHBOARD ──
 function renderDashboard() {
- document.getElementById('stat-patients').textContent = state.patients.length;
- document.getElementById('stat-rx').textContent = state.prescriptions.length;
- const today = new Date().toISOString().split('T')[0];
- document.getElementById('stat-today').textContent = state.prescriptions.filter(r => r.date === today).length;
- const thisMonth = today.substring(0, 7);
- document.getElementById('stat-month').textContent = state.prescriptions.filter(r => r.date && r.date.startsWith(thisMonth)).length;
- const recent = [...state.prescriptions].sort((a,b) => new Date(b.createdAt||b.date) - new Date(a.createdAt||a.date)).slice(0, 6);
- const container = document.getElementById('recent-rx-list');
- if (!recent.length) { container.innerHTML = '<p class="text-muted">No prescriptions yet. Click "+ New Prescription" to get started.</p>'; return; }
- container.innerHTML = recent.map(rx => {
-   const d = new Date(rx.date + 'T00:00');
-   return `<div class="rx-history-item" onclick="viewRx('${rx.id}')">
-     <div class="rx-date-badge"><div class="day">${d.getDate()}</div><div class="mon">${d.toLocaleString('en',{month:'short'})}</div></div>
-     <div style="flex:1">
-       <div style="font-weight:500; font-size:14px">${rx.patientName} — ${rx.visitType||'Visit'}</div>
-       <div class="text-muted">${rx.complaints?.substring(0,50)||''}${(rx.complaints?.length||0)>50?'...':''}</div>
-     </div>
-     <span class="tag tag-blue">${rx.drugs.length} drug${rx.drugs.length!==1?'s':''}</span>
-   </div>`;
- }).join('');
+  document.getElementById('stat-patients').textContent = state.patients.length;
+  document.getElementById('stat-rx').textContent = state.prescriptions.length;
+  const today = new Date().toISOString().split('T')[0];
+  document.getElementById('stat-today').textContent = state.prescriptions.filter(r => r.date === today).length;
+  const thisMonth = today.substring(0, 7);
+  document.getElementById('stat-month').textContent = state.prescriptions.filter(r => r.date && r.date.startsWith(thisMonth)).length;
+  const recent = [...state.prescriptions].sort((a,b) => new Date(b.createdAt||b.date) - new Date(a.createdAt||a.date)).slice(0, 6);
+  const container = document.getElementById('recent-rx-list');
+  if (!recent.length) { container.innerHTML = '<p class="text-muted">No prescriptions yet. Click "+ New Prescription" to get started.</p>'; return; }
+  container.innerHTML = recent.map(rx => {
+    const d = new Date(rx.date + 'T00:00');
+    return `<div class="rx-history-item" onclick="viewRx('${rx.id}')">
+      <div class="rx-date-badge"><div class="day">${d.getDate()}</div><div class="mon">${d.toLocaleString('en',{month:'short'})}</div></div>
+      <div style="flex:1">
+        <div style="font-weight:500; font-size:14px">${rx.patientName} — ${rx.visitType||'Visit'}</div>
+        <div class="text-muted">${rx.complaints?.substring(0,50)||''}${(rx.complaints?.length||0)>50?'...':''}</div>
+      </div>
+      <span class="tag tag-blue">${rx.drugs.length} drug${rx.drugs.length!==1?'s':''}</span>
+    </div>`;
+  }).join('');
 }
 
 // ── RENDER ALL RX ──
 function renderAllRx() {
- const list = document.getElementById('all-rx-list');
- const sorted = [...state.prescriptions].sort((a,b) => new Date(b.createdAt||b.date) - new Date(a.createdAt||a.date));
- if (!sorted.length) {
-   list.innerHTML = '<div class="empty-state"><div class="ico">📋</div><h3>No prescriptions yet</h3></div>';
-   return;
- }
- list.innerHTML = sorted.map(rx => {
-   const d = new Date(rx.date + 'T00:00');
-   return `<div class="rx-history-item" onclick="viewRx('${rx.id}')">
-     <div class="rx-date-badge"><div class="day">${d.getDate()}</div><div class="mon">${d.toLocaleString('en',{month:'short'})}</div></div>
-     <div style="flex:1">
-       <div style="font-weight:600; font-size:14px">${rx.patientName}</div>
-       <div class="text-muted">${d.toLocaleDateString('en-GB',{year:'numeric',month:'long',day:'numeric'})} · ${rx.visitType||''}</div>
-       <div class="text-muted">${rx.complaints?.substring(0,60)||''}${(rx.complaints?.length||0)>60?'...':''}</div>
-     </div>
-     <div style="display:flex; flex-direction:column; gap:6px; align-items:flex-end">
-       <span class="tag tag-blue">${rx.drugs.length} drug${rx.drugs.length!==1?'s':''}</span>
-       <button class="btn btn-danger btn-sm" onclick="event.stopPropagation(); deleteRx('${rx.id}')">🗑️</button>
-     </div>
-   </div>`;
- }).join('');
+  const list = document.getElementById('all-rx-list');
+  const sorted = [...state.prescriptions].sort((a,b) => new Date(b.createdAt||b.date) - new Date(a.createdAt||a.date));
+  if (!sorted.length) {
+    list.innerHTML = '<div class="empty-state"><div class="ico">📋</div><h3>No prescriptions yet</h3></div>';
+    return;
+  }
+  list.innerHTML = sorted.map(rx => {
+    const d = new Date(rx.date + 'T00:00');
+    return `<div class="rx-history-item" onclick="viewRx('${rx.id}')">
+      <div class="rx-date-badge"><div class="day">${d.getDate()}</div><div class="mon">${d.toLocaleString('en',{month:'short'})}</div></div>
+      <div style="flex:1">
+        <div style="font-weight:600; font-size:14px">${rx.patientName}</div>
+        <div class="text-muted">${d.toLocaleDateString('en-GB',{year:'numeric',month:'long',day:'numeric'})} · ${rx.visitType||''}</div>
+        <div class="text-muted">${rx.complaints?.substring(0,60)||''}${(rx.complaints?.length||0)>60?'...':''}</div>
+      </div>
+      <div style="display:flex; flex-direction:column; gap:6px; align-items:flex-end">
+        <span class="tag tag-blue">${rx.drugs.length} drug${rx.drugs.length!==1?'s':''}</span>
+        <button class="btn btn-danger btn-sm" onclick="event.stopPropagation(); deleteRx('${rx.id}')">🗑️</button>
+      </div>
+    </div>`;
+  }).join('');
 }
 
 function deleteRx(id) {
- if (!confirm('Delete this prescription?')) return;
- state.prescriptions = state.prescriptions.filter(r => r.id !== id);
- saveState(); renderAllRx(); renderDashboard(); toast('🗑️ Prescription deleted');
+  if (!confirm('Delete this prescription?')) return;
+  state.prescriptions = state.prescriptions.filter(r => r.id !== id);
+  saveState(); renderAllRx(); renderDashboard(); toast('🗑️ Prescription deleted');
 }
 
 // ── MODAL UTILS ──
@@ -1688,15 +1688,15 @@ function setV(id, val) { const el = document.getElementById(id); if (el) el.valu
 function uid() { return Date.now().toString(36) + Math.random().toString(36).substring(2, 6); }
 
 function toast(msg, dur = 3000) {
- const t = document.getElementById('toast');
- t.textContent = msg;
- t.classList.add('show');
- setTimeout(() => t.classList.remove('show'), dur);
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), dur);
 }
 
 // Close modals on overlay click
 document.querySelectorAll('.modal-overlay').forEach(el => {
- el.addEventListener('click', e => { if (e.target === el) el.classList.add('hidden'); });
+  el.addEventListener('click', e => { if (e.target === el) el.classList.add('hidden'); });
 });
 
 // Initialize drug row on load
@@ -1704,7 +1704,7 @@ if (document.getElementById('drug-rows')) addDrugRow();
 
 // Update pad preview on input change
 ['pad-align','pad-left-width','pad-color','show-history','show-findings','show-investigation','show-advice','show-followup']
- .forEach(id => { const el = document.getElementById(id); if (el) el.addEventListener('change', updatePadPreview); });
+  .forEach(id => { const el = document.getElementById(id); if (el) el.addEventListener('change', updatePadPreview); });
 </script>
 </body>
 </html>
