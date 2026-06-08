@@ -945,6 +945,11 @@ function showApp() {
   document.getElementById('topnav').classList.remove('hidden');
   document.getElementById('main-layout').classList.remove('hidden');
   window.scrollTo({ top: 0, behavior: 'instant' });
+  // Scroll down to the main app content after a short delay so layout has rendered
+  setTimeout(() => {
+    const layout = document.getElementById('main-layout');
+    if (layout) layout.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, 120);
   // Show profile picture or initials in avatar
   const avatar = document.getElementById('user-avatar');
   if (state.user.picture) {
@@ -1459,17 +1464,202 @@ function buildRxHTML(rx, opts = {}) {
 // ── PDF / IMAGE EXPORT ──
 async function saveRxPDF() {
   toast('⏳ Generating PDF...');
-  const el = document.getElementById('rx-a4');
   try {
-    const canvas = await html2canvas(el, { scale: 2, useCORS: true, logging: false });
+    const rx = state.currentRx;
+    const p = state.profile;
+    const ps = state.padSettings;
     const { jsPDF } = window.jspdf;
     const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4' });
-    const imgData = canvas.toDataURL('image/jpeg', 0.97);
-    pdf.addImage(imgData, 'JPEG', 0, 0, 210, 297);
-    const fname = `Rx_${(state.currentRx?.patientName||'Patient').replace(/\s+/g,'_')}_${state.currentRx?.date||''}.pdf`;
+
+    const col = ps.color || '#1a3a5c';
+    const al  = ps.align  || 'center';
+    const lw  = (ps.leftWidth || 165) * (182 / 794); // scale px→mm (794px = 182mm usable)
+
+    // ── Page margins ──
+    const ML = 14, MR = 14, MT = 14;
+    const PW = 210 - ML - MR; // 182 mm usable width
+    let y = MT;
+
+    // ── Helper: hex → [r,g,b] ──
+    function hexRGB(hex) {
+      const h = hex.replace('#','');
+      return [parseInt(h.substring(0,2),16), parseInt(h.substring(2,4),16), parseInt(h.substring(4,6),16)];
+    }
+
+    // ── Helper: split text to lines within maxWidth ──
+    function splitText(text, maxW, fSize) {
+      pdf.setFontSize(fSize);
+      return pdf.splitTextToSize(text || '', maxW);
+    }
+
+    // ── Helper: draw horizontal rule ──
+    function hRule(yPos, thick, r, g, b) {
+      pdf.setDrawColor(r, g, b);
+      pdf.setLineWidth(thick);
+      pdf.line(ML, yPos, ML + PW, yPos);
+      pdf.setDrawColor(0,0,0);
+      pdf.setLineWidth(0.1);
+    }
+
+    // ── Helper: draw vertical rule ──
+    function vRule(x, yTop, yBot) {
+      pdf.setDrawColor(100,100,100);
+      pdf.setLineWidth(0.3);
+      pdf.line(x, yTop, x, yBot);
+      pdf.setDrawColor(0,0,0);
+      pdf.setLineWidth(0.1);
+    }
+
+    const [cr, cg, cb] = hexRGB(col);
+
+    // ── HEADER ──
+    const headerAlign = al === 'center' ? 'center' : al === 'right' ? 'right' : 'left';
+    const headerX = al === 'center' ? ML + PW/2 : al === 'right' ? ML + PW : ML;
+
+    pdf.setFont('helvetica', 'bold');
+    pdf.setFontSize(16);
+    pdf.setTextColor(cr, cg, cb);
+    pdf.text(p.name || 'Doctor Name', headerX, y, { align: headerAlign });
+    y += 5.5;
+
+    pdf.setFont('helvetica', 'normal');
+    pdf.setFontSize(9);
+    pdf.setTextColor(60, 60, 60);
+    const headerLines = [p.qualifications, p.designation, p.hospital, p.reg].filter(Boolean);
+    headerLines.forEach(line => {
+      pdf.text(line, headerX, y, { align: headerAlign });
+      y += 4;
+    });
+    y += 1;
+
+    // ── DIVIDER ──
+    hRule(y, 0.5, cr, cg, cb);
+    y += 3;
+
+    // ── PATIENT ROW ──
+    const dateStr = rx.date ? new Date(rx.date + 'T00:00').toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' }) : '';
+    pdf.setFontSize(9);
+    pdf.setTextColor(30,30,30);
+    pdf.setFont('helvetica', 'bold'); pdf.text('Name:', ML, y);
+    pdf.setFont('helvetica', 'normal'); pdf.text(rx.patientName || '.', ML + 11, y);
+    const ageLabel = ML + PW * 0.45;
+    pdf.setFont('helvetica', 'bold'); pdf.text('Age:', ageLabel, y);
+    pdf.setFont('helvetica', 'normal'); pdf.text(`${rx.patientAge || '.'} ${rx.patientGender || ''}`, ageLabel + 8, y);
+    const dateLabel = ML + PW * 0.72;
+    pdf.setFont('helvetica', 'bold'); pdf.text('Date:', dateLabel, y);
+    pdf.setFont('helvetica', 'normal'); pdf.text(dateStr, dateLabel + 9, y);
+    y += 4;
+
+    // ── PATIENT ROW BOTTOM BORDER ──
+    hRule(y, 0.3, 80, 80, 80);
+    y += 3;
+
+    // ── BODY: LEFT COLUMN + RIGHT COLUMN ──
+    const bodyTop = y;
+    const leftX = ML;
+    const leftW = lw - 3;
+    const rightX = ML + lw + 2;
+    const rightW = PW - lw - 2;
+
+    // Collect left-column content
+    const leftBlocks = [];
+    function addLeft(label, val) {
+      if (!val || !val.trim()) return;
+      leftBlocks.push({ label, val });
+    }
+    addLeft('COMPLAINTS', rx.complaints);
+    if (ps.showHistory   !== false) addLeft('HISTORY',       rx.history);
+    if (ps.showFindings  !== false) addLeft('FINDINGS',      rx.findings);
+    if (ps.showInvestigation !== false) addLeft('INVESTIGATION', rx.investigation);
+
+    // Render left column, track height
+    let ly = bodyTop;
+    leftBlocks.forEach(block => {
+      pdf.setFont('helvetica', 'bold');
+      pdf.setFontSize(7.5);
+      pdf.setTextColor(30,30,30);
+      pdf.text(block.label, leftX, ly);
+      ly += 3.5;
+      pdf.setFont('helvetica', 'normal');
+      pdf.setFontSize(8.5);
+      pdf.setTextColor(50,50,50);
+      const lines = splitText(block.val, leftW, 8.5);
+      lines.forEach(ln => { pdf.text(ln, leftX, ly); ly += 4; });
+      ly += 3;
+    });
+
+    // Render right column — Rx
+    let ry = bodyTop;
+    pdf.setFont('helvetica', 'bold');
+    pdf.setFontSize(15);
+    pdf.setTextColor(20,20,20);
+    pdf.text('Rx', rightX, ry);
+    ry += 6;
+
+    (rx.drugs || []).forEach((d, i) => {
+      pdf.setFont('helvetica', 'bold');
+      pdf.setFontSize(10);
+      pdf.setTextColor(20,20,20);
+      const doseStr = d.dose ? ` — ${d.dose}` : '';
+      pdf.text(`${i+1}. ${d.name}${doseStr}`, rightX, ry);
+      ry += 4.2;
+      pdf.setFont('helvetica', 'normal');
+      pdf.setFontSize(8.5);
+      pdf.setTextColor(70,70,70);
+      const sigParts = [d.form, d.freq ? d.freq+'× daily' : '', d.timing, d.route, d.duration].filter(Boolean);
+      const sigLines = splitText(sigParts.join(' · '), rightW, 8.5);
+      sigLines.forEach(ln => { pdf.text(ln, rightX, ry); ry += 3.8; });
+      // dotted separator
+      pdf.setDrawColor(180,180,180); pdf.setLineWidth(0.2);
+      pdf.setLineDash([0.8, 1.2], 0);
+      pdf.line(rightX, ry, rightX + rightW, ry);
+      pdf.setLineDash([], 0);
+      ry += 3;
+    });
+
+    // Advice
+    if (rx.advice && ps.showAdvice !== false) {
+      ry += 2;
+      pdf.setFont('helvetica', 'bold'); pdf.setFontSize(7.5); pdf.setTextColor(30,30,30);
+      pdf.text('ADVICE', rightX, ry); ry += 3.5;
+      pdf.setFont('helvetica', 'normal'); pdf.setFontSize(8.5); pdf.setTextColor(60,60,60);
+      splitText(rx.advice, rightW, 8.5).forEach(ln => { pdf.text(ln, rightX, ry); ry += 4; });
+    }
+
+    // Follow-up
+    if (rx.followupDays && ps.showFollowup !== false) {
+      ry += 2;
+      pdf.setFont('helvetica', 'bold'); pdf.setFontSize(8.5); pdf.setTextColor(30,30,30);
+      pdf.text('Follow-up:', rightX, ry);
+      pdf.setFont('helvetica', 'normal');
+      pdf.text(` After ${rx.followupDays} ${rx.followupUnit || 'days'}`, rightX + 18, ry);
+      ry += 5;
+    }
+
+    // Notes
+    if (rx.notes) {
+      pdf.setFont('helvetica', 'bold'); pdf.setFontSize(7.5); pdf.setTextColor(30,30,30);
+      pdf.text('NOTE', rightX, ry); ry += 3.5;
+      pdf.setFont('helvetica', 'normal'); pdf.setFontSize(8.5); pdf.setTextColor(60,60,60);
+      splitText(rx.notes, rightW, 8.5).forEach(ln => { pdf.text(ln, rightX, ry); ry += 4; });
+    }
+
+    // ── BODY BOTTOM BORDER & VERTICAL DIVIDER ──
+    const bodyBot = Math.max(ly, ry) + 6;
+    hRule(bodyBot, 0.3, 80, 80, 80);
+    vRule(ML + lw, bodyTop - 1, bodyBot);
+
+    // ── FOOTER ──
+    const footerY = bodyBot + 5;
+    pdf.setFont('helvetica', 'normal');
+    pdf.setFontSize(8.5);
+    pdf.setTextColor(80,80,80);
+    pdf.text(p.footer || 'নিয়ম মাফিক ঔষধ খাবেন। ডাক্তারের পরামর্শ ব্যতীত ঔষধ পরিবর্তন নিষেধ।', ML + PW/2, footerY, { align: 'center', maxWidth: PW });
+
+    const fname = `Rx_${(rx.patientName||'Patient').replace(/\s+/g,'_')}_${rx.date||''}.pdf`;
     pdf.save(fname);
     toast('✅ PDF saved');
-  } catch (e) { toast('❌ PDF error: ' + e.message); }
+  } catch (e) { console.error(e); toast('❌ PDF error: ' + e.message); }
 }
 
 async function saveRxImage() {
