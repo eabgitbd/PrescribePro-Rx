@@ -592,7 +592,7 @@
       </div>
     </div>
     <div class="modal-footer" style="gap:10px">
-      <button class="btn btn-secondary" onclick="closeModal('modal-rx-preview')">← Edit</button>
+      <button class="btn btn-secondary" onclick="editRx()">← Edit</button>
       <button class="btn btn-secondary" onclick="printRx()">🖨️ Print</button>
       <button class="btn btn-secondary" onclick="saveRxImage()">🖼️ Save as Image</button>
       <button class="btn btn-success" onclick="saveRxPDF()">📄 Save as PDF</button>
@@ -944,6 +944,7 @@ function showApp() {
   document.getElementById('page-login').classList.remove('active');
   document.getElementById('topnav').classList.remove('hidden');
   document.getElementById('main-layout').classList.remove('hidden');
+  window.scrollTo({ top: 0, behavior: 'instant' });
   // Show profile picture or initials in avatar
   const avatar = document.getElementById('user-avatar');
   if (state.user.picture) {
@@ -1294,7 +1295,7 @@ function collectRxData() {
   const pid = v('rx-patient-select');
   const patient = state.patients.find(p => p.id === pid);
   return {
-    id: uid(),
+    id: (state.currentRx && state.currentRx.id) ? state.currentRx.id : uid(),
     patientId: pid,
     patientName: patient ? patient.name : 'Unknown',
     patientAge: patient ? patient.age : '',
@@ -1312,6 +1313,80 @@ function collectRxData() {
     drugs,
     createdAt: new Date().toISOString()
   };
+}
+
+// ── EDIT EXISTING RX ──
+function editRx() {
+  const rx = state.currentRx;
+  if (!rx) return;
+  closeModal('modal-rx-preview');
+
+  populatePatientDropdown();
+  setV('rx-patient-select', rx.patientId || '');
+  updateRxPatientLabel();
+  document.getElementById('rx-select-patient-wrap').classList.remove('hidden');
+
+  setV('rx-date', rx.date || new Date().toISOString().split('T')[0]);
+  setV('rx-visit', rx.visitType || 'New Visit');
+  setV('rx-complaints', rx.complaints || '');
+  setV('rx-history', rx.history || '');
+  setV('rx-findings', rx.findings || '');
+  setV('rx-investigation', rx.investigation || '');
+  setV('rx-advice', rx.advice || '');
+  setV('rx-notes', rx.notes || '');
+  setV('rx-followup-days', rx.followupDays || '');
+  setV('rx-followup-unit', rx.followupUnit || 'days');
+
+  // Rebuild drug rows from saved data
+  document.getElementById('drug-rows').innerHTML = '';
+  (rx.drugs || []).forEach(drug => {
+    const id = ++drugRowId;
+    const tr = document.createElement('tr');
+    tr.className = 'drug-row';
+    tr.id = `dr-${id}`;
+    tr.innerHTML = `
+      <td><div class="drug-name-wrap">
+        <input type="text" placeholder="Search drug..." oninput="drugSearch(this, ${id})" id="dname-${id}" autocomplete="off" value="${(drug.name||'').replace(/"/g,'&quot;')}">
+        <div class="drug-autocomplete hidden" id="dac-${id}"></div>
+      </div></td>
+      <td><select id="dform-${id}">
+        <option>Tablet</option><option>Capsule</option><option>Syrup</option><option>Injection</option>
+        <option>Cream</option><option>Drops</option><option>Inhaler</option><option>Patch</option><option>Suppository</option><option>Sachet</option>
+      </select></td>
+      <td><input type="text" id="ddose-${id}" placeholder="e.g. 1 tab" style="width:70px" value="${(drug.dose||'').replace(/"/g,'&quot;')}"></td>
+      <td><select id="dfreq-${id}" style="width:60px">
+        <option value="1">1×</option><option value="2">2×</option><option value="3">3×</option>
+        <option value="4">4×</option><option value="6">6×</option><option value="SOS">SOS</option><option value="stat">Stat</option>
+      </select></td>
+      <td><div class="check-group" style="flex-direction:column; align-items:flex-start; gap:4px">
+        <label class="check-label"><input type="radio" name="dtiming-${id}" value="Before meal"> Before meal</label>
+        <label class="check-label"><input type="radio" name="dtiming-${id}" value="After meal"> After meal</label>
+        <label class="check-label"><input type="radio" name="dtiming-${id}" value="Empty stomach"> Empty stomach</label>
+        <label class="check-label"><input type="radio" name="dtiming-${id}" value="At bedtime"> At bedtime</label>
+      </div></td>
+      <td><select id="droute-${id}" style="width:90px">
+        <option value="Oral">Oral</option><option value="Topical (Apply)">Topical (Apply)</option>
+        <option value="Local">Local</option><option value="IV">IV</option><option value="IM">IM</option>
+        <option value="SC">SC</option><option value="Sublingual">Sublingual</option><option value="Nasal">Nasal</option>
+        <option value="Rectal">Rectal</option><option value="Eye">Eye</option><option value="Ear">Ear</option>
+      </select></td>
+      <td><input type="text" id="ddur-${id}" placeholder="e.g. 5 days" style="width:80px" value="${(drug.duration||'').replace(/"/g,'&quot;')}"></td>
+      <td><button class="del-btn" onclick="removeDrugRow(${id})">✕</button></td>`;
+    document.getElementById('drug-rows').appendChild(tr);
+    // Set select values after appending to DOM
+    setV(`dform-${id}`, drug.form || 'Tablet');
+    setV(`dfreq-${id}`, drug.freq || '3');
+    setV(`droute-${id}`, drug.route || 'Oral');
+    // Set timing radio
+    const timingRadio = tr.querySelector(`input[name="dtiming-${id}"][value="${drug.timing||'After meal'}"]`);
+    if (timingRadio) timingRadio.checked = true;
+    else { const def = tr.querySelector(`input[name="dtiming-${id}"][value="After meal"]`); if (def) def.checked = true; }
+  });
+  if (!(rx.drugs && rx.drugs.length)) addDrugRow();
+
+  // Keep the same id so saving overwrites the original
+  state.currentRx = rx;
+  openModal('modal-rx');
 }
 
 // ── PREVIEW RX ──
