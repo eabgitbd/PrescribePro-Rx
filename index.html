@@ -1578,7 +1578,8 @@ function drugSearch(input, id) {
   if (!matches.length) { ac.classList.add('hidden'); return; }
   ac.innerHTML = matches.map(d => {
     const brandLine = `<span class="ac-brand">${d.name}${d.dose ? ' <span style="font-weight:700;color:var(--accent)">'+d.dose+'</span>' : ''}</span>`;
-    const metaLine = `<span class="ac-meta">${d.generic||''}${d.company ? ' ['+d.company+']' : ''}${d.price ? ' · '+d.price : ''}</span>`;
+    const companyTag = d.company ? ` <span style="color:var(--rx-blue);font-style:normal;font-weight:600;">[${d.company}]</span>` : '';
+    const metaLine = `<span class="ac-meta">${d.generic||''}${companyTag}${d.price ? ' · '+d.price : ''}</span>`;
     return `<div class="drug-ac-item" onclick="selectDrug(${id}, '${d.name.replace(/'/g,"\\'")}', '${d.form}', '${(d.dose||'').replace(/'/g,"\\'")}')">
       ${brandLine}${metaLine}
     </div>`;
@@ -1886,9 +1887,18 @@ function printRx() {
 
 // Returns merged drug list: custom (if any) replaces built-in, built-in always available
 function getActiveDrugs() {
-  return state.customDrugs && state.customDrugs.length > 0
-    ? [...state.customDrugs, ...DRUGS.filter(d => !state.customDrugs.some(c => c.name === d.name))]
-    : DRUGS;
+  if (state.customDrugs && state.customDrugs.length > 0) {
+    // Enrich custom drugs with company from built-in DRUGS if company is missing
+    const enriched = state.customDrugs.map(cd => {
+      if (!cd.company) {
+        const builtin = DRUGS.find(d => d.name.toLowerCase() === cd.name.toLowerCase());
+        if (builtin && builtin.company) return { ...cd, company: builtin.company };
+      }
+      return cd;
+    });
+    return [...enriched, ...DRUGS.filter(d => !state.customDrugs.some(c => c.name === d.name))];
+  }
+  return DRUGS;
 }
 
 function getDrugDbFileName() {
