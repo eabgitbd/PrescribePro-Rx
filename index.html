@@ -1578,7 +1578,7 @@ function drugSearch(input, id) {
   if (!matches.length) { ac.classList.add('hidden'); return; }
   ac.innerHTML = matches.map(d => {
     const brandLine = `<span class="ac-brand">${d.name}${d.dose ? ' <span style="font-weight:700;color:var(--accent)">'+d.dose+'</span>' : ''}</span>`;
-    const metaLine = `<span class="ac-meta">${d.generic||''}${d.company ? ' · '+d.company : ''}${d.price ? ' · '+d.price : ''}</span>`;
+    const metaLine = `<span class="ac-meta">${d.generic||''}${d.company ? ' ['+d.company+']' : ''}${d.price ? ' · '+d.price : ''}</span>`;
     return `<div class="drug-ac-item" onclick="selectDrug(${id}, '${d.name.replace(/'/g,"\\'")}', '${d.form}', '${(d.dose||'').replace(/'/g,"\\'")}')">
       ${brandLine}${metaLine}
     </div>`;
@@ -1958,9 +1958,10 @@ function parseCSV(text) {
   const lines = text.trim().split(/\r?\n/);
   if (lines.length < 2) throw new Error('CSV must have a header row and at least one data row');
   const headers = lines[0].split(',').map(h => h.trim().toLowerCase().replace(/['"]/g, ''));
-  const nameIdx = headers.findIndex(h => h === 'name' || h === 'drug name' || h === 'drug');
-  const genIdx  = headers.findIndex(h => h === 'generic' || h === 'generic name');
-  const formIdx = headers.findIndex(h => h === 'form' || h === 'dosage form' || h === 'type');
+  const nameIdx    = headers.findIndex(h => h === 'name' || h === 'drug name' || h === 'drug');
+  const genIdx     = headers.findIndex(h => h === 'generic' || h === 'generic name');
+  const formIdx    = headers.findIndex(h => h === 'form' || h === 'dosage form' || h === 'type');
+  const companyIdx = headers.findIndex(h => h === 'company' || h === 'manufacturer' || h === 'brand');
   if (nameIdx === -1) throw new Error('CSV must have a "name" column');
   const drugs = [];
   for (let i = 1; i < lines.length; i++) {
@@ -1969,8 +1970,9 @@ function parseCSV(text) {
     if (!name) continue;
     drugs.push({
       name,
-      generic: genIdx !== -1 ? (cols[genIdx] || '') : '',
-      form:    formIdx !== -1 ? (cols[formIdx] || 'Tablet') : 'Tablet'
+      generic: genIdx      !== -1 ? (cols[genIdx]      || '') : '',
+      form:    formIdx     !== -1 ? (cols[formIdx]     || 'Tablet') : 'Tablet',
+      company: companyIdx  !== -1 ? (cols[companyIdx]  || '') : (cols[3] || '')
     });
   }
   return drugs;
@@ -1994,7 +1996,8 @@ function parseXLSX(arrayBuffer) {
           return {
             name:    get(['name','drug name','drug']) || '',
             generic: get(['generic','generic name']),
-            form:    get(['form','dosage form','type']) || 'Tablet'
+            form:    get(['form','dosage form','type']) || 'Tablet',
+            company: get(['company','manufacturer','brand'])
           };
         }).filter(d => d.name);
         resolve(drugs);
@@ -2016,7 +2019,8 @@ function parseXLSX(arrayBuffer) {
             return {
               name:    get(['name','drug name','drug']) || '',
               generic: get(['generic','generic name']),
-              form:    get(['form','dosage form','type']) || 'Tablet'
+              form:    get(['form','dosage form','type']) || 'Tablet',
+              company: get(['company','manufacturer','brand'])
             };
           }).filter(d => d.name);
           resolve(drugs);
@@ -2053,9 +2057,10 @@ async function processDbFile(file) {
       const parsed = JSON.parse(text);
       if (!Array.isArray(parsed)) throw new Error('JSON must be an array of drug objects');
       drugs = parsed.filter(d => d.name).map(d => ({
-        name:    (d.name || '').toString().trim(),
+        name:    (d.name    || '').toString().trim(),
         generic: (d.generic || '').toString().trim(),
-        form:    (d.form || 'Tablet').toString().trim()
+        form:    (d.form    || 'Tablet').toString().trim(),
+        company: (d.company || d.manufacturer || d.brand || '').toString().trim()
       }));
     } else if (ext === 'csv') {
       const text = await file.text();
