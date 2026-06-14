@@ -638,6 +638,29 @@
 
 <!-- ══════════ MODALS ══════════ -->
 
+<!-- Shared frequency datalist for drug rows -->
+<datalist id="freq-options">
+  <option value="১+১+১">১+১+১ (তিনবার)</option>
+  <option value="১+০+১">১+০+১ (দুইবার)</option>
+  <option value="১+০+০">১+০+০ (সকাল)</option>
+  <option value="০+০+১">০+০+১ (রাত)</option>
+  <option value="০+১+০">০+১+০ (দুপুর)</option>
+  <option value="০+০+½">০+০+½ (আধা রাত)</option>
+  <option value="½+০+½">½+০+½ (আধা দুইবার)</option>
+  <option value="½+½+½">½+½+½ (আধা তিনবার)</option>
+  <option value="১+১+১+১">১+১+১+১ (চারবার)</option>
+  <option value="২+২+২">২+২+২ (দুই তিনবার)</option>
+  <option value="২+০+২">২+০+২ (দুই দুইবার)</option>
+  <option value="২+২+২+২">২+২+২+২ (দুই চারবার)</option>
+  <option value="SOS">SOS (প্রয়োজনে)</option>
+  <option value="Stat">Stat (এখনই)</option>
+  <option value="প্রতি ৮ ঘণ্টা">প্রতি ৮ ঘণ্টা</option>
+  <option value="প্রতি ১২ ঘণ্টা">প্রতি ১২ ঘণ্টা</option>
+  <option value="সপ্তাহে একবার">সপ্তাহে একবার</option>
+  <option value="প্রতিদিন রাতে">প্রতিদিন রাতে</option>
+  <option value="প্রতিদিন সকালে">প্রতিদিন সকালে</option>
+</datalist>
+
 <!-- Patient Modal -->
 <div id="modal-patient" class="modal-overlay hidden">
   <div class="modal">
@@ -1500,27 +1523,10 @@ function addDrugRow() {
           <option>Cream</option><option>Drops</option><option>Inhaler</option><option>Patch</option><option>Suppository</option><option>Sachet</option>
         </select>
       </div>
-      <div style="width:130px">
+      <div style="width:150px">
         <div class="drug-field-label">Frequency (সময়)</div>
-        <select id="dfreq-${id}" style="font-family:'DM Sans',sans-serif; font-size:13px">
-          <option value="১+১+১">১+১+১ (তিনবার)</option>
-          <option value="১+০+১">১+০+১ (দুইবার)</option>
-          <option value="১+০+০">১+০+০ (সকাল)</option>
-          <option value="০+০+১">০+০+১ (রাত)</option>
-          <option value="০+১+০">০+১+০ (দুপুর)</option>
-          <option value="০+০+½">০+০+½ (আধা রাত)</option>
-          <option value="½+০+½">½+০+½ (আধা দুইবার)</option>
-          <option value="½+½+½">½+½+½ (আধা তিনবার)</option>
-          <option value="১+১+১+১">১+১+১+১ (চারবার)</option>
-          <option value="২+২+২">২+২+২ (দুই তিনবার)</option>
-          <option value="২+০+২">২+০+২ (দুই দুইবার)</option>
-          <option value="২+২+২+২">২+২+২+২ (দুই চারবার)</option>
-          <option value="SOS">SOS (প্রয়োজনে)</option>
-          <option value="Stat">Stat (এখনই)</option>
-          <option value="প্রতি ৮ ঘণ্টা">প্রতি ৮ ঘণ্টা</option>
-          <option value="প্রতি ১২ ঘণ্টা">প্রতি ১২ ঘণ্টা</option>
-          <option value="সপ্তাহে একবার">সপ্তাহে একবার</option>
-        </select>
+        <input type="text" id="dfreq-${id}" list="freq-options" placeholder="e.g. ১+১+১ বা custom"
+          style="font-family:'DM Sans',sans-serif; font-size:12.5px; width:100%">
       </div>
       <div style="width:90px">
         <div class="drug-field-label">Duration</div>
@@ -1665,7 +1671,7 @@ function editRx() {
     setV(`dname-${id}`, drug.name || '');
     setV(`dform-${id}`, drug.form || 'Tablet');
     setV(`ddose-${id}`, drug.dose || '');
-    setV(`dfreq-${id}`, drug.freq || '১+১+১');
+    setV(`dfreq-${id}`, drug.freq || '');
     setV(`ddur-${id}`, drug.duration || '');
     setV(`droute-${id}`, drug.route || 'Oral');
     setV(`dnotes-${id}`, drug.drugNotes || '');
