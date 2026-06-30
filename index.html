@@ -1589,6 +1589,7 @@ function addDrugRow() {
           <label><input type="radio" name="dtiming-${id}" value="After meal" checked> After meal</label>
           <label><input type="radio" name="dtiming-${id}" value="Empty stomach"> Empty stomach</label>
           <label><input type="radio" name="dtiming-${id}" value="At bedtime"> At bedtime</label>
+          <label><input type="radio" name="dtiming-${id}" value="None"> None</label>
         </div>
       </div>
       <div style="width:120px">
@@ -1786,7 +1787,7 @@ function buildRxHTML(rx, opts = {}) {
   const drugsHTML = (rx.drugs || []).map((d, i) => `
     <div class="rx-drug-item">
       <div class="rx-drug-name">${i+1}. ${d.name} <span>${d.dose ? '— ' + d.dose : ''}</span></div>
-      <div class="rx-drug-sig">${d.form || ''} · ${d.freq || ''} · ${d.timing || ''} · ${d.route || ''} ${d.duration ? '· ' + d.duration : ''}</div>
+      <div class="rx-drug-sig">${[d.form, d.freq, (d.timing && d.timing !== 'None' ? d.timing : ''), d.route].filter(Boolean).join(' · ')}${d.duration ? ' · ' + d.duration : ''}</div>
       ${d.drugNotes ? `<div style="font-size:11.5px; color:#555; font-family:'DM Sans',sans-serif; margin-top:2px; font-style:italic;">📝 ${d.drugNotes}</div>` : ''}
     </div>`).join('');
 
