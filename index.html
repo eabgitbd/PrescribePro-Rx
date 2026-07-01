@@ -1219,16 +1219,6 @@ function onTokenError(err) {
   else toast('❌ Google sign-in error: ' + (err.type || 'unknown'));
 }
 
-function setLoginLoading(loading, message) {
-  const btn = document.getElementById('btn-google-signin');
-  const spinner = document.getElementById('login-loading');
-  const txt = document.getElementById('login-loading-text');
-  if (!btn || !spinner) return;
-  btn.style.display = loading ? 'none' : 'flex';
-  spinner.style.display = loading ? 'flex' : 'none';
-  if (txt && message) txt.textContent = message;
-}
-
 // Silent token refresh (no popup) for expired tokens during a session
 function refreshDriveTokenSilent() {
   return new Promise((resolve, reject) => {
@@ -2525,15 +2515,30 @@ function downloadDbTemplate(type) {
   }
 }
 
-function saveRxAndClose() {
+// ── SAVE & CLOSE AND SYNC SYSTEM ──
+async function saveRxAndClose() {
   if (!state.currentRx) return;
   const existing = state.prescriptions.findIndex(rx => rx.id === state.currentRx.id);
   if (existing === -1) state.prescriptions.push(state.currentRx);
   else state.prescriptions[existing] = state.currentRx;
+  
+  // Always commit locally first
   saveState();
   closeModal('modal-rx-preview');
-  renderDashboard(); renderAllRx();
-  toast('✅ Prescription saved');
+  renderDashboard(); 
+  renderAllRx();
+  toast('💾 Saved to Local Storage');
+
+  // Trigger immediate seamless background sync with Drive if online
+  if (googleAccessToken) {
+    try {
+      await syncDrive(true);
+      toast('✅ Synced to Google Drive Backup');
+    } catch (e) {
+      console.error('Backup Sync Failed:', e);
+      toast('⚠️ Cloud Backup Failed. Syncing on next reload.');
+    }
+  }
 }
 
 function viewRx(id) {
