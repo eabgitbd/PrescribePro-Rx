@@ -54,8 +54,14 @@
 
   /* ── LOGIN PAGE ── */
   #page-login {
-    min-height: 100vh; display: flex !important; align-items: center; justify-content: center;
+    min-height: 100vh;
+    display: none;
+    align-items: center;
+    justify-content: center;
     background: linear-gradient(135deg, #e8f0f8 0%, #f7f6f2 50%, #eef2ea 100%);
+  }
+  #page-login.active {
+    display: flex;
   }
   .login-card {
     background: var(--surface); border-radius: 20px; padding: 56px 48px;
@@ -952,14 +958,12 @@ function getStorageKey() {
 
 function saveState() {
   localStorage.setItem(getStorageKey(), JSON.stringify(state));
-  // Also keep a lightweight "last logged in email" pointer for seamless reload
   if (state.user && state.user.email) {
     localStorage.setItem('prescribepro_last_email', state.user.email);
   }
 }
 
 function loadState() {
-  // Try to load for the last known email first; fallback to legacy key
   const lastEmail = localStorage.getItem('prescribepro_last_email');
   const key = lastEmail ? ('prescribepro_state_' + lastEmail) : 'prescribepro_state';
   const s = localStorage.getItem(key) || localStorage.getItem('prescribepro_state');
@@ -968,7 +972,6 @@ function loadState() {
     Object.assign(state, loaded);
   }
   
-  // Try loading cached google access token parameters if they exist and are valid
   const cachedToken = localStorage.getItem('google_access_token');
   const cachedExpiry = localStorage.getItem('google_token_expiry');
   if (cachedToken && cachedExpiry && parseInt(cachedExpiry) > Date.now()) {
@@ -981,7 +984,6 @@ function loadState() {
 loadState();
 if (state.loggedIn) {
   showApp();
-  // Check if we retrieved a valid cached Google access token
   if (googleAccessToken) {
     updateDriveStatus(true);
   } else {
@@ -1016,7 +1018,6 @@ function initGoogleAuth() {
     error_callback: onTokenError,
   });
   
-  // If user is already logged in, only attempt a background silent refresh if we don't have a valid cached token
   if (state.loggedIn && !googleAccessToken) {
     tokenClient.requestAccessToken({ prompt: '' });
   }
@@ -1046,7 +1047,7 @@ function onTokenReceived(tokenResponse) {
       setLoginLoading(false);
       toast('❌ Sign-in cancelled: ' + tokenResponse.error);
     } else {
-      setLoginLoading(false); // reset loading indicator
+      setLoginLoading(false);
     }
     return;
   }
@@ -1055,11 +1056,10 @@ function onTokenReceived(tokenResponse) {
   const expiresIn = tokenResponse.expires_in || 3600;
   googleTokenExpiry = Date.now() + (expiresIn * 1000);
   
-  // Cache the token details locally
   localStorage.setItem('google_access_token', googleAccessToken);
   localStorage.setItem('google_token_expiry', googleTokenExpiry.toString());
 
-  const isReturningUser = state.loggedIn; // already logged in = silent re-auth
+  const isReturningUser = state.loggedIn;
 
   if (isReturningUser) {
     updateDriveStatus(true);
@@ -1084,7 +1084,6 @@ function onTokenReceived(tokenResponse) {
     state.user.picture = info.picture || '';
     state.user.initials = name.split(' ').filter(Boolean).map(w => w[0]).join('').substring(0, 2).toUpperCase();
 
-    // Reset details if the active account switched
     if (isAccountSwitch) {
       state.patients = [];
       state.prescriptions = [];
@@ -1156,7 +1155,6 @@ function refreshDriveTokenSilent() {
       const expiresIn = resp.expires_in || 3600;
       googleTokenExpiry = Date.now() + (expiresIn * 1000);
       
-      // Update our local cache with newly refreshed credentials
       localStorage.setItem('google_access_token', googleAccessToken);
       localStorage.setItem('google_token_expiry', googleTokenExpiry.toString());
       
@@ -1261,14 +1259,12 @@ async function loadFromDrive() {
 }
 
 function showApp() {
+  // Hide login cleanly and show main dashboard layouts immediately
   document.getElementById('page-login').classList.remove('active');
   document.getElementById('topnav').classList.remove('hidden');
   document.getElementById('main-layout').classList.remove('hidden');
   window.scrollTo({ top: 0, behavior: 'instant' });
-  setTimeout(() => {
-    const layout = document.getElementById('main-layout');
-    if (layout) layout.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }, 120);
+  
   const avatar = document.getElementById('user-avatar');
   if (state.user.picture) {
     avatar.innerHTML = `<img src="${state.user.picture}" style="width:100%;height:100%;border-radius:50%;object-fit:cover" onerror="this.parentElement.textContent='${state.user.initials || 'Dr'}'">`;
