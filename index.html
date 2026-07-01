@@ -877,6 +877,11 @@
 
 <!-- ══════════════════════════ SCRIPT ══════════════════════════ -->
 <script>
+// ── GLOBAL GOOGLE AUTH VARIABLES (Hoisted safely using var to avoid race condition TDZ ReferenceErrors) ──
+var googleAccessToken = null;
+var googleTokenExpiry = null;
+var tokenClient = null;
+
 // ── STATE ──
 let state = {
   loggedIn: false,
@@ -1393,7 +1398,7 @@ function showSection(sec) {
 // ── PROFILE ──
 function saveProfile() {
   state.profile = {
-    name: v('doc-name'), qualifications: v('doc-qual'), designation: v('doc-designation'),
+    name: v('doc-name'), qualifications: v('doc-qual'), designation: var_doc_designation = v('doc-designation'),
     hospital: v('doc-hospital'), reg: v('doc-reg'), phone: v('doc-phone'),
     address: v('doc-address'), hours: v('doc-hours'), footer: v('doc-footer'),
     chamberName: v('chamber-name'), chamberPhone: v('chamber-phone'),
