@@ -166,7 +166,7 @@
   .timing-radios label { font-size: 11.5px; cursor: pointer; display: flex; align-items: center; gap: 4px; }
   .timing-radios input[type=radio] { width: auto; accent-color: var(--accent); }
 
-  /* ── DRUG TABLE (kept minimal for reference, hidden now) ── */
+  /* ── DRUG TABLE ── */
   .drug-table { width: 100%; border-collapse: collapse; }
   .drug-table th { font-size: 11px; font-weight: 600; letter-spacing: .5px; color: var(--text-3); text-transform: uppercase; padding: 8px 10px; background: var(--surface2); text-align: left; border-bottom: 1px solid var(--border); }
   .drug-table td { padding: 6px 8px; border-bottom: 1px solid var(--border); vertical-align: middle; }
@@ -487,7 +487,7 @@
           <div class="form-group"><label>Phone</label><input type="text" id="doc-phone" placeholder="+880..."></div>
           <div class="form-group full"><label>Address / Chamber</label><input type="text" id="doc-address" placeholder="Chamber address"></div>
           <div class="form-group"><label>Chamber Hours</label><input type="text" id="doc-hours" placeholder="Sat–Thu: 6–9 PM"></div>
-          <div class="form-group"><label>Footer Note (Bengali/English)</label><input type="text" id="doc-footer" placeholder="নিয়ম মাফিক ঔষধ খাবেন..."></div>
+          <div class="form-group full"><label>Footer Note (Bengali/English)</label><input type="text" id="doc-footer" placeholder="নিয়ম মাফিক ঔষধ খাবেন..."></div>
         </div>
 
         <hr class="divider" style="margin:20px 0">
@@ -548,7 +548,6 @@
       </div>
     </div>
 
-  
     <!-- DRUG DATABASE -->
     <div id="section-drugdb" class="section-content hidden">
       <div class="section-header">
@@ -941,11 +940,16 @@ const DRUGS = [
   { name: 'Heparin', dose: '5000IU/ml', generic: 'Heparin Sodium', company: 'Various', price: '৳120.00/amp', form: 'Injection' },
 ];
 
-// ── PERSISTENCE — keyed per Google account so different doctors don't share data ──
+let googleAccessToken = null;
+let googleTokenExpiry = null;
+let tokenClient = null;
+
+// ── PERSISTENCE ──
 function getStorageKey() {
   const email = (state.user && state.user.email) ? state.user.email : 'default';
   return 'prescribepro_state_' + email;
 }
+
 function saveState() {
   localStorage.setItem(getStorageKey(), JSON.stringify(state));
   // Also keep a lightweight "last logged in email" pointer for seamless reload
@@ -953,6 +957,7 @@ function saveState() {
     localStorage.setItem('prescribepro_last_email', state.user.email);
   }
 }
+
 function loadState() {
   // Try to load for the last known email first; fallback to legacy key
   const lastEmail = localStorage.getItem('prescribepro_last_email');
@@ -962,14 +967,26 @@ function loadState() {
     const loaded = JSON.parse(s);
     Object.assign(state, loaded);
   }
+  
+  // Try loading cached google access token parameters if they exist and are valid
+  const cachedToken = localStorage.getItem('google_access_token');
+  const cachedExpiry = localStorage.getItem('google_token_expiry');
+  if (cachedToken && cachedExpiry && parseInt(cachedExpiry) > Date.now()) {
+    googleAccessToken = cachedToken;
+    googleTokenExpiry = parseInt(cachedExpiry);
+  }
 }
 
 // ── INIT ──
 loadState();
 if (state.loggedIn) {
   showApp();
-  // For returning users: Drive token is gone (page reload), mark offline until re-auth
-  updateDriveStatus(false);
+  // Check if we retrieved a valid cached Google access token
+  if (googleAccessToken) {
+    updateDriveStatus(true);
+  } else {
+    updateDriveStatus(false);
+  }
 } else {
   updateGreeting();
 }
@@ -983,16 +1000,12 @@ function updateGreeting() {
 
 // ── GOOGLE AUTH ──
 const GOOGLE_CLIENT_ID = '744204331957-vnium3sdih08go5iuv0rlpctvgqhjara.apps.googleusercontent.com';
-// Single combined scope: identity + Drive appdata — ONE popup, ONE consent screen
 const GOOGLE_SCOPES = 'openid profile email https://www.googleapis.com/auth/drive.appdata';
-// Drive file name is per-account so each doctor's profile is isolated
+
 function getDriveFileName() {
   const email = (state.user && state.user.email) ? state.user.email.replace(/[^a-zA-Z0-9]/g, '_') : 'default';
   return `prescribepro_backup_${email}.json`;
 }
-
-let googleAccessToken = null;
-let tokenClient = null;
 
 function initGoogleAuth() {
   if (typeof google === 'undefined' || !google.accounts || tokenClient) return;
@@ -1002,16 +1015,15 @@ function initGoogleAuth() {
     callback: onTokenReceived,
     error_callback: onTokenError,
   });
-  // If user is already logged in (returning session), silently try to get a Drive token
-  // prompt:'' = no popup if already consented; fails silently if not
+  
+  // If user is already logged in, only attempt a background silent refresh if we don't have a valid cached token
   if (state.loggedIn && !googleAccessToken) {
     tokenClient.requestAccessToken({ prompt: '' });
   }
 }
 
-// Init GSI when library is ready — set BEFORE the library loads to avoid race condition
+// Init GSI when library is ready
 window.onGoogleLibraryLoad = initGoogleAuth;
-// Also try immediately in case the library already loaded before this line ran
 if (typeof google !== 'undefined' && google.accounts) initGoogleAuth();
 
 // Called when user clicks "Continue with Google"
@@ -1029,22 +1041,27 @@ function startGoogleLogin() {
 // Single callback — fires for both fresh login AND silent re-auth
 function onTokenReceived(tokenResponse) {
   if (tokenResponse.error) {
-    // Silent re-auth failure is normal if user hasn't consented yet — don't show error
     if (tokenResponse.error !== 'interaction_required' &&
         tokenResponse.error !== 'access_denied') {
       setLoginLoading(false);
       toast('❌ Sign-in cancelled: ' + tokenResponse.error);
     } else {
-      setLoginLoading(false); // just reset button, no error toast
+      setLoginLoading(false); // reset loading indicator
     }
     return;
   }
 
   googleAccessToken = tokenResponse.access_token;
+  const expiresIn = tokenResponse.expires_in || 3600;
+  googleTokenExpiry = Date.now() + (expiresIn * 1000);
+  
+  // Cache the token details locally
+  localStorage.setItem('google_access_token', googleAccessToken);
+  localStorage.setItem('google_token_expiry', googleTokenExpiry.toString());
+
   const isReturningUser = state.loggedIn; // already logged in = silent re-auth
 
   if (isReturningUser) {
-    // Returning user got a fresh token silently — just reconnect Drive
     updateDriveStatus(true);
     return;
   }
@@ -1058,7 +1075,6 @@ function onTokenReceived(tokenResponse) {
   .then(info => {
     const name = info.name || info.email || 'Doctor';
     const email = info.email || '';
-    // Check if this is a different account from what was previously loaded
     const previousEmail = state.user.email;
     const isAccountSwitch = previousEmail && previousEmail !== email;
 
@@ -1068,8 +1084,7 @@ function onTokenReceived(tokenResponse) {
     state.user.picture = info.picture || '';
     state.user.initials = name.split(' ').filter(Boolean).map(w => w[0]).join('').substring(0, 2).toUpperCase();
 
-    // If switching accounts, reset to fresh state for the new account
-    // (Drive backup will restore their saved data below)
+    // Reset details if the active account switched
     if (isAccountSwitch) {
       state.patients = [];
       state.prescriptions = [];
@@ -1082,7 +1097,6 @@ function onTokenReceived(tokenResponse) {
       };
       state.padSettings = { align: 'center', leftWidth: 165, color: '#1a3a5c', showHistory: true, showFindings: true, showInvestigation: true, showAdvice: true, showFollowup: true };
     } else if (!previousEmail) {
-      // Check if there's a saved state for this account in localStorage already
       const existingKey = 'prescribepro_state_' + email;
       const existing = localStorage.getItem(existingKey);
       if (existing) {
@@ -1099,7 +1113,6 @@ function onTokenReceived(tokenResponse) {
     saveState();
     setLoginLoading(true, 'Loading your data from Drive…');
     loadFromDrive().then(async () => {
-      // Also load custom drug database from Drive (separate file)
       await loadDrugDbFromDrive();
       setLoginLoading(false);
       showApp();
@@ -1133,13 +1146,21 @@ function setLoginLoading(loading, message) {
 // Silent token refresh (no popup) for expired tokens during a session
 function refreshDriveTokenSilent() {
   return new Promise((resolve, reject) => {
-    if (!tokenClient) initGoogleAuth(); // try to init if page was reloaded
+    if (!tokenClient) initGoogleAuth(); 
     if (!tokenClient) { reject('Google auth not initialized'); return; }
     const orig = tokenClient.callback;
     tokenClient.callback = (resp) => {
       tokenClient.callback = orig;
       if (resp.error) { reject(resp.error); return; }
       googleAccessToken = resp.access_token;
+      const expiresIn = resp.expires_in || 3600;
+      googleTokenExpiry = Date.now() + (expiresIn * 1000);
+      
+      // Update our local cache with newly refreshed credentials
+      localStorage.setItem('google_access_token', googleAccessToken);
+      localStorage.setItem('google_token_expiry', googleTokenExpiry.toString());
+      
+      updateDriveStatus(true);
       resolve(resp.access_token);
     };
     tokenClient.requestAccessToken({ prompt: '' });
@@ -1154,9 +1175,11 @@ function updateDriveStatus(connected) {
   label.textContent = connected ? 'Drive Synced' : 'Drive Offline';
 }
 
-// ── DRIVE API HELPER — auto-retries on 401 ──
+// ── DRIVE API HELPER — auto-retries on 401/expiry ──
 async function driveRequest(url, options = {}) {
-  if (!googleAccessToken) await refreshDriveTokenSilent();
+  if (!googleAccessToken || (googleTokenExpiry && googleTokenExpiry < Date.now())) {
+    await refreshDriveTokenSilent();
+  }
   let res = await fetch(url, {
     ...options,
     headers: { Authorization: 'Bearer ' + googleAccessToken, ...(options.headers || {}) }
@@ -1210,7 +1233,7 @@ async function syncDrive(silent = false) {
     console.error('Drive sync error:', e);
     updateDriveStatus(false);
     if (!silent) toast('❌ Sync failed. Check your connection.');
-    throw e; // re-throw so callers (like saveProfile) can handle
+    throw e;
   }
 }
 
@@ -1218,40 +1241,34 @@ async function loadFromDrive() {
   if (!googleAccessToken) return;
   try {
     const fileId = await getDriveFileId();
-    if (!fileId) return; // No backup yet for this account — first time user
+    if (!fileId) return; 
     const res = await driveRequest(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`);
     if (!res.ok) return;
     const d = await res.json();
-    // Restore all data fields from Drive backup (profile is the critical one)
     if (d.patients)      state.patients = d.patients;
     if (d.prescriptions) state.prescriptions = d.prescriptions;
-    if (d.profile)       state.profile = { ...state.profile, ...d.profile };
+    if (d.profile)        state.profile = { ...state.profile, ...d.profile };
     if (d.padSettings)   state.padSettings = { ...state.padSettings, ...d.padSettings };
     if (d.customDrugs)   state.customDrugs = d.customDrugs;
-    // user.email/picture/initials come from fresh Google auth, not Drive backup
     if (d.user) {
       const { email, picture, ...safeUserFields } = d.user;
       Object.assign(state.user, safeUserFields);
     }
-    // Save under the correct per-account key now that email is set
     saveState();
   } catch(e) {
     console.warn('Drive load skipped:', e.message || e);
   }
 }
 
-
 function showApp() {
   document.getElementById('page-login').classList.remove('active');
   document.getElementById('topnav').classList.remove('hidden');
   document.getElementById('main-layout').classList.remove('hidden');
   window.scrollTo({ top: 0, behavior: 'instant' });
-  // Scroll down to the main app content after a short delay so layout has rendered
   setTimeout(() => {
     const layout = document.getElementById('main-layout');
     if (layout) layout.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }, 120);
-  // Show profile picture or initials in avatar
   const avatar = document.getElementById('user-avatar');
   if (state.user.picture) {
     avatar.innerHTML = `<img src="${state.user.picture}" style="width:100%;height:100%;border-radius:50%;object-fit:cover" onerror="this.parentElement.textContent='${state.user.initials || 'Dr'}'">`;
@@ -1268,13 +1285,13 @@ function showApp() {
 
 function logOut() {
   if (!confirm('Sign out of PrescribePro Rx?')) return;
-  // Revoke the Google token so next login forces account selection
   if (googleAccessToken && typeof google !== 'undefined' && google.accounts) {
     google.accounts.oauth2.revoke(googleAccessToken, () => {});
   }
   googleAccessToken = null;
-  tokenClient = null;
-  // Clear the last email pointer so next load starts fresh
+  googleTokenExpiry = null;
+  localStorage.removeItem('google_access_token');
+  localStorage.removeItem('google_token_expiry');
   localStorage.removeItem('prescribepro_last_email');
   state.loggedIn = false;
   saveState();
@@ -1310,7 +1327,6 @@ function saveProfile() {
   state.user.initials = state.profile.name.split(' ').filter(Boolean).map(w => w[0]).join('').substring(0, 2).toUpperCase();
   document.getElementById('user-avatar').textContent = state.user.initials;
   saveState();
-  // Auto-backup profile to Google Drive so it's restored on re-login
   if (googleAccessToken) {
     syncDrive(true).then(() => {
       toast('✅ Profile saved & synced to Drive');
@@ -1650,7 +1666,6 @@ function selectDrug(id, name, form, dose) {
   document.getElementById(`dac-${id}`).classList.add('hidden');
 }
 
-// Close autocompletes on outside click
 document.addEventListener('click', e => {
   if (!e.target.closest('.drug-name-wrap')) {
     document.querySelectorAll('.drug-autocomplete').forEach(el => el.classList.add('hidden'));
@@ -1720,7 +1735,6 @@ function editRx() {
   setV('rx-followup-days', rx.followupDays || '');
   setV('rx-followup-unit', rx.followupUnit || 'days');
 
-  // Rebuild drug cards from saved data
   document.getElementById('drug-rows').innerHTML = '';
   (rx.drugs || []).forEach(drug => {
     addDrugRow();
@@ -1738,7 +1752,6 @@ function editRx() {
   });
   if (!(rx.drugs && rx.drugs.length)) addDrugRow();
 
-  // Keep the same id so saving overwrites the original
   state.currentRx = rx;
   openModal('modal-rx');
 }
@@ -1765,11 +1778,8 @@ function buildRxHTML(rx, opts = {}) {
 
   const dateStr = rx.date ? new Date(rx.date + 'T00:00').toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' }) : '';
 
-  // For live pad-design preview, read the CURRENT checkbox states directly from the UI
-  // For actual Rx preview/PDF, use the saved padSettings
   function showSection(key) {
     if (opts.preview) {
-      // Read live checkbox state from the pad design UI
       const el = document.getElementById('show-' + key);
       return el ? el.checked : true;
     }
@@ -1844,8 +1854,6 @@ async function saveRxPDF() {
     const rx = state.currentRx;
     const { jsPDF } = window.jspdf;
 
-    // Render the full prescription into a hidden full-scale element
-    // so html2canvas can capture it at full resolution with fonts loaded
     const hiddenWrap = document.createElement('div');
     hiddenWrap.style.cssText = 'position:fixed;left:-9999px;top:0;z-index:-1;width:794px;background:white;';
     const innerDiv = document.createElement('div');
@@ -1854,7 +1862,6 @@ async function saveRxPDF() {
     hiddenWrap.appendChild(innerDiv);
     document.body.appendChild(hiddenWrap);
 
-    // Wait a frame for fonts/layout to render
     await new Promise(r => setTimeout(r, 300));
 
     const canvas = await html2canvas(innerDiv, {
@@ -1873,7 +1880,6 @@ async function saveRxPDF() {
     const pdfW = 210;
     const pdfH = (canvas.height / canvas.width) * pdfW;
 
-    // If content is taller than one A4 page, split across pages
     const pageH = 297;
     if (pdfH <= pageH) {
       pdf.addImage(imgData, 'PNG', 0, 0, pdfW, pdfH);
@@ -1940,11 +1946,8 @@ function printRx() {
 }
 
 // ── DRUG DATABASE MANAGEMENT ──
-
-// Returns merged drug list: custom (if any) replaces built-in, built-in always available
 function getActiveDrugs() {
   if (state.customDrugs && state.customDrugs.length > 0) {
-    // Enrich custom drugs with company from built-in DRUGS if company is missing
     const enriched = state.customDrugs.map(cd => {
       if (!cd.company) {
         const builtin = DRUGS.find(d => d.name.toLowerCase() === cd.name.toLowerCase());
@@ -2019,7 +2022,6 @@ async function deleteDrugDbFromDrive() {
   } catch(e) { console.warn('Drug DB delete from Drive failed:', e); }
 }
 
-// Parse CSV text → array of {name, generic, form}
 function parseCSV(text) {
   const lines = text.trim().split(/\r?\n/);
   if (lines.length < 2) throw new Error('CSV must have a header row and at least one data row');
@@ -2044,10 +2046,8 @@ function parseCSV(text) {
   return drugs;
 }
 
-// Parse XLSX binary via a minimal approach using SheetJS if available, else reject
 function parseXLSX(arrayBuffer) {
   return new Promise((resolve, reject) => {
-    // Dynamically load SheetJS if not present
     if (window.XLSX) {
       try {
         const wb = window.XLSX.read(arrayBuffer, { type: 'array' });
@@ -2069,7 +2069,6 @@ function parseXLSX(arrayBuffer) {
         resolve(drugs);
       } catch(e) { reject(new Error('Failed to read Excel file: ' + e.message)); }
     } else {
-      // Load SheetJS from CDN
       const s = document.createElement('script');
       s.src = 'https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js';
       s.onload = () => {
@@ -2150,7 +2149,7 @@ async function processDbFile(file) {
       saveState();
       setDbProgress(100);
       renderDbSection();
-      toast(`✅ ${drugs.length} drugs loaded (not synced to Drive)`);
+      toast(`... ${drugs.length} drugs loaded (not synced to Drive)`);
       return;
     }
 
@@ -2171,7 +2170,7 @@ async function processDbFile(file) {
 function handleDbFileSelect(event) {
   const file = event.target.files[0];
   if (file) processDbFile(file);
-  event.target.value = ''; // reset so same file can be re-selected
+  event.target.value = ''; 
 }
 
 function handleDbFileDrop(event) {
@@ -2214,14 +2213,12 @@ function renderDbSection() {
   if (clearBtn) clearBtn.style.display = hasCustom ? '' : 'none';
   if (previewLabel) previewLabel.textContent = hasCustom ? `Showing ${state.customDrugs.length} custom drugs` : `Showing ${DRUGS.length} built-in drugs`;
 
-  // Cloud badge in section header
   if (cloudStatus) {
     cloudStatus.innerHTML = hasCustom
       ? `<span class="db-status-badge active">☁️ Custom DB Active</span>`
       : `<span class="db-status-badge none">📦 Using Built-in DB</span>`;
   }
 
-  // Render preview table
   const tbody = document.getElementById('db-table-body');
   if (tbody) {
     const drugs = hasCustom ? state.customDrugs : DRUGS;
@@ -2249,7 +2246,6 @@ function downloadDbTemplate(type) {
 
 function saveRxAndClose() {
   if (!state.currentRx) return;
-  // Check duplicate
   const existing = state.prescriptions.findIndex(rx => rx.id === state.currentRx.id);
   if (existing === -1) state.prescriptions.push(state.currentRx);
   else state.prescriptions[existing] = state.currentRx;
@@ -2322,8 +2318,6 @@ function deleteRx(id) {
   saveState(); renderAllRx(); renderDashboard(); toast('🗑️ Prescription deleted');
 }
 
-// ── (Google Drive sync implemented above with real Drive API) ──
-
 // ── MODAL UTILS ──
 function openModal(id) { document.getElementById(id).classList.remove('hidden'); }
 function closeModal(id) { document.getElementById(id).classList.add('hidden'); }
@@ -2340,12 +2334,8 @@ function toast(msg, dur = 3000) {
   setTimeout(() => t.classList.remove('show'), dur);
 }
 
-// Modals close only via explicit close/cancel/save buttons — not on outside click
-
-// Initialize drug row on load
 if (document.getElementById('drug-rows')) addDrugRow();
 
-// Update pad preview on input change
 ['pad-align','pad-left-width','pad-color','show-history','show-findings','show-investigation','show-advice','show-followup']
   .forEach(id => { const el = document.getElementById(id); if (el) el.addEventListener('change', updatePadPreview); });
 </script>
