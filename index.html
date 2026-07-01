@@ -7,7 +7,17 @@
 <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,300;0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-<script src="https://accounts.google.com/gsi/client" async></script>
+
+<!-- Global bridge to avoid GSI initialization race conditions -->
+<script>
+  window.onGoogleLibraryLoad = function() {
+    if (window.initGoogleAuth) {
+      window.initGoogleAuth();
+    }
+  };
+</script>
+<script src="https://accounts.google.com/gsi/client?onload=onGoogleLibraryLoad" async defer></script>
+
 <style>
   :root {
     --bg: #f7f6f2;
@@ -103,7 +113,6 @@
   .section-title { font-family: 'Crimson Pro', serif; font-size: 26px; font-weight: 600; color: var(--rx-blue); }
   .section-sub { font-size: 13px; color: var(--text-3); margin-top: 2px; }
 
-  /* ── STREAMING_CHUNK: Styling UI elements and preview columns... ── */
   /* ── BUTTONS ── */
   .btn { padding: 9px 18px; border-radius: 8px; border: none; font-family: 'DM Sans', sans-serif; font-size: 13.5px; font-weight: 500; cursor: pointer; transition: all .15s; display: inline-flex; align-items: center; gap: 7px; }
   .btn-primary { background: var(--accent); color: white; }
@@ -194,7 +203,6 @@
   .drug-autocomplete::-webkit-scrollbar-track { background: transparent; }
   .drug-autocomplete::-webkit-scrollbar-thumb { background: #c5d8ee; border-radius: 10px; }
 
-  /* ── STREAMING_CHUNK: Styling autocomplete results and preview boxes... ── */
   .drug-ac-item {
     display: flex; align-items: center; gap: 10px;
     padding: 9px 11px; cursor: pointer;
@@ -869,7 +877,6 @@
 
 <!-- ══════════════════════════ SCRIPT ══════════════════════════ -->
 <script>
-// ── STREAMING_CHUNK: Initializing state parameters and defaults... ──
 // ── STATE ──
 let state = {
   loggedIn: false,
@@ -998,7 +1005,6 @@ const DRUGS = [
   { name: 'Heparin', dose: '5000IU/ml', generic: 'Heparin Sodium', company: 'Various', price: '৳120.00/amp', form: 'Injection' },
 ];
 
-// ── STREAMING_CHUNK: Loading state storage systems... ──
 // ── PERSISTENCE ──
 function getStorageKey() {
   const email = (state.user && state.user.email) ? state.user.email : 'default';
@@ -1060,20 +1066,24 @@ function getDriveFileName() {
 
 function initGoogleAuth() {
   if (typeof google === 'undefined' || !google.accounts || tokenClient) return;
-  tokenClient = google.accounts.oauth2.initTokenClient({
-    client_id: GOOGLE_CLIENT_ID,
-    scope: GOOGLE_SCOPES,
-    callback: onTokenReceived,
-    error_callback: onTokenError,
-  });
-  
-  if (state.loggedIn && !googleAccessToken) {
-    tokenClient.requestAccessToken({ prompt: '' });
+  try {
+    tokenClient = google.accounts.oauth2.initTokenClient({
+      client_id: GOOGLE_CLIENT_ID,
+      scope: GOOGLE_SCOPES,
+      callback: onTokenReceived,
+      error_callback: onTokenError,
+    });
+    
+    if (state.loggedIn && !googleAccessToken) {
+      tokenClient.requestAccessToken({ prompt: '' });
+    }
+  } catch(e) {
+    console.error('Failed to initialize Google GSI Client:', e);
   }
 }
 
-// Init GSI when library is ready
-window.onGoogleLibraryLoad = initGoogleAuth;
+// Bind auth initializer directly to window reference
+window.initGoogleAuth = initGoogleAuth;
 if (typeof google !== 'undefined' && google.accounts) initGoogleAuth();
 
 // Called when user clicks "Continue with Google"
@@ -1083,9 +1093,21 @@ function startGoogleLogin() {
     return;
   }
   initGoogleAuth();
-  if (!tokenClient) { toast('❌ Google auth failed to initialize.'); return; }
+  if (!tokenClient) { 
+    // Double check initialization
+    initGoogleAuth();
+  }
+  if (!tokenClient) { 
+    toast('❌ Google auth failed to initialize.'); 
+    return; 
+  }
   setLoginLoading(true, 'Opening Google sign-in…');
-  tokenClient.requestAccessToken({ prompt: 'select_account' });
+  try {
+    tokenClient.requestAccessToken({ prompt: 'select_account' });
+  } catch (e) {
+    setLoginLoading(false);
+    toast('❌ Google Sign-In Window Error: ' + e.message);
+  }
 }
 
 // Single callback — fires for both fresh login AND silent re-auth
@@ -1188,7 +1210,7 @@ function onTokenReceived(tokenResponse) {
 
 function onTokenError(err) {
   setLoginLoading(false);
-  if (err.type === 'popup_closed') toast('Sign-in window closed.');
+  if (err.type === 'popup_closed') toast('⚠️ Sign-in window closed by user.');
   else toast('❌ Google sign-in error: ' + (err.type || 'unknown'));
 }
 
@@ -1318,7 +1340,6 @@ async function loadFromDrive() {
   }
 }
 
-// ── STREAMING_CHUNK: Setting up app layout and rendering hooks... ──
 function showApp() {
   document.getElementById('page-login').classList.remove('active');
   document.getElementById('topnav').classList.remove('hidden');
@@ -1406,7 +1427,6 @@ function loadProfileForm() {
   setV('chamber-hours', p.chamberHours || ''); setV('chamber-note', p.chamberNote || '');
 }
 
-// ── STREAMING_CHUNK: Processing signature uploads and preview scaling logic... ──
 // ── SIGNATURE HANDLERS ──
 function handleSignatureUpload(event) {
   const file = event.target.files[0];
@@ -1416,7 +1436,6 @@ function handleSignatureUpload(event) {
     const base64 = e.target.result;
     state.padSettings.signature = base64;
     
-    // Update preview in UI
     const previewImg = document.getElementById('sig-preview-img');
     const previewContainer = document.getElementById('sig-preview-container');
     const clearBtn = document.getElementById('btn-clear-sig');
@@ -1526,7 +1545,6 @@ function collectLivePadSettings() {
   };
 }
 
-// ── STREAMING_CHUNK: Scaling live preview canvas dynamically... ──
 function updatePadPreviewScale() {
   const container = document.querySelector('.pad-preview');
   const pre = document.getElementById('pad-preview-html');
@@ -1546,13 +1564,11 @@ function applyRxMargins(el, ps) {
   el.style.padding = `${pt}px ${pr}px ${pb}px ${pl}px`;
 }
 
-// ── STREAMING_CHUNK: Fitting prescription text iteratively to exactly one page... ──
 function fitRxToPage(el) {
   if (!el) return;
   const rxBody = el.querySelector('.rx-body');
   if (!rxBody) return;
   
-  // Reset structural overrides
   rxBody.style.minHeight = '720px';
   rxBody.style.fontSize = '';
   rxBody.style.lineHeight = '';
@@ -1575,12 +1591,10 @@ function fitRxToPage(el) {
   const maxHeight = 1123;
   let attempts = 0;
   
-  // Step 1: Let the rx-body flex collapse down
   if (el.scrollHeight > maxHeight) {
     rxBody.style.minHeight = '500px';
   }
   
-  // Step 2: Shrink padding and spacings of drug rows
   if (el.scrollHeight > maxHeight) {
     rxBody.style.minHeight = '400px';
     if (rxLeft) rxLeft.style.gap = '12px';
@@ -1590,12 +1604,10 @@ function fitRxToPage(el) {
     });
   }
   
-  // Step 3: Compress standard text line height
   if (el.scrollHeight > maxHeight) {
     rxBody.style.lineHeight = '1.3';
   }
   
-  // Step 4: Iteratively downscale content font-size
   let fontSize = 12.5; 
   while (el.scrollHeight > maxHeight && fontSize > 9.5 && attempts < 10) {
     fontSize -= 0.5;
@@ -1603,7 +1615,6 @@ function fitRxToPage(el) {
     attempts++;
   }
 
-  // Step 5: Fail-safe. If still overflowing, hide signature image to save space
   if (el.scrollHeight > maxHeight && sig) {
     sig.style.display = 'none';
   }
@@ -1636,7 +1647,6 @@ function updatePadPreview() {
 
 window.addEventListener('resize', updatePadPreviewScale);
 
-// ── STREAMING_CHUNK: Managing patient modules and view details... ──
 // ── PATIENTS ──
 function openPatientModal(id = null) {
   state.editingPatientId = id;
@@ -1750,7 +1760,6 @@ function openPatientDetail(id) {
   document.body.appendChild(modal);
 }
 
-// ── STREAMING_CHUNK: Managing medication rows and input searches... ──
 // ── PRESCRIPTIONS ──
 function openNewRx() {
   populatePatientDropdown();
@@ -1992,7 +2001,6 @@ function editRx() {
   openModal('modal-rx');
 }
 
-// ── STREAMING_CHUNK: Processing margin spacing and PDF setups... ──
 // ── PREVIEW RX ──
 function previewRx() {
   if (!v('rx-patient-select')) { toast('❗ Please select a patient'); return; }
@@ -2097,7 +2105,6 @@ function buildRxHTML(rx, opts = {}) {
   `;
 }
 
-// ── STREAMING_CHUNK: Exporting PDF structures with calculated dimension ratios... ──
 // ── PDF / IMAGE EXPORT ──
 async function saveRxPDF() {
   toast('⏳ Generating PDF...');
@@ -2460,7 +2467,6 @@ async function clearCustomDb() {
   toast('🗑️ Custom database removed');
 }
 
-// ── STREAMING_CHUNK: Setting up dashboard data visualizations... ──
 function renderDbSection() {
   const builtinCount = document.getElementById('db-builtin-count');
   const customCount  = document.getElementById('db-custom-count');
@@ -2606,7 +2612,6 @@ function toast(msg, dur = 3000) {
 
 if (document.getElementById('drug-rows')) addDrugRow();
 
-// ── STREAMING_CHUNK: Binding live layout change elements... ──
 ['pad-align','pad-left-width','pad-color','show-history','show-findings','show-investigation','show-advice','show-followup',
  'pad-margin-top','pad-margin-bottom','pad-margin-left','pad-margin-right']
   .forEach(id => { const el = document.getElementById(id); if (el) el.addEventListener('change', updatePadPreview); });
