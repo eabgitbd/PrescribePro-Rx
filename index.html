@@ -103,6 +103,7 @@
   .section-title { font-family: 'Crimson Pro', serif; font-size: 26px; font-weight: 600; color: var(--rx-blue); }
   .section-sub { font-size: 13px; color: var(--text-3); margin-top: 2px; }
 
+  /* ── STREAMING_CHUNK: Styling UI elements and preview columns... ── */
   /* ── BUTTONS ── */
   .btn { padding: 9px 18px; border-radius: 8px; border: none; font-family: 'DM Sans', sans-serif; font-size: 13.5px; font-weight: 500; cursor: pointer; transition: all .15s; display: inline-flex; align-items: center; gap: 7px; }
   .btn-primary { background: var(--accent); color: white; }
@@ -193,6 +194,7 @@
   .drug-autocomplete::-webkit-scrollbar-track { background: transparent; }
   .drug-autocomplete::-webkit-scrollbar-thumb { background: #c5d8ee; border-radius: 10px; }
 
+  /* ── STREAMING_CHUNK: Styling autocomplete results and preview boxes... ── */
   .drug-ac-item {
     display: flex; align-items: center; gap: 10px;
     padding: 9px 11px; cursor: pointer;
@@ -260,9 +262,10 @@
   #rx-a4 {
     width: 794px; min-height: 1123px; background: white;
     font-family: 'Crimson Pro', serif;
-    padding: 48px 52px 52px;
     position: relative; box-shadow: 0 8px 32px rgba(0,0,0,.3);
     color: #111;
+    box-sizing: border-box;
+    overflow: hidden;
   }
   .rx-header { text-align: center; margin-bottom: 0; }
   .rx-doc-name { font-size: 22px; font-weight: 700; letter-spacing: -.2px; color: #111; }
@@ -271,11 +274,11 @@
   .rx-patient-row { display: flex; gap: 0; font-size: 13px; font-family: 'DM Sans', sans-serif; border-bottom: 1px solid #111; padding-bottom: 6px; margin-bottom: 0; }
   .rx-pfield { flex: 1; }
   .rx-pfield strong { margin-right: 4px; }
-  .rx-body { display: flex; min-height: 800px; border-bottom: 1px solid #111; }
+  .rx-body { display: flex; min-height: 720px; border-bottom: 1px solid #111; box-sizing: border-box; }
   .rx-left { width: 165px; flex-shrink: 0; border-right: 1px solid #111; padding: 12px 12px 12px 0; display: flex; flex-direction: column; gap: 24px; }
   .rx-section-label { font-size: 11.5px; font-weight: 700; font-family: 'DM Sans', sans-serif; letter-spacing: .8px; text-transform: uppercase; color: #111; }
   .rx-section-content { font-size: 12.5px; font-family: 'DM Sans', sans-serif; color: #222; line-height: 1.55; white-space: pre-wrap; margin-top: 4px; }
-  .rx-right { flex: 1; padding: 12px 0 12px 16px; }
+  .rx-right { flex: 1; padding: 12px 0 12px 16px; display: flex; flex-direction: column; }
   .rx-rx-title { font-size: 18px; font-weight: 700; color: #111; margin-bottom: 10px; }
   .rx-drug-item { margin-bottom: 12px; padding-bottom: 10px; border-bottom: 1px dotted #ccc; }
   .rx-drug-item:last-child { border-bottom: none; }
@@ -295,8 +298,8 @@
   .profile-info p { opacity: .8; font-size: 14px; }
 
   /* ── PAD PREVIEW ── */
-  .pad-preview { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
-  .pad-preview-inner { padding: 16px; background: white; }
+  .pad-preview { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; position: relative; width: 100%; background: #666; }
+  .pad-preview-inner { background: white; transform-origin: top left; width: 794px; min-height: 1123px; box-sizing: border-box; }
 
   /* ── TOAST ── */
   #toast { position: fixed; bottom: 28px; right: 28px; background: #1a1814; color: white; padding: 12px 20px; border-radius: 10px; font-size: 14px; z-index: 9999; opacity: 0; transform: translateY(10px); transition: all .3s; pointer-events: none; }
@@ -530,6 +533,43 @@
           <div class="form-group" style="margin-bottom:12px"><label>Left Column Width (px)</label>
             <input type="number" id="pad-left-width" value="165" min="120" max="250">
           </div>
+
+          <!-- Margins Config -->
+          <div class="form-group" style="margin-bottom:12px">
+            <label>Page Margins (mm) — Default Standard (13-14mm)</label>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-top:4px;">
+              <div class="form-group">
+                <label style="font-size:10px;">Top</label>
+                <input type="number" id="pad-margin-top" value="13" min="5" max="40">
+              </div>
+              <div class="form-group">
+                <label style="font-size:10px;">Bottom</label>
+                <input type="number" id="pad-margin-bottom" value="14" min="5" max="40">
+              </div>
+              <div class="form-group">
+                <label style="font-size:10px;">Left</label>
+                <input type="number" id="pad-margin-left" value="14" min="5" max="40">
+              </div>
+              <div class="form-group">
+                <label style="font-size:10px;">Right</label>
+                <input type="number" id="pad-margin-right" value="14" min="5" max="40">
+              </div>
+            </div>
+          </div>
+
+          <!-- Signature Config -->
+          <div class="form-group" style="margin-bottom:16px">
+            <label>Authorized Doctor Signature (PNG, JPEG, SVG)</label>
+            <div style="display:flex; gap:10px; align-items:center; margin-top:4px;">
+              <button class="btn btn-secondary btn-sm" onclick="document.getElementById('pad-signature-file').click()">Upload Signature</button>
+              <input type="file" id="pad-signature-file" accept="image/png, image/jpeg, image/svg+xml" style="display:none" onchange="handleSignatureUpload(event)">
+              <button class="btn btn-danger btn-sm" id="btn-clear-sig" style="display:none;" onclick="clearSignature()">Remove Signature</button>
+            </div>
+            <div id="sig-preview-container" style="margin-top:8px; display:none;">
+              <img id="sig-preview-img" style="max-height:50px; max-width:120px; border:1px solid var(--border); padding:4px; border-radius:4px; background:white;" alt="Sig Preview">
+            </div>
+          </div>
+
           <div class="form-group" style="margin-bottom:12px"><label>Show Sections</label>
             <div style="display:flex; flex-direction:column; gap:8px; margin-top:4px">
               <label class="check-label"><input type="checkbox" id="show-history" checked> History</label>
@@ -547,7 +587,7 @@
         <div>
           <div style="font-weight:600; margin-bottom:12px; font-size:14px; color:var(--text-2)">Live Preview</div>
           <div class="pad-preview">
-            <div class="pad-preview-inner" id="pad-preview-html" style="font-family:'Crimson Pro', serif; font-size:11px; transform-origin:top left; transform:scale(0.65); width:794px; min-height:400px;">
+            <div class="pad-preview-inner" id="pad-preview-html" style="font-family:'Crimson Pro', serif; font-size:11px; transform-origin:top left; width:794px; min-height:1123px; box-sizing:border-box; background:white;">
             </div>
           </div>
         </div>
@@ -829,6 +869,7 @@
 
 <!-- ══════════════════════════ SCRIPT ══════════════════════════ -->
 <script>
+// ── STREAMING_CHUNK: Initializing state parameters and defaults... ──
 // ── STATE ──
 let state = {
   loggedIn: false,
@@ -850,7 +891,18 @@ let state = {
     chamberHours: '',
     chamberNote: ''
   },
-  padSettings: { align: 'center', leftWidth: 165, color: '#1a3a5c', showHistory: true, showFindings: true, showInvestigation: true, showAdvice: true, showFollowup: true },
+  padSettings: { 
+    align: 'center', 
+    leftWidth: 165, 
+    color: '#1a3a5c', 
+    showHistory: true, 
+    showFindings: true, 
+    showInvestigation: true, 
+    showAdvice: true, 
+    showFollowup: true,
+    margins: { top: 13, bottom: 14, left: 14, right: 14 },
+    signature: null
+  },
   patients: [],
   prescriptions: [],
   customDrugs: [],   // ← uploaded drug database
@@ -946,10 +998,7 @@ const DRUGS = [
   { name: 'Heparin', dose: '5000IU/ml', generic: 'Heparin Sodium', company: 'Various', price: '৳120.00/amp', form: 'Injection' },
 ];
 
-let googleAccessToken = null;
-let googleTokenExpiry = null;
-let tokenClient = null;
-
+// ── STREAMING_CHUNK: Loading state storage systems... ──
 // ── PERSISTENCE ──
 function getStorageKey() {
   const email = (state.user && state.user.email) ? state.user.email : 'default';
@@ -1094,7 +1143,18 @@ function onTokenReceived(tokenResponse) {
         footer: 'নিয়ম মাফিক ঔষধ খাবেন। ডাক্তারের পরামর্শ ব্যতীত ঔষধ পরিবর্তন নিষেধ।',
         chamberName: '', chamberPhone: '', chamberAddr1: '', chamberAddr2: '', chamberHours: '', chamberNote: ''
       };
-      state.padSettings = { align: 'center', leftWidth: 165, color: '#1a3a5c', showHistory: true, showFindings: true, showInvestigation: true, showAdvice: true, showFollowup: true };
+      state.padSettings = { 
+        align: 'center', 
+        leftWidth: 165, 
+        color: '#1a3a5c', 
+        showHistory: true, 
+        showFindings: true, 
+        showInvestigation: true, 
+        showAdvice: true, 
+        showFollowup: true,
+        margins: { top: 13, bottom: 14, left: 14, right: 14 },
+        signature: null
+      };
     } else if (!previousEmail) {
       const existingKey = 'prescribepro_state_' + email;
       const existing = localStorage.getItem(existingKey);
@@ -1258,8 +1318,8 @@ async function loadFromDrive() {
   }
 }
 
+// ── STREAMING_CHUNK: Setting up app layout and rendering hooks... ──
 function showApp() {
-  // Hide login cleanly and show main dashboard layouts immediately
   document.getElementById('page-login').classList.remove('active');
   document.getElementById('topnav').classList.remove('hidden');
   document.getElementById('main-layout').classList.remove('hidden');
@@ -1346,11 +1406,55 @@ function loadProfileForm() {
   setV('chamber-hours', p.chamberHours || ''); setV('chamber-note', p.chamberNote || '');
 }
 
+// ── STREAMING_CHUNK: Processing signature uploads and preview scaling logic... ──
+// ── SIGNATURE HANDLERS ──
+function handleSignatureUpload(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    const base64 = e.target.result;
+    state.padSettings.signature = base64;
+    
+    // Update preview in UI
+    const previewImg = document.getElementById('sig-preview-img');
+    const previewContainer = document.getElementById('sig-preview-container');
+    const clearBtn = document.getElementById('btn-clear-sig');
+    if (previewImg && previewContainer) {
+      previewImg.src = base64;
+      previewContainer.style.display = 'block';
+    }
+    if (clearBtn) clearBtn.style.display = 'inline-flex';
+    savePadSettings();
+  };
+  reader.readAsDataURL(file);
+}
+
+function clearSignature() {
+  state.padSettings.signature = null;
+  const previewImg = document.getElementById('sig-preview-img');
+  const previewContainer = document.getElementById('sig-preview-container');
+  const clearBtn = document.getElementById('btn-clear-sig');
+  if (previewImg && previewContainer) {
+    previewImg.src = '';
+    previewContainer.style.display = 'none';
+  }
+  if (clearBtn) clearBtn.style.display = 'none';
+  savePadSettings();
+}
+
 // ── PAD SETTINGS ──
 function savePadSettings() {
   state.padSettings = {
     align: v('pad-align'), leftWidth: parseInt(v('pad-left-width')) || 165,
     color: v('pad-color'),
+    signature: state.padSettings.signature || null,
+    margins: {
+      top: parseFloat(v('pad-margin-top')) || 13,
+      bottom: parseFloat(v('pad-margin-bottom')) || 14,
+      left: parseFloat(v('pad-margin-left')) || 14,
+      right: parseFloat(v('pad-margin-right')) || 14
+    },
     showHistory: document.getElementById('show-history').checked,
     showFindings: document.getElementById('show-findings').checked,
     showInvestigation: document.getElementById('show-investigation').checked,
@@ -1375,29 +1479,164 @@ function loadPadSettings() {
   setV('pad-align', ps.align || 'center');
   setV('pad-left-width', ps.leftWidth || 165);
   setV('pad-color', ps.color || '#1a3a5c');
+  
+  const m = ps.margins || { top: 13, bottom: 14, left: 14, right: 14 };
+  setV('pad-margin-top', m.top);
+  setV('pad-margin-bottom', m.bottom);
+  setV('pad-margin-left', m.left);
+  setV('pad-margin-right', m.right);
+  
   document.getElementById('show-history').checked = ps.showHistory !== false;
   document.getElementById('show-findings').checked = ps.showFindings !== false;
   document.getElementById('show-investigation').checked = ps.showInvestigation !== false;
   document.getElementById('show-advice').checked = ps.showAdvice !== false;
   document.getElementById('show-followup').checked = ps.showFollowup !== false;
+
+  const previewImg = document.getElementById('sig-preview-img');
+  const previewContainer = document.getElementById('sig-preview-container');
+  const clearBtn = document.getElementById('btn-clear-sig');
+  if (ps.signature) {
+    if (previewImg) previewImg.src = ps.signature;
+    if (previewContainer) previewContainer.style.display = 'block';
+    if (clearBtn) clearBtn.style.display = 'inline-flex';
+  } else {
+    if (previewImg) previewImg.src = '';
+    if (previewContainer) previewContainer.style.display = 'none';
+    if (clearBtn) clearBtn.style.display = 'none';
+  }
+}
+
+function collectLivePadSettings() {
+  return {
+    align: v('pad-align'),
+    leftWidth: parseInt(v('pad-left-width')) || 165,
+    color: v('pad-color'),
+    signature: state.padSettings.signature || null,
+    margins: {
+      top: parseFloat(v('pad-margin-top')) || 13,
+      bottom: parseFloat(v('pad-margin-bottom')) || 14,
+      left: parseFloat(v('pad-margin-left')) || 14,
+      right: parseFloat(v('pad-margin-right')) || 14
+    },
+    showHistory: document.getElementById('show-history').checked,
+    showFindings: document.getElementById('show-findings').checked,
+    showInvestigation: document.getElementById('show-investigation').checked,
+    showAdvice: document.getElementById('show-advice').checked,
+    showFollowup: document.getElementById('show-followup').checked
+  };
+}
+
+// ── STREAMING_CHUNK: Scaling live preview canvas dynamically... ──
+function updatePadPreviewScale() {
+  const container = document.querySelector('.pad-preview');
+  const pre = document.getElementById('pad-preview-html');
+  if (!container || !pre) return;
+  const parentWidth = container.clientWidth;
+  const scale = parentWidth / 794;
+  pre.style.transform = `scale(${scale})`;
+  container.style.height = (1123 * scale) + 'px';
+}
+
+function applyRxMargins(el, ps) {
+  const m = ps.margins || { top: 13, bottom: 14, left: 14, right: 14 };
+  const pt = (m.top || 13) * 3.78;
+  const pb = (m.bottom || 14) * 3.78;
+  const pl = (m.left || 14) * 3.78;
+  const pr = (m.right || 14) * 3.78;
+  el.style.padding = `${pt}px ${pr}px ${pb}px ${pl}px`;
+}
+
+// ── STREAMING_CHUNK: Fitting prescription text iteratively to exactly one page... ──
+function fitRxToPage(el) {
+  if (!el) return;
+  const rxBody = el.querySelector('.rx-body');
+  if (!rxBody) return;
+  
+  // Reset structural overrides
+  rxBody.style.minHeight = '720px';
+  rxBody.style.fontSize = '';
+  rxBody.style.lineHeight = '';
+  
+  const drugItems = el.querySelectorAll('.rx-drug-item');
+  drugItems.forEach(item => {
+    item.style.marginBottom = '';
+    item.style.paddingBottom = '';
+  });
+  
+  const rxLeft = el.querySelector('.rx-left');
+  if (rxLeft) rxLeft.style.gap = '';
+
+  const rxDivider = el.querySelector('.rx-divider');
+  if (rxDivider) rxDivider.style.margin = '';
+
+  const sig = el.querySelector('.rx-signature-container');
+  if (sig) sig.style.display = 'block';
+  
+  const maxHeight = 1123;
+  let attempts = 0;
+  
+  // Step 1: Let the rx-body flex collapse down
+  if (el.scrollHeight > maxHeight) {
+    rxBody.style.minHeight = '500px';
+  }
+  
+  // Step 2: Shrink padding and spacings of drug rows
+  if (el.scrollHeight > maxHeight) {
+    rxBody.style.minHeight = '400px';
+    if (rxLeft) rxLeft.style.gap = '12px';
+    drugItems.forEach(item => {
+      item.style.marginBottom = '6px';
+      item.style.paddingBottom = '6px';
+    });
+  }
+  
+  // Step 3: Compress standard text line height
+  if (el.scrollHeight > maxHeight) {
+    rxBody.style.lineHeight = '1.3';
+  }
+  
+  // Step 4: Iteratively downscale content font-size
+  let fontSize = 12.5; 
+  while (el.scrollHeight > maxHeight && fontSize > 9.5 && attempts < 10) {
+    fontSize -= 0.5;
+    rxBody.style.fontSize = fontSize + 'px';
+    attempts++;
+  }
+
+  // Step 5: Fail-safe. If still overflowing, hide signature image to save space
+  if (el.scrollHeight > maxHeight && sig) {
+    sig.style.display = 'none';
+  }
 }
 
 function updatePadPreview() {
   const pre = document.getElementById('pad-preview-html');
   const col = v('pad-color') || '#1a3a5c';
   const al = v('pad-align') || 'center';
+  const currentSettings = collectLivePadSettings();
+  
   pre.innerHTML = buildRxHTML({
-    complaints: 'Chief complaint example',
-    history: 'History here',
-    findings: 'Normal',
-    investigation: 'CBC, RBS',
-    drugs: [{ name: 'Napa (Paracetamol)', form: 'Tablet', dose: '500mg', freq: '3', timing: 'After meal', route: 'Oral', duration: '5 days' }],
-    advice: 'Rest, adequate hydration',
+    complaints: 'Chief complaint example with findings, clinical notes and medical history logs.',
+    history: 'Hypertension for 5 years, on regular meds.',
+    findings: 'Pulse: 72/min, BP: 120/80 mmHg, S1+S2 heard.',
+    investigation: 'CBC, RBS, Serum Creatinine',
+    drugs: [
+      { name: 'Napa (Paracetamol)', form: 'Tablet', dose: '500mg', freq: '১+১+১', timing: 'After meal', route: 'Oral', duration: '5 days' },
+      { name: 'Seclo (Omeprazole)', form: 'Capsule', dose: '20mg', freq: '১+০+১', timing: 'Before meal', route: 'Oral', duration: '14 days' }
+    ],
+    advice: 'Avoid extra salt, walk 30 mins daily.',
     followupDays: '7', followupUnit: 'days', notes: '',
     patientName: 'Test Patient', patientAge: '30 years', patientGender: 'Male'
-  }, { color: col, headerAlign: al, preview: true });
+  }, currentSettings);
+
+  applyRxMargins(pre, currentSettings);
+  fitRxToPage(pre);
+  updatePadPreviewScale();
 }
 
+window.addEventListener('resize', updatePadPreviewScale);
+
+// ── STREAMING_CHUNK: Managing patient modules and view details... ──
 // ── PATIENTS ──
 function openPatientModal(id = null) {
   state.editingPatientId = id;
@@ -1511,6 +1750,7 @@ function openPatientDetail(id) {
   document.body.appendChild(modal);
 }
 
+// ── STREAMING_CHUNK: Managing medication rows and input searches... ──
 // ── PRESCRIPTIONS ──
 function openNewRx() {
   populatePatientDropdown();
@@ -1752,6 +1992,7 @@ function editRx() {
   openModal('modal-rx');
 }
 
+// ── STREAMING_CHUNK: Processing margin spacing and PDF setups... ──
 // ── PREVIEW RX ──
 function previewRx() {
   if (!v('rx-patient-select')) { toast('❗ Please select a patient'); return; }
@@ -1762,7 +2003,10 @@ function previewRx() {
 }
 
 function renderRxPreview(rx) {
-  document.getElementById('rx-a4').innerHTML = buildRxHTML(rx, state.padSettings);
+  const div = document.getElementById('rx-a4');
+  div.innerHTML = buildRxHTML(rx, state.padSettings);
+  applyRxMargins(div, state.padSettings);
+  fitRxToPage(div);
 }
 
 function buildRxHTML(rx, opts = {}) {
@@ -1812,6 +2056,15 @@ function buildRxHTML(rx, opts = {}) {
       ${p.chamberNote ? `<div style="font-size:11px; color:#777; font-style:italic; margin-top:2px;">${p.chamberNote}</div>` : ''}
     </div>` : '';
 
+  const signatureHTML = opts.signature || ps.signature ? `
+    <div class="rx-signature-container" style="display: block; width: 100%; margin-top: 30px; text-align: right; page-break-inside: avoid; box-sizing: border-box;">
+      <div style="display: inline-block; text-align: center;">
+        <img src="${opts.signature || ps.signature}" style="max-height: 54px; max-width: 150px; display: block; margin: 0 auto 3px;" alt="Signature">
+        <div style="border-top: 1px solid #777; font-size: 11px; font-family: 'DM Sans', sans-serif; color: #444; padding-top: 3px; min-width: 140px; text-align: center;">Authorized Signature</div>
+      </div>
+    </div>
+  ` : '';
+
   return `
     <div style="display:flex; align-items:flex-start; justify-content:space-between; gap:16px; margin-bottom:0;">
       <div class="rx-header" style="text-align:${al}; flex:1;">
@@ -1837,12 +2090,14 @@ function buildRxHTML(rx, opts = {}) {
         ${adviceHTML}
         ${followupHTML}
         ${notesHTML}
+        ${signatureHTML}
       </div>
     </div>
     <div class="rx-footer-note">${p.footer || 'নিয়ম মাফিক ঔষধ খাবেন। ডাক্তারের পরামর্শ ব্যতীত ঔষধ পরিবর্তন নিষেধ।'}</div>
   `;
 }
 
+// ── STREAMING_CHUNK: Exporting PDF structures with calculated dimension ratios... ──
 // ── PDF / IMAGE EXPORT ──
 async function saveRxPDF() {
   toast('⏳ Generating PDF...');
@@ -1853,10 +2108,13 @@ async function saveRxPDF() {
     const hiddenWrap = document.createElement('div');
     hiddenWrap.style.cssText = 'position:fixed;left:-9999px;top:0;z-index:-1;width:794px;background:white;';
     const innerDiv = document.createElement('div');
-    innerDiv.style.cssText = 'width:794px;min-height:1123px;background:white;font-family:\'Crimson Pro\',serif;padding:48px 52px 52px;color:#111;';
+    innerDiv.style.cssText = 'width:794px;min-height:1123px;background:white;font-family:\'Crimson Pro\',serif;color:#111;box-sizing:border-box;';
     innerDiv.innerHTML = buildRxHTML(rx, state.padSettings);
     hiddenWrap.appendChild(innerDiv);
     document.body.appendChild(hiddenWrap);
+
+    applyRxMargins(innerDiv, state.padSettings);
+    fitRxToPage(innerDiv);
 
     await new Promise(r => setTimeout(r, 300));
 
@@ -1909,22 +2167,37 @@ async function saveRxImage() {
 
 function printRx() {
   const w = window.open('', '_blank');
+  
+  const m = state.padSettings.margins || { top: 13, bottom: 14, left: 14, right: 14 };
+  const pt = (m.top || 13) * 3.78;
+  const pb = (m.bottom || 14) * 3.78;
+  const pl = (m.left || 14) * 3.78;
+  const pr = (m.right || 14) * 3.78;
+  
   const rxHTML = document.getElementById('rx-a4').innerHTML;
   w.document.write(`<!DOCTYPE html><html><head>
     <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:ital,wght@0,300;0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
     <style>
       * { box-sizing:border-box; margin:0; padding:0; }
       body { font-family:'Crimson Pro', serif; padding:0; background:white; }
+      #rx-a4 {
+        width:794px;
+        min-height:1123px;
+        background:white;
+        position:relative;
+        box-sizing:border-box;
+        padding:${pt}px ${pr}px ${pb}px ${pl}px;
+      }
       .rx-header{text-align:center} .rx-doc-name{font-size:22px;font-weight:700;color:#1a3a5c}
       .rx-doc-quals{font-size:12.5px;color:#333;line-height:1.5;font-family:'DM Sans',sans-serif}
       .rx-divider{border:none;border-top:1.5px solid #111;margin:8px 0 6px}
       .rx-patient-row{display:flex;font-size:13px;font-family:'DM Sans',sans-serif;border-bottom:1px solid #111;padding-bottom:6px}
       .rx-pfield{flex:1} .rx-pfield strong{margin-right:4px}
-      .rx-body{display:flex;min-height:800px;border-bottom:1px solid #111}
+      .rx-body{display:flex;min-height:720px;border-bottom:1px solid #111;box-sizing:border-box;}
       .rx-left{width:165px;flex-shrink:0;border-right:1px solid #111;padding:12px 12px 12px 0;display:flex;flex-direction:column;gap:24px}
       .rx-section-label{font-size:11.5px;font-weight:700;font-family:'DM Sans',sans-serif;letter-spacing:.8px;text-transform:uppercase;color:#111}
       .rx-section-content{font-size:12.5px;font-family:'DM Sans',sans-serif;color:#222;line-height:1.55;white-space:pre-wrap;margin-top:4px}
-      .rx-right{flex:1;padding:12px 0 12px 16px}
+      .rx-right{flex:1;padding:12px 0 12px 16px;display:flex;flex-direction:column;}
       .rx-rx-title{font-size:18px;font-weight:700;color:#111;margin-bottom:10px}
       .rx-drug-item{margin-bottom:12px;padding-bottom:10px;border-bottom:1px dotted #ccc}
       .rx-drug-name{font-size:14px;font-weight:600;color:#111}
@@ -1934,9 +2207,9 @@ function printRx() {
       .rx-advice-text{font-size:12.5px;font-family:'DM Sans',sans-serif;color:#333;line-height:1.6}
       .rx-followup{font-size:12.5px;font-family:'DM Sans',sans-serif;color:#333;margin-top:8px}
       .rx-footer-note{text-align:center;font-size:13px;font-family:'DM Sans',sans-serif;padding-top:10px;color:#333}
-      @page{size:A4;margin:12mm 14mm}
+      @page{size:A4;margin:0mm}
     </style>
-    </head><body>${rxHTML}</body></html>`);
+    </head><body><div id="rx-a4">${rxHTML}</div></body></html>`);
   w.document.close();
   w.onload = () => { w.print(); };
 }
@@ -2187,6 +2460,7 @@ async function clearCustomDb() {
   toast('🗑️ Custom database removed');
 }
 
+// ── STREAMING_CHUNK: Setting up dashboard data visualizations... ──
 function renderDbSection() {
   const builtinCount = document.getElementById('db-builtin-count');
   const customCount  = document.getElementById('db-custom-count');
@@ -2332,7 +2606,9 @@ function toast(msg, dur = 3000) {
 
 if (document.getElementById('drug-rows')) addDrugRow();
 
-['pad-align','pad-left-width','pad-color','show-history','show-findings','show-investigation','show-advice','show-followup']
+// ── STREAMING_CHUNK: Binding live layout change elements... ──
+['pad-align','pad-left-width','pad-color','show-history','show-findings','show-investigation','show-advice','show-followup',
+ 'pad-margin-top','pad-margin-bottom','pad-margin-left','pad-margin-right']
   .forEach(id => { const el = document.getElementById(id); if (el) el.addEventListener('change', updatePadPreview); });
 </script>
 </body>
