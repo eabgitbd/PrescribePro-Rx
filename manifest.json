@@ -1,0 +1,19 @@
+{
+  "name": "PrescribePro-Rx — Digital Prescription Pad",
+  "short_name": "PrescribePro-Rx",
+  "description": "Professional offline-first digital prescription pad and medical record software for doctors.",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#1e3a8a",
+  "icons": [
+    {
+      "src": "icon.svg",
+      "sizes": "192x192 512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["medical", "health", "productivity"]
+}

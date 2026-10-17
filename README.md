@@ -2,11 +2,14 @@
 
 > **A professional, offline-first digital prescription pad and clinical practice management software for registered medical practitioners.**
 
+[![Live Web App](https://img.shields.io/badge/Live_App-Launch_PrescribePro--Rx-1e3a8a?style=for-the-badge&logo=googlechrome&logoColor=white)](https://eabgitbd.github.io/PrescribePro-Rx/)
 [![Version](https://img.shields.io/badge/Version-3.0_Pro-blue.svg?style=flat-square)](https://github.com/eabgitbd/PrescribePro-Rx)
 [![Status](https://img.shields.io/badge/Status-Active_Production-success.svg?style=flat-square)](https://github.com/eabgitbd/PrescribePro-Rx)
 [![Platform](https://img.shields.io/badge/Platform-Web_|_Mobile_|_Tablet-lightgrey.svg?style=flat-square)](https://github.com/eabgitbd/PrescribePro-Rx)
 [![Data Privacy](https://img.shields.io/badge/Privacy-100%25_Local_First_|_Zero_Telemetry-success.svg?style=flat-square)](https://github.com/eabgitbd/PrescribePro-Rx)
 [![Standard](https://img.shields.io/badge/Standard-WHO_|_ISO_216_A4_|_WCAG_2.1-orange.svg?style=flat-square)](https://github.com/eabgitbd/PrescribePro-Rx)
+
+🌐 **Live Web Application**: [https://eabgitbd.github.io/PrescribePro-Rx/](https://eabgitbd.github.io/PrescribePro-Rx/)
 
 ---
 
