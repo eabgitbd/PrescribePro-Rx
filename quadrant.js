@@ -7,11 +7,11 @@
 (function(root) {
   'use strict';
 
-  const TOKEN_REGEX = /\{\{q:UR=([1-8A-E]{0,8});UL=([1-8A-E]{0,8});LR=([1-8A-E]{0,8});LL=([1-8A-E]{0,8})\}\}/g;
+  const TOKEN_REGEX = /\{\{q:UR=([^;}]*);UL=([^;}]*);LR=([^;}]*);LL=([^;}]*)\}\}/g;
 
   function cleanCell(val) {
     if (!val) return '';
-    return String(val).toUpperCase().replace(/[^1-8A-E]/g, '').slice(0, 8);
+    return String(val).replace(/[;}\r\n]/g, '').slice(0, 20);
   }
 
   function makeToken(ur, ul, lr, ll) {
@@ -38,11 +38,15 @@
 
   function renderRich(str) {
     if (!str) return '';
-    const safe = escapeHtml(str);
-    const re = new RegExp(TOKEN_REGEX.source, 'g');
-    return safe.replace(re, (match, ur, ul, lr, ll) => {
-      return chipHTML(ur, ul, lr, ll);
-    });
+    const segments = parse(str);
+    return segments.map(seg => {
+      if (seg.type === 'text') {
+        return escapeHtml(seg.value);
+      } else if (seg.type === 'quad') {
+        return chipHTML(seg.ur, seg.ul, seg.lr, seg.ll);
+      }
+      return '';
+    }).join('');
   }
 
   function plain(str) {
@@ -271,9 +275,9 @@
       const inp = document.createElement('input');
       inp.type = 'text';
       inp.className = c;
-      inp.maxLength = 8;
+      inp.maxLength = 20;
       inp.inputMode = 'text';
-      inp.autocapitalize = 'characters';
+      inp.autocapitalize = 'off';
       inp.autocomplete = 'off';
       inp.spellcheck = false;
       inp.placeholder = c.toUpperCase();
@@ -281,7 +285,7 @@
       inp.setAttribute('aria-label', `${c.toUpperCase()} quadrant cell`);
 
       const updateWidth = () => {
-        inp.style.width = Math.max(1, inp.value.length + 0.6) + 'ch';
+        inp.style.width = Math.max(1.2, inp.value.length + 0.6) + 'ch';
       };
       updateWidth();
 

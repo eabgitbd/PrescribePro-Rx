@@ -1938,8 +1938,8 @@ function renderRxHTML(rx) {
   if (rx.plan) {
     leftUnits.push({
       key: 'plan',
-      label: 'PLAN',
-      html: `<div><div class="rx-section-label" style="color:${col}">PLAN</div><div class="rx-section-content">${renderField(rx.plan)}</div></div>` // [QUAD]
+      label: 'TREATMENT PLAN',
+      html: `<div><div class="rx-section-label" style="color:${col}">TREATMENT PLAN</div><div class="rx-section-content">${renderField(rx.plan)}</div></div>` // [QUAD]
     });
   }
 

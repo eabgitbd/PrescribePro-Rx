@@ -1107,7 +1107,6 @@ textarea { resize: vertical; min-height: 80px; }
   min-height: 24px;
   min-width: 1.2ch;
   box-sizing: content-box;
-  text-transform: uppercase;
   font-variant-numeric: tabular-nums;
 }
 .dq-edit input::placeholder {
