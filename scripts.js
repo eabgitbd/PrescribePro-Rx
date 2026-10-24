@@ -2795,7 +2795,7 @@ function exportBackupData() {
   const now = new Date();
   const backupPayload = {
     app: 'PrescribePro-Rx',
-    version: '4.0 Pro',
+    version: '4.1 Pro',
     exportedAt: now.toISOString(),
     summary: {
       patientsCount: (state.patients || []).length,
@@ -2899,7 +2899,7 @@ function showRestoreConfirmModal(fileName, imported) {
   if (nameEl) nameEl.textContent = fileName || 'backup.json';
   if (metaEl) {
     const dateStr = imported.exportedAt ? new Date(imported.exportedAt).toLocaleString() : 'Date unspecified';
-    const ver = imported.version ? `Version ${imported.version}` : 'Version 4.0 Pro';
+    const ver = imported.version ? `Version ${imported.version}` : 'Version 4.1 Pro';
     metaEl.textContent = `Exported: ${dateStr} · ${ver}`;
   }
 
