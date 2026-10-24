@@ -161,11 +161,11 @@
     <div id="panel-auth-local" class="auth-panel active">
       <div class="pin-login-box">
         <div class="form-group">
-          <label>Doctor Name</label>
+          <label for="local-doc-name">Doctor Name</label>
           <input type="text" id="local-doc-name" placeholder="e.g. Dr. Gazi Md Emran Ahmed" value="Dr. Emran Ahmed">
         </div>
         <div class="form-group">
-          <label>BMDC Reg. No. (Optional)</label>
+          <label for="local-bmdc-reg">BMDC Reg. No. (Optional)</label>
           <input type="text" id="local-bmdc-reg" placeholder="e.g. Regi: A-12345">
         </div>
         <button class="btn btn-primary" onclick="startLocalLogin()" style="width:100%; margin-top:6px; padding:12px">Enter Prescription Workspace</button>
@@ -314,43 +314,43 @@
       <div class="card">
         <div class="form-grid">
           <div class="form-group">
-            <label>Doctor Full Name</label>
+            <label for="prof-name">Doctor Full Name</label>
             <input type="text" id="prof-name" placeholder="Dr. Firstname Lastname">
           </div>
           <div class="form-group">
-            <label>Qualifications</label>
+            <label for="prof-quals">Qualifications</label>
             <input type="text" id="prof-quals" placeholder="MBBS (DU), FCPS (Medicine)">
           </div>
           <div class="form-group">
-            <label>Designation / Title</label>
+            <label for="prof-desig">Designation / Title</label>
             <input type="text" id="prof-desig" placeholder="Assistant Professor / Specialist">
           </div>
           <div class="form-group">
-            <label>BMDC Registration No.</label>
+            <label for="prof-reg">BMDC Registration No.</label>
             <input type="text" id="prof-reg" placeholder="Regi: A-12345">
           </div>
           <div class="form-group full">
-            <label>Hospital / Institute Affiliation</label>
+            <label for="prof-hosp">Hospital / Institute Affiliation</label>
             <input type="text" id="prof-hosp" placeholder="Dhaka Medical College & Hospital">
           </div>
           <div class="form-group">
-            <label>Chamber / Clinic Name</label>
+            <label for="prof-chamber">Chamber / Clinic Name</label>
             <input type="text" id="prof-chamber" placeholder="e.g. Care Medical Chamber">
           </div>
           <div class="form-group">
-            <label>Chamber Address</label>
+            <label for="prof-address">Chamber Address</label>
             <input type="text" id="prof-address" placeholder="Room 201, Green Hospital, Dhaka">
           </div>
           <div class="form-group">
-            <label>Chamber Hours</label>
+            <label for="prof-hours">Chamber Hours</label>
             <input type="text" id="prof-hours" placeholder="5:00 PM - 9:00 PM">
           </div>
           <div class="form-group">
-            <label>Doctor Phone / Hotline</label>
+            <label for="prof-phone">Doctor Phone / Hotline</label>
             <input type="text" id="prof-phone" placeholder="+880 1700-000000">
           </div>
           <div class="form-group full">
-            <label>Prescription Footer Advice / Disclaimer Note</label>
+            <label for="prof-footer">Prescription Footer Advice / Disclaimer Note</label>
             <input type="text" id="prof-footer" placeholder="e.g. নিয়ম মাফিক ঔষধ খাবেন। ডাক্তারের পরামর্শ ব্যতীত ঔষধ পরিবর্তন নিষেধ।">
           </div>
         </div>
@@ -388,7 +388,7 @@
       <div class="card">
         <div class="form-grid">
           <div class="form-group">
-            <label>Header Alignment</label>
+            <label for="pad-align">Header Alignment</label>
             <select id="pad-align">
               <option value="center">Center Aligned</option>
               <option value="left">Left Aligned</option>
@@ -396,11 +396,11 @@
             </select>
           </div>
           <div class="form-group">
-            <label>Accent Color</label>
+            <label for="pad-color">Accent Color</label>
             <input type="color" id="pad-color" value="#1a3a5c">
           </div>
           <div class="form-group">
-            <label>Left Column Width (px)</label>
+            <label for="pad-left-width">Left Column Width (px)</label>
             <input type="number" id="pad-left-width" value="165">
           </div>
           <div class="form-group" style="justify-content:center">
@@ -421,7 +421,7 @@
             </div>
           </div>
           <div class="form-group full">
-            <label>Prescription Footer Text (Bottom Center Note)</label>
+            <label for="pad-footer">Prescription Footer Text (Bottom Center Note)</label>
             <input type="text" id="pad-footer" placeholder="e.g. নিয়ম মাফিক ঔষধ খাবেন। ডাক্তারের পরামর্শ ব্যতীত ঔষধ পরিবর্তন নিষেধ।">
           </div>
         </div>
@@ -487,15 +487,15 @@
     <div class="modal-body">
       <div class="form-grid">
         <div class="form-group full">
-          <label>Full Name *</label>
+          <label for="pname">Full Name *</label>
           <input type="text" id="pname" placeholder="Patient Name">
         </div>
         <div class="form-group">
-          <label>Age</label>
+          <label for="page">Age</label>
           <input type="text" id="page" placeholder="e.g. 32 Yrs or 6 Months">
         </div>
         <div class="form-group">
-          <label>Gender</label>
+          <label for="pgender">Gender</label>
           <select id="pgender">
             <option>Male</option>
             <option>Female</option>
@@ -503,7 +503,7 @@
           </select>
         </div>
         <div class="form-group">
-          <label>Blood Group</label>
+          <label for="pblood">Blood Group</label>
           <select id="pblood">
             <option value="">Unknown</option>
             <option>A+</option><option>A-</option>
@@ -513,15 +513,15 @@
           </select>
         </div>
         <div class="form-group">
-          <label>Weight</label>
+          <label for="pweight">Weight</label>
           <input type="text" id="pweight" placeholder="e.g. 65 kg">
         </div>
         <div class="form-group">
-          <label>Phone Number</label>
+          <label for="pphone">Phone Number</label>
           <input type="text" id="pphone" placeholder="+880 17...">
         </div>
         <div class="form-group full">
-          <label>Known Allergies / Medical Conditions</label>
+          <label for="pallergies">Known Allergies / Medical Conditions</label>
           <input type="text" id="pallergies" placeholder="e.g. Penicillin allergy, Hypertensive, Diabetic">
         </div>
       </div>
@@ -575,27 +575,27 @@
 
       <div class="form-grid" id="sec-rx-clinical">
         <div class="form-group">
-          <label>Chief Complaints</label>
+          <label for="rx-complaints">Chief Complaints</label>
           <textarea id="rx-complaints" placeholder="e.g. Fever x 3 days, Dry cough, Headache..."></textarea>
         </div>
         <div class="form-group">
-          <label>History</label>
+          <label for="rx-history">History</label>
           <textarea id="rx-history" placeholder="e.g. No HTN, Non-diabetic"></textarea>
         </div>
         <div class="form-group">
-          <label>Clinical Findings / O/E</label>
+          <label for="rx-findings">Clinical Findings / O/E</label>
           <textarea id="rx-findings" placeholder="e.g. BP: 120/80 mmHg, Temp: 101°F, Chest: Clear"></textarea>
         </div>
         <div class="form-group">
-          <label>Investigation / Tests Advised</label>
+          <label for="rx-investigation">Investigation / Tests Advised</label>
           <textarea id="rx-investigation" placeholder="e.g. CBC with ESR, Chest X-Ray (P/A view)"></textarea>
         </div>
         <div class="form-group full">
-          <label>Diagnosis</label>
+          <label for="rx-diagnosis">Diagnosis</label>
           <textarea id="rx-diagnosis" placeholder="e.g. Acute Upper Respiratory Tract Infection (URTI)"></textarea>
         </div>
         <div class="form-group full">
-          <label>Private Doctor Notes / Internal Remarks (Not Printed)</label>
+          <label for="rx-notes">Private Doctor Notes / Internal Remarks (Not Printed)</label>
           <textarea id="rx-notes" placeholder="e.g. Patient reluctant for admission. Advised re-evaluation in 3 days." style="min-height:50px"></textarea>
         </div>
       </div>
@@ -623,7 +623,7 @@
           </div>
         </div>
         <div class="form-group">
-          <label>General Advice</label>
+          <label for="rx-advice">General Advice</label>
           <textarea id="rx-advice" placeholder="e.g. Take rest, drink plenty of warm water, avoid cold items..."></textarea>
         </div>
       </div>
@@ -675,5 +675,17 @@
 <!-- External Modernized Logic -->
 <script src="scripts.js"></script>
 
+  <!-- Service Worker Registration for Offline PWA -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('./sw.js').then((reg) => {
+          console.log('⚡ PrescribePro-Rx ServiceWorker registered with scope:', reg.scope);
+        }).catch((err) => {
+          console.warn('ServiceWorker registration failed:', err);
+        });
+      });
+    }
+  </script>
 </body>
 </html>
