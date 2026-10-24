@@ -149,40 +149,77 @@ const DRUGS = [
 ];
 
 // ── FAST DRUG DATABASE CACHING (0ms INSTANT LOAD) ──
-async function loadExternalDrugDatabase() {
-  // Step 1: Load from local memory cache for instant (0ms) startup
-  const cached = localStorage.getItem('prescribepro_cached_drugs');
-  if (cached) {
-    try {
-      const parsed = JSON.parse(cached);
-      if (Array.isArray(parsed) && parsed.length > 0) {
-        externalDrugs = parsed;
-        console.log(`⚡ Instant loaded ${externalDrugs.length} medicines from local memory cache`);
+async // ── INDEXEDDB DRUG CACHE ENGINE (100% Offline 41k Formulary) ──
+const IDB_NAME = 'PrescribeProDB';
+const IDB_VERSION = 1;
+const IDB_STORE = 'drugs_cache';
+
+function openIDB() {
+  return new Promise((resolve) => {
+    if (!window.indexedDB) { resolve(null); return; }
+    const req = window.indexedDB.open(IDB_NAME, IDB_VERSION);
+    req.onupgradeneeded = (e) => {
+      const db = e.target.result;
+      if (!db.objectStoreNames.contains(IDB_STORE)) {
+        db.createObjectStore(IDB_STORE);
       }
-    } catch(e) {
-      console.warn('Failed to parse local drug cache:', e);
-    }
+    };
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => resolve(null);
+  });
+}
+
+async function getDrugsFromIDB() {
+  try {
+    const db = await openIDB();
+    if (!db) return null;
+    return new Promise((resolve) => {
+      const tx = db.transaction(IDB_STORE, 'readonly');
+      const store = tx.objectStore(IDB_STORE);
+      const req = store.get('all_drugs');
+      req.onsuccess = () => resolve(req.result || null);
+      req.onerror = () => resolve(null);
+    });
+  } catch (e) {
+    return null;
+  }
+}
+
+async function saveDrugsToIDB(data) {
+  try {
+    const db = await openIDB();
+    if (!db) return;
+    const tx = db.transaction(IDB_STORE, 'readwrite');
+    const store = tx.objectStore(IDB_STORE);
+    store.put(data, 'all_drugs');
+  } catch (e) {
+    console.warn('Could not persist drugs to IndexedDB:', e);
+  }
+}
+
+async function loadExternalDrugDatabase() {
+  // Step 1: Instant load from local IndexedDB cache (bypasses 5MB localStorage quota)
+  const idbDrugs = await getDrugsFromIDB();
+  if (Array.isArray(idbDrugs) && idbDrugs.length > 0) {
+    externalDrugs = idbDrugs;
+    console.log(`⚡ Instant loaded ${externalDrugs.length} medicines from local IndexedDB cache`);
   }
 
-  // Step 2: Background fetch data/drugs.json to update cache
+  // Step 2: Background fetch data/drugs.json to populate/update IndexedDB cache
   try {
     const res = await fetch('data/drugs.json');
     if (res.ok) {
       const data = await res.json();
       if (Array.isArray(data) && data.length > 0) {
         externalDrugs = data;
-        try {
-          localStorage.setItem('prescribepro_cached_drugs', JSON.stringify(data));
-          console.log(`Updated local cache with ${externalDrugs.length} medicines from data/drugs.json`);
-        } catch (cacheErr) {
-          // The 41k-entry database can exceed the localStorage quota. It is
-          // fully loaded in memory regardless, so caching is optional.
-          console.warn('Drug database too large to cache in localStorage; using in-memory copy:', cacheErr);
-        }
+        saveDrugsToIDB(data);
+        console.log(`Updated local IndexedDB cache with ${externalDrugs.length} medicines from data/drugs.json`);
       }
     }
   } catch (e) {
-    console.warn('Could not fetch data/drugs.json, using cached or built-in drug catalog:', e);
+    if (!externalDrugs.length) {
+      console.warn('Could not fetch data/drugs.json, using built-in fallback drug catalog:', e);
+    }
   }
 }
 
@@ -887,24 +924,152 @@ function getActiveDrugs() {
 // Per-row autocomplete state (matches + highlighted index) for keyboard nav.
 const drugAcState = {};
 
+
+// ── CLINICAL PHARMACOLOGICAL SAFETY & AUTOCOMPLETE ENHANCEMENTS ──
+const POPULAR_COMPANIES = new Set([
+  'square', 'beximco', 'renata', 'incepta', 'aci', 'healthcare',
+  'eskayef', 'sk+f', 'acme', 'opsonin', 'aristopharma', 'popular',
+  'drug international', 'sanofi', 'general'
+]);
+
+function isIndustrialAPI(d) {
+  const n = (d.name || '').toLowerCase();
+  const f = (d.form || '').toLowerCase();
+  return n.includes('(api)') || f === 'liter' || f === 'kg' || f === 'drum' || f.includes('pellets');
+}
+
+function isVeterinary(d) {
+  const n = (d.name || '').toLowerCase();
+  const g = (d.generic || '').toLowerCase();
+  return n.includes('(vet)') || n.includes(' vet ') || n.endsWith(' vet') || g.includes('vet');
+}
+
+function extractDoseFromGeneric(generic) {
+  if (!generic) return '';
+  const match = generic.match(/(\d+(?:\.\d+)?\s*(?:mg|ml|gm|g|mcg|iu|%)(?:\/\d*\s*(?:ml|puff|vial|kg|gm))?(?:\s*\+\s*\d+(?:\.\d+)?\s*(?:mg|ml|gm|g|mcg|iu|%)(?:\/\d*\s*(?:ml|puff|vial|kg|gm))?)*)/i);
+  return match ? match[1].trim() : '';
+}
+
+function checkDrugSafety(rowId) {
+  const card = document.getElementById(`dr-${rowId}`);
+  if (!card) return;
+  const name = (v(`dname-${rowId}`) || '').toLowerCase();
+  const generic = (v(`dgeneric-${rowId}`) || '').toLowerCase();
+  if (!name && !generic) return;
+
+  // 1. Patient Allergy Check
+  const pid = v('rx-patient-select');
+  const patient = state.patients.find(p => p.id === pid);
+  const allergies = (patient && patient.allergies ? patient.allergies.toLowerCase() : '');
+  
+  let allergyClash = false;
+  if (allergies) {
+    const tokens = allergies.split(/[,;\s+/]+/).map(t => t.trim()).filter(t => t.length > 2);
+    for (const t of tokens) {
+      if (generic.includes(t) || name.includes(t)) {
+        allergyClash = t;
+        break;
+      }
+      if (t.includes('penicillin') && (generic.includes('amoxicillin') || generic.includes('ampicillin') || name.includes('amoxil'))) {
+        allergyClash = 'penicillin'; break;
+      }
+      if (t.includes('sulfa') && (generic.includes('cotrimoxazole') || generic.includes('sulfamethoxazole'))) {
+        allergyClash = 'sulfa'; break;
+      }
+      if ((t.includes('aspirin') || t.includes('nsaid')) && (generic.includes('ibuprofen') || generic.includes('diclofenac') || generic.includes('naproxen') || generic.includes('ketorolac'))) {
+        allergyClash = 'NSAID / Aspirin'; break;
+      }
+    }
+  }
+
+  // 2. Duplicate Generic Molecule Check
+  let duplicateMolecule = false;
+  if (generic) {
+    const baseGeneric = generic.split(/\d/)[0].trim().toLowerCase();
+    if (baseGeneric.length > 3) {
+      document.querySelectorAll('#drug-rows .drug-card').forEach(other => {
+        const otherId = other.id.replace('dr-', '');
+        if (otherId !== String(rowId)) {
+          const otherGen = (v(`dgeneric-${otherId}`) || '').toLowerCase();
+          if (otherGen.includes(baseGeneric) || (otherGen && baseGeneric.includes(otherGen.split(/\d/)[0].trim()))) {
+            duplicateMolecule = baseGeneric;
+          }
+        }
+      });
+    }
+  }
+
+  // Render or remove safety alert container
+  let alertBox = card.querySelector('.drug-safety-alert');
+  if (!alertBox) {
+    alertBox = document.createElement('div');
+    alertBox.className = 'drug-safety-alert';
+    card.insertBefore(alertBox, card.firstChild);
+  }
+
+  const warnings = [];
+  if (allergyClash) {
+    warnings.push(`⚠️ <strong>ALLERGY WARNING:</strong> Patient has documented allergy to "${allergyClash.toUpperCase()}"!`);
+    card.classList.add('has-allergy-warning');
+  } else {
+    card.classList.remove('has-allergy-warning');
+  }
+
+  if (duplicateMolecule) {
+    warnings.push(`⚠️ <strong>DUPLICATE MEDICATION:</strong> "${duplicateMolecule.toUpperCase()}" is already prescribed in another row!`);
+  }
+
+  if (warnings.length > 0) {
+    alertBox.innerHTML = warnings.join('<br>');
+    alertBox.style.display = 'block';
+  } else {
+    alertBox.style.display = 'none';
+  }
+}
+
 function drugSearch(input, id) {
   const q = input.value.toLowerCase().trim();
   const ac = document.getElementById(`dac-${id}`);
   if (!ac) return;
   if (!q) { ac.classList.add('hidden'); drugAcState[id] = null; return; }
 
-  // Early-exit scan across the (potentially 40k+) catalogue for speed.
   const list = getActiveDrugs();
-  const matches = [];
-  for (let i = 0; i < list.length && matches.length < 30; i++) {
+  const p1 = [];
+  const p2 = [];
+  const p3 = [];
+  const p4 = [];
+
+  for (let i = 0; i < list.length; i++) {
     const d = list[i];
-    if ((d.name || '').toLowerCase().includes(q) ||
-        (d.generic || '').toLowerCase().includes(q) ||
-        (d.company || '').toLowerCase().includes(q)) {
-      matches.push(d);
+    if (isIndustrialAPI(d)) continue; // Filter out raw bulk industrial chemicals
+
+    const name = (d.name || '').toLowerCase();
+    const generic = (d.generic || '').toLowerCase();
+    const company = (d.company || '').toLowerCase();
+    const isVet = isVeterinary(d);
+
+    let isTop = false;
+    for (const pc of POPULAR_COMPANIES) {
+      if (company.includes(pc)) { isTop = true; break; }
     }
+
+    if (name.startsWith(q)) {
+      if (isTop && !isVet) p1.push(d);
+      else if (!isVet) p2.push(d);
+      else p4.push(d);
+    } else if (generic.startsWith(q) || generic.includes(' ' + q) || generic.includes('+ ' + q)) {
+      if (isTop && !isVet) p2.push(d);
+      else if (!isVet) p3.push(d);
+      else p4.push(d);
+    } else if (name.includes(q) || generic.includes(q) || company.includes(q)) {
+      if (!isVet) p3.push(d);
+      else p4.push(d);
+    }
+
+    if (p1.length + p2.length >= 30) break;
   }
 
+  const matches = [...p1, ...p2, ...p3, ...p4].slice(0, 30);
   if (matches.length === 0) { ac.classList.add('hidden'); drugAcState[id] = null; return; }
 
   drugAcState[id] = { matches, index: 0 };
@@ -917,16 +1082,18 @@ function renderDrugAcList(id) {
   const st = drugAcState[id];
   if (!ac || !st) return;
 
-  ac.innerHTML = st.matches.map((d, i) => `
+  ac.innerHTML = st.matches.map((d, i) => {
+    const isVet = isVeterinary(d);
+    return `
     <div class="drug-ac-item ${i === st.index ? 'active' : ''}" data-idx="${i}" onclick="selectDrugIndex(${id}, ${i})">
-      <div class="drug-ac-icon">💊</div>
+      <div class="drug-ac-icon">${isVet ? '🐾' : '💊'}</div>
       <div class="drug-ac-body">
-        <div class="ac-brand">${escapeHtml(d.name)} <span class="ac-dose-badge">${escapeHtml(d.dose || '')}</span> <span class="ac-form-badge">${escapeHtml(d.form || '')}</span></div>
+        <div class="ac-brand">${escapeHtml(d.name)} <span class="ac-dose-badge">${escapeHtml(d.dose || extractDoseFromGeneric(d.generic) || '')}</span> <span class="ac-form-badge">${escapeHtml(d.form || '')}</span> ${isVet ? '<span class="ac-vet-badge">Vet</span>' : ''}</div>
         <div class="ac-generic">${d.generic ? 'Generic: ' + escapeHtml(d.generic) : ''}</div>
         <div class="ac-meta">${escapeHtml(d.company || 'Standard')} ${d.price ? '· ' + escapeHtml(d.price) : ''}</div>
       </div>
     </div>
-  `).join('');
+  `;}).join('');
 
   const active = ac.querySelector('.drug-ac-item.active');
   if (active && active.scrollIntoView) active.scrollIntoView({ block: 'nearest' });
@@ -989,13 +1156,15 @@ function selectDrug(id, name, generic, form, dose) {
   setV(`dname-${id}`, name);
   setV(`dgeneric-${id}`, generic);
   setV(`dform-${id}`, form || 'Tab.');
-  if (dose) setV(`ddose-${id}`, dose);
+  const finalDose = dose || extractDoseFromGeneric(generic);
+  if (finalDose) setV(`ddose-${id}`, finalDose);
 
   const ac = document.getElementById(`dac-${id}`);
   if (ac) ac.classList.add('hidden');
   drugAcState[id] = null;
   autoRoute(id);
   updateSigPreview(id);
+  checkDrugSafety(id);
   saveRxDraft();
 }
 
@@ -2161,3 +2330,22 @@ function toast(msg, dur = 3000) {
   t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), dur);
 }
+// ── GLOBAL ACCESSIBILITY & MODAL ESCAPE HANDLER ──
+window.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape') {
+    let acClosed = false;
+    document.querySelectorAll('.drug-autocomplete').forEach(el => {
+      if (!el.classList.contains('hidden')) {
+        el.classList.add('hidden');
+        acClosed = true;
+      }
+    });
+    if (acClosed) return;
+
+    const openModals = Array.from(document.querySelectorAll('.modal-overlay:not(.hidden)'));
+    if (openModals.length > 0) {
+      const topModal = openModals[openModals.length - 1];
+      closeModal(topModal.id);
+    }
+  }
+});

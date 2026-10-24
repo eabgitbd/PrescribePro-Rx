@@ -705,4 +705,90 @@ textarea { resize: vertical; min-height: 80px; }
 @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
 @keyframes spin { to { transform: rotate(360deg); } }
 
-@media print { body { background: white; } #topnav, #sidebar, .mobile-bottom-nav { display: none; } #content { padding: 0; } }
+/* Drug Clinical Safety Badges & Alerts */
+.drug-safety-alert {
+  background: #fef2f2;
+  border: 1.5px solid #f87171;
+  color: #991b1b;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 12.5px;
+  line-height: 1.4;
+  margin-bottom: 12px;
+  box-shadow: 0 2px 6px rgba(239, 68, 68, 0.15);
+  animation: fadeIn .2s ease-in-out;
+}
+.drug-card.has-allergy-warning {
+  border: 2px solid #ef4444 !important;
+  background: #fff5f5 !important;
+}
+.ac-vet-badge {
+  font-size: 10px;
+  font-weight: 700;
+  color: #b45309;
+  background: #fef3c7;
+  border: 1px solid #fde68a;
+  border-radius: 6px;
+  padding: 1px 6px;
+  margin-left: 4px;
+}
+
+/* Strict ISO 216 A4 Isolated Print Engine (for Ctrl+P & Print Dialog) */
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 8mm;
+  }
+  html, body {
+    background: #ffffff !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+  #topnav, #sidebar, .mobile-bottom-nav, .modal-header, .modal-footer, .rx-preview-controls, .btn, .drug-card-tools {
+    display: none !important;
+  }
+  #content {
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100% !important;
+  }
+  /* Isolate active prescription sheet */
+  #modal-rx-preview {
+    position: static !important;
+    background: transparent !important;
+    padding: 0 !important;
+    display: block !important;
+    backdrop-filter: none !important;
+  }
+  #modal-rx-preview .modal {
+    max-width: 100% !important;
+    max-height: none !important;
+    box-shadow: none !important;
+    border: none !important;
+    background: transparent !important;
+    overflow: visible !important;
+    padding: 0 !important;
+  }
+  #modal-rx-preview .modal-body {
+    padding: 0 !important;
+  }
+  #rx-a4-viewport {
+    overflow: visible !important;
+  }
+  #rx-a4-scaler {
+    transform: none !important;
+    width: 210mm !important;
+    height: 296.8mm !important;
+    min-width: 0 !important;
+    min-height: 0 !important;
+    max-width: none !important;
+  }
+  #rx-a4 {
+    position: relative !important;
+    box-shadow: none !important;
+    border: none !important;
+    width: 210mm !important;
+    height: 296.8mm !important;
+    margin: 0 auto !important;
+  }
+}
