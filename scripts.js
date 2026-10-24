@@ -20,7 +20,7 @@ let state = {
     qualifications: 'MBBS (DU)',
     designation: 'General Practitioner / Specialist',
     hospital: 'Medical College & Hospital',
-    reg: 'Regi: A-000000',
+    reg: '',
     phone: '+880 1700-000000',
     address: 'Chamber: House 12, Road 5, Dhaka',
     hours: '4:00 PM - 9:00 PM (Closed on Friday)',
@@ -61,21 +61,119 @@ const MEDICINE_FORMS = [
   { label: 'Syr. (Syrup)', value: 'Syr.', full: 'Syrup' },
   { label: 'Susp. (Suspension)', value: 'Susp.', full: 'Suspension' },
   { label: 'Inj. (Injection)', value: 'Inj.', full: 'Injection' },
-  { label: 'Supp. (Suppository)', value: 'Supp.', full: 'Suppository' },
+  { label: 'IV Infu. (IV Infusion)', value: 'IV Infu.', full: 'IV Infusion' },
   { label: 'Gtt. (Eye/Ear Drops)', value: 'Gtt.', full: 'Drops' },
-  { label: 'Oint. (Cream/Ointment)', value: 'Oint.', full: 'Cream/Ointment' },
-  { label: 'Inh. (Inhaler/Nebulizer)', value: 'Inh.', full: 'Inhaler' },
-  { label: 'Powder / Sachet', value: 'Sachet', full: 'Sachet' },
+  { label: 'Oint. (Ointment)', value: 'Oint.', full: 'Ointment' },
+  { label: 'Cream', value: 'Cream', full: 'Cream' },
+  { label: 'Gel', value: 'Gel', full: 'Gel' },
+  { label: 'Supp. (Suppository)', value: 'Supp.', full: 'Suppository' },
+  { label: 'Inh. (Inhaler/Rotacap)', value: 'Inh.', full: 'Inhaler' },
+  { label: 'Spray (Nasal/Oral Spray)', value: 'Spray', full: 'Spray' },
+  { label: 'Sachet (Powder / Sachet)', value: 'Sachet', full: 'Sachet' },
   { label: 'Sol. (Solution)', value: 'Sol.', full: 'Solution' },
-  { label: 'Lotion', value: 'Lotion', full: 'Lotion' }
+  { label: 'Lotion', value: 'Lotion', full: 'Lotion' },
+  { label: 'Mouth W. (Mouthwash/Gargle)', value: 'Mouth W.', full: 'Mouthwash' }
 ];
 
-// Route of administration presets (auto-suggested from the medicine form).
-const ROUTES = ['Oral', 'Sublingual', 'IV', 'IM', 'SC', 'Topical', 'Inhalation', 'Ophthalmic', 'Otic', 'Nasal', 'Rectal', 'Vaginal'];
-const ROUTE_BY_FORM = { 'Gtt.': 'Ophthalmic', 'Oint.': 'Topical', 'Lotion': 'Topical', 'Inh.': 'Inhalation', 'Supp.': 'Rectal' };
-// Common dosing-frequency and duration shorthand for one-tap entry.
-const FREQ_PRESETS = ['1-0-0', '0-0-1', '1-0-1', '1-1-1', '1-1-0', '0-1-1', '2-0-2', 'SOS', 'Stat'];
-const DURATION_PRESETS = ['3 days', '5 days', '7 days', '10 days', '14 days', '1 month', '2 months', 'Continue'];
+// Route of administration presets (auto-suggested from the medicine form, bilingual English [বাংলা]).
+const ROUTES = [
+  'Oral [মুখে]',
+  'IM/IV [মাংসপেশীতে বা শিরায়]',
+  'IV [শিরায়]',
+  'IM [মাংসপেশীতে]',
+  'SC [ত্বকের নিচে]',
+  'Topical [ত্বকে ব্যবহার্য]',
+  'Inhalation [নিঃশ্বাসের সাথে]',
+  'Ophthalmic/Otic [চোখে/কানে]',
+  'Eye Drop [চোখে]',
+  'Ear Drop [কানে]',
+  'Nasal [নাকে]',
+  'Rectal [মলদ্বারে]',
+  'Sublingual [জিহ্বার নিচে]',
+  'Oral Rinse [কুলকুচা/গার্গল]',
+  'Vaginal [যোনিপথে]'
+];
+
+const ROUTE_BY_FORM = {
+  'Tab.': 'Oral [মুখে]',
+  'Cap.': 'Oral [মুখে]',
+  'Syr.': 'Oral [মুখে]',
+  'Susp.': 'Oral [মুখে]',
+  'Sachet': 'Oral [মুখে]',
+  'Sol.': 'Oral [মুখে]',
+  'Gtt.': 'Ophthalmic/Otic [চোখে/কানে]',
+  'Oint.': 'Topical [ত্বকে ব্যবহার্য]',
+  'Cream': 'Topical [ত্বকে ব্যবহার্য]',
+  'Gel': 'Topical [ত্বকে ব্যবহার্য]',
+  'Lotion': 'Topical [ত্বকে ব্যবহার্য]',
+  'Inh.': 'Inhalation [নিঃশ্বাসের সাথে]',
+  'Spray': 'Nasal [নাকে]',
+  'Supp.': 'Rectal [মলদ্বারে]',
+  'Inj.': 'IM/IV [মাংসপেশীতে বা শিরায়]',
+  'IV Infu.': 'IV [শিরায়]',
+  'Mouth W.': 'Oral Rinse [কুলকুচা/গার্গল]'
+};
+
+function formatRoute(route) {
+  if (!route) return '';
+  const r = String(route).trim();
+  const map = {
+    'Oral': 'Oral [মুখে]',
+    'IM/IV': 'IM/IV [মাংসপেশীতে বা শিরায়]',
+    'IV': 'IV [শিরায়]',
+    'IM': 'IM [মাংসপেশীতে]',
+    'SC': 'SC [ত্বকের নিচে]',
+    'Topical': 'Topical [ত্বকে ব্যবহার্য]',
+    'Inhalation': 'Inhalation [নিঃশ্বাসের সাথে]',
+    'Ophthalmic/Otic': 'Ophthalmic/Otic [চোখে/কানে]',
+    'Ophthalmic': 'Ophthalmic [চোখে]',
+    'Otic': 'Otic [কানে]',
+    'Nasal': 'Nasal [নাকে]',
+    'Rectal': 'Rectal [মলদ্বারে]',
+    'Sublingual': 'Sublingual [জিহ্বার নিচে]',
+    'Oral Rinse': 'Oral Rinse [কুলকুচা/গার্গল]',
+    'Vaginal': 'Vaginal [যোনিপথে]'
+  };
+  return map[r] || r;
+}
+
+function formatClinicalBulletLines(text) {
+  if (!text) return '';
+  const lines = String(text)
+    .split(/\r?\n/)
+    .map(line => line.trim())
+    .filter(Boolean);
+
+  if (lines.length === 0) return '';
+
+  return lines.map(line => {
+    if (/^[-–—•*]\s*/.test(line)) {
+      return `- ${line.replace(/^[-–—•*]\s*/, '')}`;
+    }
+    return `- ${line}`;
+  }).join('\n');
+}
+// Dosing-frequency and duration presets (Bengali First, then English)
+const FREQ_PRESETS_BN = ['১+০+১', '১+১+১', '১+০+০', '০+০+১', '২+০+২', '১+১+০', '০+১+১', 'প্রয়োজনে (SOS)'];
+const FREQ_PRESETS_EN = ['1+0+1', '1+1+1', '1+0+0', '0+0+1', '2+0+2', 'SOS'];
+
+const DURATION_PRESETS_BN = ['৩ দিন', '৫ দিন', '৭ দিন', '১০ দিন', '১৪ দিন', '১ মাস', 'চলবে'];
+const DURATION_PRESETS_EN = ['3 days', '5 days', '7 days', '10 days', '14 days', '1 month', 'Continue'];
+
+function formatFrequency(freq) {
+  if (!freq) return '';
+  let str = String(freq).trim();
+  return str.replace(/([0-9১-৯০]+)\s*[-]\s*([0-9১-৯০]+)/g, '$1+$2')
+            .replace(/([0-9১-৯০]+)\s*[-]\s*([0-9১-৯০]+)/g, '$1+$2');
+}
+
+function formatDuration(dur) {
+  if (!dur) return '';
+  let str = String(dur).trim();
+  if (!str) return '';
+  if (str.startsWith('(') && str.endsWith(')')) return str;
+  return `(${str})`;
+}
 
 // Common clinical phrases for one-tap entry into the clinical notes.
 const CLINICAL_PRESETS = {
@@ -148,41 +246,78 @@ const DRUGS = [
   { name: 'Biphasic Insulin 30/70', generic: 'Insulin (Human)', dose: '100IU/ml', form: 'Inj.', company: 'Novo Nordisk', price: '৳450.00/vial' }
 ];
 
-// ── FAST DRUG DATABASE CACHING (0ms INSTANT LOAD) ──
-async function loadExternalDrugDatabase() {
-  // Step 1: Load from local memory cache for instant (0ms) startup
-  const cached = localStorage.getItem('prescribepro_cached_drugs');
-  if (cached) {
-    try {
-      const parsed = JSON.parse(cached);
-      if (Array.isArray(parsed) && parsed.length > 0) {
-        externalDrugs = parsed;
-        console.log(`⚡ Instant loaded ${externalDrugs.length} medicines from local memory cache`);
+// ── FAST INDEXEDDB DRUG CACHING (0ms INSTANT LOAD WITHOUT LOCALSTORAGE QUOTA LIMITS) ──
+function openDrugDB() {
+  return new Promise((resolve, reject) => {
+    if (!window.indexedDB) return reject(new Error('IndexedDB unsupported'));
+    const req = indexedDB.open('PrescribeProDrugsDB', 1);
+    req.onupgradeneeded = e => {
+      const db = e.target.result;
+      if (!db.objectStoreNames.contains('catalog')) {
+        db.createObjectStore('catalog');
       }
-    } catch(e) {
-      console.warn('Failed to parse local drug cache:', e);
+    };
+    req.onsuccess = () => resolve(req.result);
+    req.onerror = () => reject(req.error);
+  });
+}
+
+async function getCachedDrugsIDB() {
+  try {
+    const db = await openDrugDB();
+    return new Promise(resolve => {
+      const tx = db.transaction('catalog', 'readonly');
+      const req = tx.objectStore('catalog').get('drugs_list');
+      req.onsuccess = () => resolve(req.result || null);
+      req.onerror = () => resolve(null);
+    });
+  } catch (e) {
+    return null;
+  }
+}
+
+async function setCachedDrugsIDB(data) {
+  try {
+    const db = await openDrugDB();
+    return new Promise(resolve => {
+      const tx = db.transaction('catalog', 'readwrite');
+      const req = tx.objectStore('catalog').put(data, 'drugs_list');
+      req.onsuccess = () => resolve(true);
+      req.onerror = () => resolve(false);
+    });
+  } catch (e) {
+    return false;
+  }
+}
+
+async function loadExternalDrugDatabase() {
+  // Step 1: Clean legacy localStorage quota hog if any remains
+  try { localStorage.removeItem('prescribepro_cached_drugs'); } catch (_) {}
+
+  // Step 2: Instant 0ms load from IndexedDB
+  try {
+    const cached = await getCachedDrugsIDB();
+    if (Array.isArray(cached) && cached.length > 0) {
+      externalDrugs = cached;
+      console.log(`⚡ Instant loaded ${externalDrugs.length} medicines from IndexedDB cache`);
     }
+  } catch (e) {
+    console.warn('IDB load error:', e);
   }
 
-  // Step 2: Background fetch data/drugs.json to update cache
+  // Step 3: Background fetch data/drugs.json to populate/refresh IndexedDB
   try {
     const res = await fetch('data/drugs.json');
     if (res.ok) {
       const data = await res.json();
       if (Array.isArray(data) && data.length > 0) {
         externalDrugs = data;
-        try {
-          localStorage.setItem('prescribepro_cached_drugs', JSON.stringify(data));
-          console.log(`Updated local cache with ${externalDrugs.length} medicines from data/drugs.json`);
-        } catch (cacheErr) {
-          // The 41k-entry database can exceed the localStorage quota. It is
-          // fully loaded in memory regardless, so caching is optional.
-          console.warn('Drug database too large to cache in localStorage; using in-memory copy:', cacheErr);
-        }
+        await setCachedDrugsIDB(data);
+        console.log(`Updated IndexedDB cache with ${externalDrugs.length} clinical medicines`);
       }
     }
   } catch (e) {
-    console.warn('Could not fetch data/drugs.json, using cached or built-in drug catalog:', e);
+    console.warn('Could not fetch data/drugs.json, using cached or fallback formulary:', e);
   }
 }
 
@@ -307,6 +442,7 @@ function loadState() {
     try {
       const loaded = JSON.parse(s);
       Object.assign(state, loaded);
+      if (!Array.isArray(state.customDrugs)) state.customDrugs = [];
     } catch(e) {
       console.error('Failed to parse local state:', e);
     }
@@ -440,12 +576,32 @@ function switchAuthTab(mode) {
   }
 }
 
+// ── BMDC CATEGORY A REGISTRATION HELPERS ──
+function extractBmdcNumber(raw) {
+  if (!raw) return '';
+  return String(raw).replace(/\D/g, '');
+}
+
+function formatBmdcReg(raw) {
+  const num = extractBmdcNumber(raw);
+  if (!num) return '';
+  return `BMDC Reg No: A-${num}`;
+}
+
 function startLocalLogin() {
   const docName = v('local-doc-name').trim();
-  const bmdcReg = v('local-bmdc-reg').trim();
+  const rawBmdc = v('local-bmdc-reg').trim();
 
   if (!docName) {
     toast('⚠️ Please enter Doctor Name');
+    document.getElementById('local-doc-name')?.focus();
+    return;
+  }
+
+  const bmdcNum = extractBmdcNumber(rawBmdc);
+  if (!bmdcNum) {
+    toast('⚠️ BMDC Registration Number (Category A) is required to enter workspace');
+    document.getElementById('local-bmdc-reg')?.focus();
     return;
   }
 
@@ -455,7 +611,7 @@ function startLocalLogin() {
   if (!state.profile.name || state.profile.name === 'Dr. Someone') {
     state.profile.name = docName;
   }
-  if (bmdcReg) state.profile.reg = bmdcReg;
+  state.profile.reg = `BMDC Reg No: A-${bmdcNum}`;
 
   saveState();
   showApp();
@@ -668,7 +824,7 @@ function scrollToRxSec(secId) {
 // ── DRUG ROWS & PRESCRIPTION WRITING ──
 let drugRowId = 0;
 
-function addDrugRow() {
+function addDrugRow(autoFocus = false) {
   const id = ++drugRowId;
   const card = document.createElement('div');
   card.className = 'drug-card';
@@ -676,8 +832,10 @@ function addDrugRow() {
 
   const formOptions = MEDICINE_FORMS.map(f => `<option value="${f.value}">${f.label}</option>`).join('');
   const routeOptions = ROUTES.map(r => `<option value="${r}">${r}</option>`).join('');
-  const freqChips = FREQ_PRESETS.map(p => `<button type="button" class="chip" onclick="applyPreset('dfreq-${id}','${p}',${id})">${p}</button>`).join('');
-  const durChips = DURATION_PRESETS.map(p => `<button type="button" class="chip" onclick="applyPreset('ddur-${id}','${p}',${id})">${p}</button>`).join('');
+  const freqChipsBn = FREQ_PRESETS_BN.map(p => `<button type="button" class="chip" onclick="applyPreset('dfreq-${id}','${p}',${id})">${p}</button>`).join('');
+  const freqChipsEn = FREQ_PRESETS_EN.map(p => `<button type="button" class="chip" onclick="applyPreset('dfreq-${id}','${p}',${id})">${p}</button>`).join('');
+  const durChipsBn = DURATION_PRESETS_BN.map(p => `<button type="button" class="chip" onclick="applyPreset('ddur-${id}','${p}',${id})">${p}</button>`).join('');
+  const durChipsEn = DURATION_PRESETS_EN.map(p => `<button type="button" class="chip" onclick="applyPreset('ddur-${id}','${p}',${id})">${p}</button>`).join('');
 
   card.innerHTML = `
     <div class="drug-card-tools">
@@ -713,27 +871,48 @@ function addDrugRow() {
 
     <div class="drug-grid-secondary">
       <div class="drug-field">
-        <div class="drug-field-label">Frequency (সেবন)</div>
-        <input type="text" id="dfreq-${id}" placeholder="e.g. 1-0-1" autocomplete="off">
-        <div class="chip-row mini">${freqChips}</div>
+        <div class="drug-field-label">Frequency (সেবন মাত্রা)</div>
+        <input type="text" id="dfreq-${id}" placeholder="e.g. ১+০+১ / 1+0+1" autocomplete="off">
+        <div class="chip-group">
+          <div class="chip-row mini">${freqChipsBn}</div>
+          <div class="chip-row mini">${freqChipsEn}</div>
+        </div>
       </div>
 
       <div class="drug-field">
-        <div class="drug-field-label">Duration</div>
-        <input type="text" id="ddur-${id}" placeholder="e.g. 5 days" autocomplete="off">
-        <div class="chip-row mini">${durChips}</div>
+        <div class="drug-field-label">Duration (স্থায়িত্বকাল)</div>
+        <input type="text" id="ddur-${id}" placeholder="e.g. ৭ দিন / 7 days" autocomplete="off">
+        <div class="chip-group">
+          <div class="chip-row mini">${durChipsBn}</div>
+          <div class="chip-row mini">${durChipsEn}</div>
+        </div>
       </div>
 
       <div class="drug-field">
         <div class="drug-field-label">Timing (খাওয়ার সময়)</div>
         <select id="dtiming-sel-${id}" onchange="toggleCustomTiming(${id})">
           <option value="" selected>— Not set —</option>
-          <option value="After meal">After meal (খাবার পরে)</option>
-          <option value="Before meal">Before meal (খাবার আগে)</option>
-          <option value="With meal">With meal (খাবারের সাথে)</option>
-          <option value="Empty stomach">Empty stomach (খালি পেটে)</option>
-          <option value="At bedtime">At bedtime (রাতে ঘুমানোর আগে)</option>
-          <option value="Custom">✏️ Custom instruction…</option>
+          <optgroup label="🇧🇩 বাংলা নির্দেশনা (Bengali First)">
+            <option value="খাবার পরে">খাবার পরে (After meal)</option>
+            <option value="খাবার আগে">খাবার আগে (Before meal)</option>
+            <option value="খাবারের সাথে">খাবারের সাথে (With meal)</option>
+            <option value="খালি পেটে">খালি পেটে (Empty stomach)</option>
+            <option value="রাতে ঘুমানোর আগে">রাতে ঘুমানোর আগে (At bedtime)</option>
+            <option value="ভরা পেটে">ভরা পেটে</option>
+            <option value="জ্বর আসলে">জ্বর আসলে (SOS)</option>
+            <option value="ব্যথা হলে">ব্যথা হলে (SOS)</option>
+          </optgroup>
+          <optgroup label="🇬🇧 English Instructions">
+            <option value="After meal">After meal</option>
+            <option value="Before meal">Before meal</option>
+            <option value="With meal">With meal</option>
+            <option value="Empty stomach">Empty stomach</option>
+            <option value="At bedtime">At bedtime</option>
+            <option value="As needed (SOS)">As needed (SOS)</option>
+          </optgroup>
+          <optgroup label="Custom">
+            <option value="Custom">✏️ Custom instruction…</option>
+          </optgroup>
         </select>
         <input type="text" id="dtiming-custom-${id}" class="hidden" placeholder="Type custom timing instruction…" style="margin-top:4px">
       </div>
@@ -769,6 +948,17 @@ function addDrugRow() {
     });
 
   updateSigPreview(id);
+
+  if (autoFocus) {
+    setTimeout(() => {
+      const inp = document.getElementById(`dname-${id}`);
+      if (inp) {
+        inp.focus();
+        inp.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }
+    }, 60);
+  }
+
   return id;
 }
 
@@ -823,7 +1013,11 @@ function updateSigPreview(id) {
   if (!form.endsWith('.')) form += '.';
   const name = v(`dname-${id}`).trim();
   const dose = v(`ddose-${id}`).trim();
-  const parts = [v(`dfreq-${id}`).trim(), effectiveTiming(id), v(`ddur-${id}`).trim(), v(`droute-${id}`).trim()].filter(Boolean);
+  const freq = formatFrequency(v(`dfreq-${id}`).trim());
+  const timing = effectiveTiming(id);
+  const dur = formatDuration(v(`ddur-${id}`).trim());
+  const route = formatRoute(v(`droute-${id}`).trim());
+  const parts = [freq, timing, dur, route].filter(Boolean);
   if (!name && parts.length === 0) { el.textContent = '—'; return; }
   el.textContent = `${form} ${name}${dose ? ' ' + dose : ''}${parts.length ? '   —   ' + parts.join(' · ') : ''}`;
 }
@@ -837,11 +1031,14 @@ function applyDrugToRow(id, drug) {
   setV(`dfreq-${id}`, drug.freq || '');
   setV(`ddur-${id}`, drug.duration || '');
   setV(`dnotes-${id}`, drug.drugNotes || '');
-  setV(`droute-${id}`, drug.route || '');
+  setV(`droute-${id}`, formatRoute(drug.route || ''));
 
   const tSel = document.getElementById(`dtiming-sel-${id}`);
   const customInp = document.getElementById(`dtiming-custom-${id}`);
-  const stdOptions = ['After meal', 'Before meal', 'With meal', 'Empty stomach', 'At bedtime'];
+  const stdOptions = [
+    'খাবার পরে', 'খাবার আগে', 'খাবারের সাথে', 'খালি পেটে', 'রাতে ঘুমানোর আগে', 'ভরা পেটে', 'জ্বর আসলে', 'ব্যথা হলে',
+    'After meal', 'Before meal', 'With meal', 'Empty stomach', 'At bedtime', 'As needed (SOS)'
+  ];
   if (tSel) {
     if (!drug.timing || drug.timing === 'None') {
       tSel.value = '';
@@ -878,10 +1075,26 @@ function removeDrugRow(id) {
 
 function getActiveDrugs() {
   const baseList = externalDrugs.length > 0 ? externalDrugs : DRUGS;
-  if (state.customDrugs && state.customDrugs.length > 0) {
-    return [...state.customDrugs, ...baseList.filter(d => !state.customDrugs.some(c => (c.name || '').toLowerCase() === (d.name || '').toLowerCase()))];
+  const custom = (state.customDrugs || []).map(c => ({ ...c, isCustom: true }));
+  if (custom.length > 0) {
+    const customNames = new Set(custom.map(c => (c.name || '').toLowerCase()));
+    return [...custom, ...baseList.filter(d => !customNames.has((d.name || '').toLowerCase()))];
   }
   return baseList;
+}
+
+// Highlights matching query text in search results
+function highlightMatch(text, query) {
+  if (!text) return '';
+  if (!query) return escapeHtml(text);
+  const escapedText = escapeHtml(text);
+  const escapedQ = escapeHtml(query).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  try {
+    const rx = new RegExp(`(${escapedQ})`, 'gi');
+    return escapedText.replace(rx, '<mark class="ac-hl">$1</mark>');
+  } catch (_) {
+    return escapedText;
+  }
 }
 
 // Per-row autocomplete state (matches + highlighted index) for keyboard nav.
@@ -893,21 +1106,56 @@ function drugSearch(input, id) {
   if (!ac) return;
   if (!q) { ac.classList.add('hidden'); drugAcState[id] = null; return; }
 
-  // Early-exit scan across the (potentially 40k+) catalogue for speed.
   const list = getActiveDrugs();
-  const matches = [];
-  for (let i = 0; i < list.length && matches.length < 30; i++) {
+  const scored = [];
+
+  for (let i = 0; i < list.length; i++) {
     const d = list[i];
-    if ((d.name || '').toLowerCase().includes(q) ||
-        (d.generic || '').toLowerCase().includes(q) ||
-        (d.company || '').toLowerCase().includes(q)) {
-      matches.push(d);
+    const nl = (d.name || '').toLowerCase();
+    const gl = (d.generic || '').toLowerCase();
+    const cl = (d.company || '').toLowerCase();
+
+    let score = 0;
+    if (d.isCustom) score += 60; // Custom doctor formulary priority
+
+    // Brand scoring
+    if (nl === q) {
+      score += 120;
+    } else if (nl.startsWith(q)) {
+      score += 90;
+    } else if (nl.includes(' ' + q) || nl.includes('-' + q)) {
+      score += 70;
+    } else if (nl.includes(q)) {
+      score += 40;
+    }
+
+    // Generic molecule scoring
+    if (gl === q) {
+      score += 85;
+    } else if (gl.startsWith(q)) {
+      score += 65;
+    } else if (gl.includes(' ' + q) || gl.includes('+ ' + q)) {
+      score += 50;
+    } else if (gl.includes(q)) {
+      score += 30;
+    }
+
+    // Company scoring
+    if (cl.startsWith(q)) {
+      score += 15;
+    } else if (cl.includes(q)) {
+      score += 8;
+    }
+
+    if (score > 0) {
+      scored.push({ drug: d, score });
     }
   }
 
-  if (matches.length === 0) { ac.classList.add('hidden'); drugAcState[id] = null; return; }
+  scored.sort((a, b) => b.score - a.score);
+  const matches = scored.slice(0, 30).map(s => s.drug);
 
-  drugAcState[id] = { matches, index: 0 };
+  drugAcState[id] = { matches, index: 0, query: q };
   renderDrugAcList(id);
   ac.classList.remove('hidden');
 }
@@ -917,18 +1165,33 @@ function renderDrugAcList(id) {
   const st = drugAcState[id];
   if (!ac || !st) return;
 
-  ac.innerHTML = st.matches.map((d, i) => `
+  const matchesHtml = st.matches.map((d, i) => `
     <div class="drug-ac-item ${i === st.index ? 'active' : ''}" data-idx="${i}" onclick="selectDrugIndex(${id}, ${i})">
       <div class="drug-ac-icon">💊</div>
       <div class="drug-ac-body">
-        <div class="ac-brand">${escapeHtml(d.name)} <span class="ac-dose-badge">${escapeHtml(d.dose || '')}</span> <span class="ac-form-badge">${escapeHtml(d.form || '')}</span></div>
-        <div class="ac-generic">${d.generic ? 'Generic: ' + escapeHtml(d.generic) : ''}</div>
-        <div class="ac-meta">${escapeHtml(d.company || 'Standard')} ${d.price ? '· ' + escapeHtml(d.price) : ''}</div>
+        <div class="ac-brand">
+          <span>${highlightMatch(d.name, st.query)}</span>
+          ${d.dose ? `<span class="ac-dose-badge">${escapeHtml(d.dose)}</span>` : ''}
+          <span class="ac-form-badge">${escapeHtml(d.form || 'Tab.')}</span>
+          ${d.isCustom ? `<span class="ac-custom-badge">Custom</span>` : ''}
+        </div>
+        <div class="ac-generic">${d.generic ? 'Generic: ' + highlightMatch(d.generic, st.query) : ''}</div>
+        <div class="ac-meta">${escapeHtml(d.company || 'Standard')}${d.price ? ' · ' + escapeHtml(d.price) : ''}</div>
       </div>
     </div>
   `).join('');
 
-  const active = ac.querySelector('.drug-ac-item.active');
+  const isAddActive = (st.index === st.matches.length);
+  const addActionHtml = `
+    <div class="drug-ac-add-item ${isAddActive ? 'active' : ''}" data-idx="${st.matches.length}" onclick="openAddDrugModal('${escapeQuote(st.query)}', ${id})">
+      <div class="ac-add-icon">➕</div>
+      <div>Add <strong>"${escapeHtml(st.query)}"</strong> as new medicine…</div>
+    </div>
+  `;
+
+  ac.innerHTML = matchesHtml + addActionHtml;
+
+  const active = ac.querySelector('.drug-ac-item.active, .drug-ac-add-item.active');
   if (active && active.scrollIntoView) active.scrollIntoView({ block: 'nearest' });
 }
 
@@ -943,10 +1206,12 @@ function selectDrugIndex(id, i) {
 function handleDrugKeydown(e, id) {
   const ac = document.getElementById(`dac-${id}`);
   const st = drugAcState[id];
-  if (!ac || ac.classList.contains('hidden') || !st || !st.matches.length) return;
+  if (!ac || ac.classList.contains('hidden') || !st) return;
+  const maxIdx = st.matches.length; // includes add-button at the end
+
   if (e.key === 'ArrowDown') {
     e.preventDefault();
-    st.index = Math.min(st.index + 1, st.matches.length - 1);
+    st.index = Math.min(st.index + 1, maxIdx);
     renderDrugAcList(id);
   } else if (e.key === 'ArrowUp') {
     e.preventDefault();
@@ -954,7 +1219,11 @@ function handleDrugKeydown(e, id) {
     renderDrugAcList(id);
   } else if (e.key === 'Enter') {
     e.preventDefault();
-    selectDrugIndex(id, st.index);
+    if (st.index === st.matches.length) {
+      openAddDrugModal(st.query, id);
+    } else {
+      selectDrugIndex(id, st.index);
+    }
   } else if (e.key === 'Escape') {
     ac.classList.add('hidden');
   }
@@ -985,11 +1254,47 @@ function esc(str) {
   return escapeHtml(str == null ? '' : String(str));
 }
 
+function checkDrugAllergyAlert(name, generic) {
+  const pid = v('rx-patient-select');
+  const patient = state.patients.find(p => p.id === pid);
+  if (!patient || !patient.allergies) return;
+
+  const allergyList = patient.allergies.toLowerCase().split(/[,;/+]+/).map(s => s.trim()).filter(Boolean);
+  const n = (name || '').toLowerCase();
+  const g = (generic || '').toLowerCase();
+
+  for (const allergen of allergyList) {
+    if (allergen.length >= 3 && (n.includes(allergen) || g.includes(allergen))) {
+      toast(`🚨 ALLERGY ALERT: Patient has documented allergy to "${patient.allergies}"!`, 4500);
+      return;
+    }
+  }
+}
+
+function checkDuplicateDrug(currentRowId, name, generic) {
+  const currentGeneric = (generic || '').toLowerCase().trim();
+  const currentName = (name || '').toLowerCase().trim();
+  if (!currentName && !currentGeneric) return;
+
+  document.querySelectorAll('#drug-rows .drug-card').forEach(card => {
+    const cid = card.id.replace('dr-', '');
+    if (cid === String(currentRowId)) return;
+    const otherName = v(`dname-${cid}`).trim().toLowerCase();
+    const otherGeneric = v(`dgeneric-${cid}`).trim().toLowerCase();
+
+    if (otherName && otherName === currentName) {
+      toast(`⚠️ Caution: Duplicate brand "${name}" is already in this prescription`);
+    } else if (currentGeneric && otherGeneric && otherGeneric === currentGeneric) {
+      toast(`⚠️ Caution: Duplicate molecule "${generic}" already added as ${v(`dname-${cid}`)}`);
+    }
+  });
+}
+
 function selectDrug(id, name, generic, form, dose) {
   setV(`dname-${id}`, name);
   setV(`dgeneric-${id}`, generic);
   setV(`dform-${id}`, form || 'Tab.');
-  if (dose) setV(`ddose-${id}`, dose);
+  setV(`ddose-${id}`, dose || '');
 
   const ac = document.getElementById(`dac-${id}`);
   if (ac) ac.classList.add('hidden');
@@ -997,6 +1302,245 @@ function selectDrug(id, name, generic, form, dose) {
   autoRoute(id);
   updateSigPreview(id);
   saveRxDraft();
+
+  // Clinical safety checks
+  checkDrugAllergyAlert(name, generic);
+  checkDuplicateDrug(id, name, generic);
+
+  // Auto-focus frequency for high-efficiency clinical prescription writing
+  setTimeout(() => {
+    const freqInp = document.getElementById(`dfreq-${id}`);
+    if (freqInp) freqInp.focus();
+  }, 40);
+}
+
+// ── CUSTOM DRUGS MANAGEMENT SYSTEM ──
+let editingCustomDrugId = null;
+let activeTargetDrugRowId = null;
+
+function populateCustomDrugForms() {
+  const sel = document.getElementById('cd-form');
+  if (!sel) return;
+  sel.innerHTML = MEDICINE_FORMS.map(f => `<option value="${f.value}">${f.label}</option>`).join('');
+}
+
+function onCustomDrugFormChange() {
+  const formVal = v('cd-form');
+  const routeSel = document.getElementById('cd-route');
+  if (routeSel && (!routeSel.value || routeSel.value === 'Auto by form')) {
+    routeSel.value = ROUTE_BY_FORM[formVal] || '';
+  }
+}
+
+function openAddDrugModal(prefillName = '', targetRowId = null) {
+  editingCustomDrugId = null;
+  activeTargetDrugRowId = targetRowId;
+  populateCustomDrugForms();
+
+  setV('cd-name', prefillName || '');
+  setV('cd-generic', '');
+  setV('cd-dose', '');
+  setV('cd-form', 'Tab.');
+  setV('cd-company', '');
+  setV('cd-route', 'Oral');
+  setV('cd-notes', '');
+
+  const titleEl = document.getElementById('cd-modal-title');
+  if (titleEl) titleEl.textContent = '💊 Add Custom Medicine';
+
+  openModal('modal-custom-drug');
+  setTimeout(() => {
+    const focusTarget = prefillName ? (document.getElementById('cd-dose') || document.getElementById('cd-generic')) : document.getElementById('cd-name');
+    if (focusTarget) focusTarget.focus();
+  }, 100);
+}
+
+function saveCustomDrug() {
+  const name = v('cd-name').trim();
+  if (!name) {
+    toast('⚠️ Please enter Medicine Brand / Trade Name');
+    return;
+  }
+
+  const generic = v('cd-generic').trim();
+  const dose = v('cd-dose').trim();
+  const form = v('cd-form') || 'Tab.';
+  const company = v('cd-company').trim() || 'Custom / Clinic';
+  const route = v('cd-route').trim() || ROUTE_BY_FORM[form] || '';
+  const notes = v('cd-notes').trim();
+
+  if (!Array.isArray(state.customDrugs)) state.customDrugs = [];
+
+  let savedDrug = null;
+
+  if (editingCustomDrugId) {
+    const idx = state.customDrugs.findIndex(d => d.id === editingCustomDrugId);
+    if (idx >= 0) {
+      state.customDrugs[idx] = {
+        ...state.customDrugs[idx],
+        name,
+        generic,
+        dose,
+        form,
+        company,
+        route,
+        notes,
+        isCustom: true,
+        updatedAt: Date.now()
+      };
+      savedDrug = state.customDrugs[idx];
+    }
+  } else {
+    // Avoid exact duplicate
+    const existingIdx = state.customDrugs.findIndex(d => 
+      (d.name || '').toLowerCase() === name.toLowerCase() &&
+      (d.dose || '').toLowerCase() === dose.toLowerCase() &&
+      (d.form || '').toLowerCase() === form.toLowerCase()
+    );
+
+    savedDrug = {
+      id: 'cd_' + uid(),
+      name,
+      generic,
+      dose,
+      form,
+      company,
+      route,
+      notes,
+      isCustom: true,
+      updatedAt: Date.now(),
+      createdAt: new Date().toISOString()
+    };
+
+    if (existingIdx >= 0) {
+      state.customDrugs[existingIdx] = savedDrug;
+    } else {
+      state.customDrugs.unshift(savedDrug);
+    }
+  }
+
+  saveState();
+  scheduleCloudSync(true);
+  closeModal('modal-custom-drug');
+
+  // If created directly from an active prescription row, populate it!
+  if (activeTargetDrugRowId) {
+    selectDrug(activeTargetDrugRowId, savedDrug.name, savedDrug.generic, savedDrug.form, savedDrug.dose);
+    if (savedDrug.route) setV(`droute-${activeTargetDrugRowId}`, savedDrug.route);
+    if (savedDrug.notes) setV(`dnotes-${activeTargetDrugRowId}`, savedDrug.notes);
+    updateSigPreview(activeTargetDrugRowId);
+    saveRxDraft();
+    activeTargetDrugRowId = null;
+  }
+
+  // Refresh formulary manager if open
+  const mgr = document.getElementById('modal-custom-drugs-manager');
+  if (mgr && !mgr.classList.contains('hidden')) {
+    renderCustomDrugsManager(v('cdm-search-inp'));
+  }
+
+  toast(`✅ "${name}" saved to your formulary`);
+}
+
+function openCustomDrugsManager() {
+  populateCustomDrugForms();
+  openModal('modal-custom-drugs-manager');
+  setV('cdm-search-inp', '');
+  renderCustomDrugsManager();
+}
+
+function renderCustomDrugsManager(query = '') {
+  const listEl = document.getElementById('cdm-list');
+  const countEl = document.getElementById('cdm-count');
+  if (!listEl) return;
+
+  if (!Array.isArray(state.customDrugs)) state.customDrugs = [];
+  const q = (query || '').toLowerCase().trim();
+
+  const filtered = state.customDrugs.filter(d => {
+    if (!q) return true;
+    return (d.name || '').toLowerCase().includes(q) ||
+           (d.generic || '').toLowerCase().includes(q) ||
+           (d.company || '').toLowerCase().includes(q) ||
+           (d.dose || '').toLowerCase().includes(q);
+  });
+
+  if (countEl) {
+    countEl.textContent = `${state.customDrugs.length} medicine${state.customDrugs.length === 1 ? '' : 's'}`;
+  }
+
+  if (filtered.length === 0) {
+    listEl.innerHTML = `
+      <div style="text-align:center; padding:32px 16px; color:var(--text-3)">
+        <div style="font-size:32px; margin-bottom:8px">💊</div>
+        <div style="font-weight:600; color:var(--text-2); margin-bottom:4px">
+          ${q ? 'No matching custom medicines found' : 'No custom medicines added yet'}
+        </div>
+        <div style="font-size:12px; margin-bottom:16px">
+          ${q ? 'Try searching another keyword or click + New Medicine' : 'Add your private, foreign, or specialty drugs here for 1-click autocomplete.'}
+        </div>
+        <button type="button" class="btn btn-secondary btn-sm" onclick="openAddDrugModal('${escapeQuote(q)}')">+ Add New Medicine</button>
+      </div>
+    `;
+    return;
+  }
+
+  listEl.innerHTML = filtered.map(d => `
+    <div class="cdm-item">
+      <div class="cdm-item-main">
+        <div class="cdm-item-title">
+          <span>${escapeHtml(d.name)}</span>
+          ${d.dose ? `<span class="ac-dose-badge">${escapeHtml(d.dose)}</span>` : ''}
+          <span class="ac-form-badge">${escapeHtml(d.form || 'Tab.')}</span>
+        </div>
+        <div class="cdm-item-sub">
+          ${d.generic ? '<em>' + escapeHtml(d.generic) + '</em> · ' : ''}
+          <span>${escapeHtml(d.company || 'Custom')}</span>
+          ${d.route ? ` · <span style="color:var(--accent)">${escapeHtml(d.route)}</span>` : ''}
+        </div>
+        ${d.notes ? `<div style="font-size:11px; color:var(--text-3); margin-top:2px">📝 ${escapeHtml(d.notes)}</div>` : ''}
+      </div>
+      <div class="cdm-item-actions">
+        <button type="button" class="btn btn-secondary btn-sm" onclick="editCustomDrug('${d.id}')" title="Edit medicine">✏️</button>
+        <button type="button" class="btn btn-secondary btn-sm" style="color:var(--danger)" onclick="deleteCustomDrug('${d.id}')" title="Delete medicine">🗑️</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function editCustomDrug(id) {
+  const d = (state.customDrugs || []).find(x => x.id === id);
+  if (!d) return;
+
+  editingCustomDrugId = id;
+  activeTargetDrugRowId = null;
+  populateCustomDrugForms();
+
+  setV('cd-name', d.name || '');
+  setV('cd-generic', d.generic || '');
+  setV('cd-dose', d.dose || '');
+  setV('cd-form', d.form || 'Tab.');
+  setV('cd-company', d.company || '');
+  setV('cd-route', d.route || '');
+  setV('cd-notes', d.notes || '');
+
+  const titleEl = document.getElementById('cd-modal-title');
+  if (titleEl) titleEl.textContent = '✏️ Edit Custom Medicine';
+
+  openModal('modal-custom-drug');
+}
+
+function deleteCustomDrug(id) {
+  const d = (state.customDrugs || []).find(x => x.id === id);
+  if (!d) return;
+
+  if (confirm(`Remove "${d.name}" from your custom formulary?`)) {
+    state.customDrugs = state.customDrugs.filter(x => x.id !== id);
+    saveState();
+    scheduleCloudSync(true);
+    renderCustomDrugsManager(v('cdm-search-inp'));
+    toast(`🗑️ "${d.name}" removed from formulary`);
+  }
 }
 
 document.addEventListener('click', e => {
@@ -1102,7 +1646,7 @@ function editCurrentRx() {
 }
 
 // ── DOWNLOAD CRISP HD A4 IMAGE OF PRESCRIPTION ──
-function downloadRxImage() {
+async function downloadRxImage() {
   if (!state.currentRx) return;
   const source = document.getElementById('rx-a4');
   if (!source) return;
@@ -1112,56 +1656,67 @@ function downloadRxImage() {
     return;
   }
 
-  toast('📷 Generating Crisp HD A4 Image...');
+  const pageEls = source.querySelectorAll('.rx-page');
+  if (!pageEls.length) return;
 
-  // Capture an off-screen, UNSCALED copy of the pad.
-  // Capturing the on-screen pad directly produces shifted/overlapping text
-  // because the preview wraps it in #rx-a4-scaler which carries a CSS
-  // transform (zoom / fit-screen); html2canvas mis-renders transformed
-  // ancestors, so we render a clean clone at the natural A4 size instead.
+  const totalPages = pageEls.length;
+  toast(`📷 Generating Crisp HD A4 Image${totalPages > 1 ? `s (${totalPages} Pages)` : ''}...`);
+
   const holder = document.createElement('div');
   holder.setAttribute('aria-hidden', 'true');
   holder.style.cssText = 'position:fixed;left:-10000px;top:0;width:794px;background:#ffffff;pointer-events:none;z-index:-1;';
-
-  const clone = source.cloneNode(true);
-  clone.removeAttribute('id'); // drop #rx-a4 rules (they use !important + absolute); we size it inline below
-  clone.style.cssText = 'position:relative;width:794px;min-width:794px;max-width:794px;' +
-    'height:1123px;min-height:1123px;background:#ffffff;color:#1a202c;' +
-    'font-family:"Crimson Pro",serif;box-shadow:none;overflow:hidden;box-sizing:border-box;margin:0;';
-
-  holder.appendChild(clone);
   document.body.appendChild(holder);
 
   const cleanup = () => { try { holder.remove(); } catch (e) { /* noop */ } };
-  const fileName = `Prescription_A4_${(state.currentRx.patientName || 'Patient').replace(/[^a-zA-Z0-9]/g, '_')}_${state.currentRx.date || 'rx'}.png`;
+  const baseFileName = `Prescription_A4_${(state.currentRx.patientName || 'Patient').replace(/[^a-zA-Z0-9]/g, '_')}_${state.currentRx.date || 'rx'}`;
 
-  // Wait for webfonts so the export uses the real typefaces.
-  const fontsReady = (document.fonts && document.fonts.ready) ? document.fonts.ready : Promise.resolve();
+  try {
+    if (document.fonts && document.fonts.ready) {
+      await document.fonts.ready;
+    }
 
-  fontsReady.then(() => {
-    fitRxPad(clone); // fit the medicines against the clone's own metrics
-    return html2canvas(clone, {
-      scale: 3, // High DPI ~300 DPI A4 capture
-      useCORS: true,
-      backgroundColor: '#ffffff',
-      logging: false,
-      width: 794,
-      height: 1123
-    });
-  }).then(canvas => {
+    for (let idx = 0; idx < pageEls.length; idx++) {
+      const pageEl = pageEls[idx];
+      const clone = pageEl.cloneNode(true);
+      clone.removeAttribute('id');
+      const indicator = clone.querySelector('.rx-page-indicator');
+      if (indicator) indicator.remove();
+
+      clone.style.cssText = 'position:relative;width:794px;min-width:794px;max-width:794px;' +
+        'height:1123px;min-height:1123px;max-height:1123px;background:#ffffff;color:#1a202c;' +
+        'font-family:"Crimson Pro",serif;box-shadow:none;overflow:hidden;box-sizing:border-box;margin:0;padding:26px 30px;';
+
+      holder.innerHTML = '';
+      holder.appendChild(clone);
+
+      const canvas = await html2canvas(clone, {
+        scale: 3, // High DPI ~300 DPI A4 capture
+        useCORS: true,
+        backgroundColor: '#ffffff',
+        logging: false,
+        width: 794,
+        height: 1123
+      });
+
+      const fileName = totalPages > 1 ? `${baseFileName}_Page_${idx + 1}.png` : `${baseFileName}.png`;
+      const link = document.createElement('a');
+      link.download = fileName;
+      link.href = canvas.toDataURL('image/png', 1.0);
+      document.body.appendChild(link);
+      link.click();
+      link.remove();
+
+      if (idx < pageEls.length - 1) {
+        await new Promise(r => setTimeout(r, 350));
+      }
+    }
     cleanup();
-    const link = document.createElement('a');
-    link.download = fileName;
-    link.href = canvas.toDataURL('image/png', 1.0);
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-    toast('✅ HD A4 PNG Image Downloaded');
-  }).catch(err => {
+    toast(`✅ HD A4 PNG Image${totalPages > 1 ? `s (${totalPages} Pages)` : ''} Downloaded`);
+  } catch (err) {
     cleanup();
     console.error('Image render error:', err);
     toast('❌ Error rendering HD image');
-  });
+  }
 }
 
 // ── A4 PREVIEW ZOOM SCALER FOR SMARTPHONES & DESKTOPS ──
@@ -1191,10 +1746,11 @@ function zoomRxPreview(delta) {
   scaler.style.transform = `scale(${currentRxZoom})`;
   scaler.style.transformOrigin = 'top center';
 
-  const scaledH = Math.round(1123 * currentRxZoom);
+  const unscaledH = scaler.scrollHeight || scaler.offsetHeight || 1123;
+  const scaledH = Math.round(unscaledH * currentRxZoom);
   const scaledW = Math.round(794 * currentRxZoom);
 
-  viewport.style.height = `${scaledH + 10}px`;
+  viewport.style.height = `${Math.min(availH, scaledH + 20)}px`;
   viewport.style.minWidth = currentRxZoom > (containerW / 794) ? `${scaledW}px` : '100%';
 }
 
@@ -1205,7 +1761,14 @@ window.addEventListener('resize', () => {
   }
 });
 
-// ── RENDER PRESCRIPTION (STRICT A4 FORMAT) ──
+// Helper: Ordinal numbers (1st, 2nd, 3rd, 4th, etc.)
+function getOrdinal(n) {
+  const s = ['th', 'st', 'nd', 'rd'];
+  const v = n % 100;
+  return n + (s[(v - 20) % 10] || s[v] || s[0]);
+}
+
+// ── RENDER PRESCRIPTION (STRICT A4 FORMAT WITH CONTINUATION PAGES) ──
 function renderRxHTML(rx) {
   const p = state.profile;
   const ps = state.padSettings;
@@ -1241,7 +1804,7 @@ function renderRxHTML(rx) {
       ${p.qualifications ? `<div class="rx-doc-quals">${esc(p.qualifications)}</div>` : ''}
       ${p.designation ? `<div class="rx-doc-quals">${esc(p.designation)}</div>` : ''}
       ${p.hospital ? `<div class="rx-doc-quals">${esc(p.hospital)}</div>` : ''}
-      ${p.reg ? `<div class="rx-doc-reg" style="color:${col}">${esc(p.reg)}</div>` : ''}
+      ${p.reg ? `<div class="rx-doc-reg" style="color:${col}; font-weight:700">${esc(formatBmdcReg(p.reg))}</div>` : ''}
     </div>
   `;
 
@@ -1263,31 +1826,6 @@ function renderRxHTML(rx) {
     ${patient.allergies ? `<div class="rx-allergy">⚠ Allergy / Condition: ${esc(patient.allergies)}</div>` : ''}
   `;
 
-  const leftSections = `
-    ${rx.complaints ? `<div><div class="rx-section-label" style="color:${col}">COMPLAINTS</div><div class="rx-section-content">${esc(rx.complaints)}</div></div>` : ''}
-    ${(rx.history && ps.showHistory) ? `<div><div class="rx-section-label" style="color:${col}">HISTORY</div><div class="rx-section-content">${esc(rx.history)}</div></div>` : ''}
-    ${(rx.findings && ps.showFindings) ? `<div><div class="rx-section-label" style="color:${col}">FINDINGS</div><div class="rx-section-content">${esc(rx.findings)}</div></div>` : ''}
-    ${(rx.investigation && ps.showInvestigation) ? `<div><div class="rx-section-label" style="color:${col}">INVESTIGATION</div><div class="rx-section-content">${esc(rx.investigation)}</div></div>` : ''}
-    ${rx.diagnosis ? `<div><div class="rx-section-label" style="color:${col}">DIAGNOSIS</div><div class="rx-section-content" style="font-weight:700; color:#1a202c;">${esc(rx.diagnosis)}</div></div>` : ''}
-  `;
-
-  const drugsHTML = (rx.drugs || []).map((d, i) => {
-    let rawForm = (d.form || 'Tab.').trim();
-    if (!rawForm.endsWith('.')) rawForm += '.';
-    const sig = [d.freq, d.timing, d.duration, d.route].map(esc).filter(Boolean).join('  ·  ');
-    return `
-      <div class="rx-drug-item">
-        <div class="rx-drug-name"><span class="rx-drug-num">${i + 1}.</span>${rawForm} ${esc(d.name)}${d.dose ? ' — ' + esc(d.dose) : ''}</div>
-        ${(showGeneric && d.generic) ? `<div class="rx-drug-generic">(${esc(d.generic)})</div>` : ''}
-        ${sig ? `<div class="rx-drug-sig">${sig}</div>` : ''}
-        ${d.drugNotes ? `<div class="rx-drug-note">📝 ${esc(d.drugNotes)}</div>` : ''}
-      </div>
-    `;
-  }).join('');
-
-  const followupHTML = (rx.followupDays && ps.showFollowup) ? `<div class="rx-followup" style="color:${col}"><strong>Follow-up:</strong> After ${esc(rx.followupDays)} ${esc(rx.followupUnit || 'days')}</div>` : '';
-  const adviceHTML = (rx.advice && ps.showAdvice) ? `<div class="rx-advice-section"><div class="rx-section-label" style="color:${col}">ADVICE / নির্দেশনা</div><div class="rx-advice-content">${esc(rx.advice)}</div></div>` : '';
-
   const footerText = (p.footer || ps.footer || 'নিয়ম মাফিক ঔষধ খাবেন। ডাক্তারের পরামর্শ ব্যতীত ঔষধ পরিবর্তন নিষেধ।').trim();
   const footerContact = [p.address, p.phone, p.hours].map(esc).filter(Boolean).join('  ·  ');
   const footerHTML = (footerText || footerContact) ? `
@@ -1302,32 +1840,263 @@ function renderRxHTML(rx) {
     </svg>
   `;
 
-  const hasLeft = leftSections.replace(/\s/g, '').length > 0;
+  // Build left-sided sections
+  const leftUnits = [];
+  if (rx.complaints) {
+    leftUnits.push({
+      key: 'complaints',
+      label: 'COMPLAINTS',
+      html: `<div><div class="rx-section-label" style="color:${col}">COMPLAINTS</div><div class="rx-section-content">${esc(formatClinicalBulletLines(rx.complaints))}</div></div>`
+    });
+  }
+  if (rx.history && ps.showHistory !== false) {
+    leftUnits.push({
+      key: 'history',
+      label: 'HISTORY',
+      html: `<div><div class="rx-section-label" style="color:${col}">HISTORY</div><div class="rx-section-content">${esc(formatClinicalBulletLines(rx.history))}</div></div>`
+    });
+  }
+  if (rx.findings && ps.showFindings !== false) {
+    leftUnits.push({
+      key: 'findings',
+      label: 'FINDINGS',
+      html: `<div><div class="rx-section-label" style="color:${col}">FINDINGS</div><div class="rx-section-content">${esc(formatClinicalBulletLines(rx.findings))}</div></div>`
+    });
+  }
+  if (rx.investigation && ps.showInvestigation !== false) {
+    leftUnits.push({
+      key: 'investigation',
+      label: 'INVESTIGATION',
+      html: `<div><div class="rx-section-label" style="color:${col}">INVESTIGATION</div><div class="rx-section-content">${esc(formatClinicalBulletLines(rx.investigation))}</div></div>`
+    });
+  }
+  if (rx.diagnosis) {
+    leftUnits.push({
+      key: 'diagnosis',
+      label: 'DIAGNOSIS',
+      html: `<div><div class="rx-section-label" style="color:${col}">DIAGNOSIS</div><div class="rx-section-content" style="font-weight:700; color:#1a202c;">${esc(formatClinicalBulletLines(rx.diagnosis))}</div></div>`
+    });
+  }
 
-  return `
-    <div class="rx-page">
-      ${chamberHTML}
-      ${headerHTML}
-      <hr class="rx-divider" style="border-top-color:${col}">
-      ${patientRowHTML}
-      <div class="rx-body">
-        ${hasLeft ? `<div class="rx-left" style="width:${leftW}px">${leftSections}</div>` : ''}
-        <div class="rx-right">
-          <div class="rx-rx-title" style="color:${col}">${rxSymbolSVG}</div>
-          ${drugsHTML ? `<div class="rx-drug-list">${drugsHTML}</div>` : ''}
-          ${adviceHTML}
-          ${followupHTML}
-          ${(ps.showSignature !== false) ? `
-          <div class="rx-signature">
-            <div class="rx-sign-line"></div>
-            <div class="rx-sign-label">${esc(p.name) || 'Doctor'}</div>
-            <div class="rx-sign-sub">Signature</div>
-          </div>` : ''}
-        </div>
+  const hasLeft = leftUnits.length > 0;
+
+  // Build drug units (continuous numbering 1..N across all pages)
+  const drugUnits = (rx.drugs || []).map((d, i) => {
+    let rawForm = (d.form || 'Tab.').trim();
+    if (!rawForm.endsWith('.')) rawForm += '.';
+    const freq = formatFrequency(d.freq);
+    const dur = formatDuration(d.duration);
+    const route = formatRoute(d.route);
+    const sig = [freq, d.timing, dur, route].map(esc).filter(Boolean).join('  ·  ');
+    const html = `
+      <div class="rx-drug-item">
+        <div class="rx-drug-name"><span class="rx-drug-num">${i + 1}.</span>${rawForm} ${esc(d.name)}${d.dose ? ' — ' + esc(d.dose) : ''}</div>
+        ${(showGeneric && d.generic) ? `<div class="rx-drug-generic">(${esc(d.generic)})</div>` : ''}
+        ${sig ? `<div class="rx-drug-sig">${sig}</div>` : ''}
+        ${d.drugNotes ? `<div class="rx-drug-note">📝 ${esc(d.drugNotes)}</div>` : ''}
       </div>
-      ${footerHTML}
-    </div>
-  `;
+    `;
+    return { index: i + 1, html, data: d };
+  });
+
+  const followupHTML = (rx.followupDays && ps.showFollowup !== false) ? `<div class="rx-followup" style="color:${col}"><strong>Follow-up:</strong> After ${esc(rx.followupDays)} ${esc(rx.followupUnit || 'days')}</div>` : '';
+  const adviceHTML = (rx.advice && ps.showAdvice !== false) ? `<div class="rx-advice-section"><div class="rx-section-label" style="color:${col}">ADVICE / নির্দেশনা</div><div class="rx-advice-content">${esc(rx.advice)}</div></div>` : '';
+  const signatureHTML = (ps.showSignature !== false) ? `
+    <div class="rx-signature">
+      <div class="rx-sign-line"></div>
+      <div class="rx-sign-label">${esc(p.name) || 'Doctor'}</div>
+      <div class="rx-sign-sub">Signature</div>
+    </div>` : '';
+
+  // Height measurement and pagination
+  let availH = 780;
+  let topH = 175;
+  let footerH = 45;
+  let rxTitleH = 44;
+  let contTitleH = 36;
+  let adviceH = adviceHTML ? 60 : 0;
+  let followupH = followupHTML ? 28 : 0;
+  let sigH = signatureHTML ? 75 : 0;
+
+  // Exact browser measurement if document is available
+  if (typeof document !== 'undefined' && document.body) {
+    try {
+      const measurer = document.createElement('div');
+      measurer.style.cssText = 'position:fixed;left:-9999px;top:0;width:794px;visibility:hidden;pointer-events:none;font-family:"Crimson Pro",serif;box-sizing:border-box;padding:26px 30px;background:#fff;';
+      measurer.innerHTML = `
+        <div id="m-top">
+          ${chamberHTML}
+          ${headerHTML}
+          <hr class="rx-divider" style="border-top-color:${col}">
+          ${patientRowHTML}
+        </div>
+        <div id="m-footer" class="rx-footer-container">
+          ${footerHTML}
+        </div>
+        <div class="rx-body">
+          ${hasLeft ? `<div id="m-left-col" class="rx-left" style="width:${leftW}px">
+            ${leftUnits.map((u, idx) => `<div class="m-left-item" data-idx="${idx}">${u.html}</div>`).join('')}
+          </div>` : ''}
+          <div id="m-right-col" class="rx-right">
+            <div id="m-rx-title" class="rx-rx-title">${rxSymbolSVG}</div>
+            <div id="m-cont-title" class="rx-continuation-banner"><u><strong>Continuation of the 1st page of the prescription.</strong></u></div>
+            <div class="rx-drug-list">
+              ${drugUnits.map((u, idx) => `<div class="m-drug-item" data-idx="${idx}">${u.html}</div>`).join('')}
+            </div>
+            <div id="m-advice">${adviceHTML}</div>
+            <div id="m-followup">${followupHTML}</div>
+            <div id="m-sig">${signatureHTML}</div>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(measurer);
+
+      topH = measurer.querySelector('#m-top')?.offsetHeight || topH;
+      footerH = measurer.querySelector('#m-footer')?.offsetHeight || footerH;
+      rxTitleH = measurer.querySelector('#m-rx-title')?.offsetHeight || rxTitleH;
+      contTitleH = measurer.querySelector('#m-cont-title')?.offsetHeight || contTitleH;
+      if (adviceHTML) adviceH = measurer.querySelector('#m-advice')?.offsetHeight || adviceH;
+      if (followupHTML) followupH = measurer.querySelector('#m-followup')?.offsetHeight || followupH;
+      if (signatureHTML) sigH = measurer.querySelector('#m-sig')?.offsetHeight || sigH;
+
+      if (hasLeft) {
+        const lNodes = measurer.querySelectorAll('.m-left-item');
+        lNodes.forEach(el => {
+          const idx = parseInt(el.getAttribute('data-idx'));
+          if (leftUnits[idx]) leftUnits[idx].height = el.offsetHeight + 20;
+        });
+      }
+
+      const dNodes = measurer.querySelectorAll('.m-drug-item');
+      dNodes.forEach(el => {
+        const idx = parseInt(el.getAttribute('data-idx'));
+        if (drugUnits[idx]) drugUnits[idx].height = el.offsetHeight + 14;
+      });
+
+      measurer.remove();
+    } catch (e) {
+      console.warn('Measurement error, using defaults:', e);
+    }
+  }
+
+  const PAGE_H = 1123;
+  const PAGE_PAD_TOP = 26;
+  const FOOTER_BOTTOM_GAP = 22;
+  const SAFETY_MARGIN = 20;
+  availH = Math.max(400, PAGE_H - PAGE_PAD_TOP - topH - FOOTER_BOTTOM_GAP - footerH - SAFETY_MARGIN);
+
+  leftUnits.forEach(u => { if (!u.height) u.height = 100; });
+  drugUnits.forEach(u => { if (!u.height) u.height = 68; });
+
+  // 1. Partition left-sided units across pages
+  const leftPages = [];
+  if (hasLeft) {
+    let curLeft = [];
+    let curH = 0;
+    for (const u of leftUnits) {
+      if (curH + u.height > availH && curLeft.length > 0) {
+        leftPages.push(curLeft);
+        curLeft = [u];
+        curH = u.height;
+      } else {
+        curLeft.push(u);
+        curH += u.height;
+      }
+    }
+    if (curLeft.length > 0) leftPages.push(curLeft);
+  }
+
+  // 2. Partition right-sided items (drugs, advice, followup, signature) across pages
+  const rightPages = [];
+  const remDrugs = [...drugUnits];
+  const conclusionH = adviceH + followupH + sigH;
+  let pageIdx = 0;
+
+  while (remDrugs.length > 0 || (pageIdx === 0 && rightPages.length === 0)) {
+    const headerH = pageIdx === 0 ? (rxTitleH + 12) : (contTitleH + 14);
+    let curH = headerH;
+    const pageDrugs = [];
+
+    while (remDrugs.length > 0) {
+      const nextDrug = remDrugs[0];
+      const isLastRemaining = remDrugs.length === 1;
+      const neededH = isLastRemaining ? (nextDrug.height + conclusionH) : nextDrug.height;
+
+      if (curH + neededH <= availH || pageDrugs.length === 0) {
+        pageDrugs.push(remDrugs.shift());
+        curH += nextDrug.height;
+      } else {
+        break;
+      }
+    }
+
+    rightPages.push({
+      drugs: pageDrugs,
+      hasConclusion: remDrugs.length === 0 && (curH + conclusionH <= availH)
+    });
+
+    if (remDrugs.length === 0) {
+      if (conclusionH > 0 && !rightPages[rightPages.length - 1].hasConclusion) {
+        rightPages.push({ drugs: [], hasConclusion: true });
+      }
+      break;
+    }
+    pageIdx++;
+  }
+
+  const totalPages = Math.max(1, leftPages.length, rightPages.length);
+
+  // Generate HTML for all pages
+  const pagesHTML = [];
+  for (let pNum = 1; pNum <= totalPages; pNum++) {
+    const isFirstPage = pNum === 1;
+    const isLastPage = pNum === totalPages;
+
+    const pLeftUnits = (leftPages[pNum - 1] || []);
+    const pLeftHTML = pLeftUnits.map(u => u.html).join('');
+
+    const rPage = rightPages[pNum - 1] || { drugs: [], hasConclusion: isLastPage };
+    const pDrugsHTML = (rPage.drugs || []).map(u => u.html).join('');
+
+    // Page 1 has standard Rx symbol; Page 2 onwards has bold underlined continuation sentence
+    let pBannerHTML = '';
+    if (isFirstPage) {
+      pBannerHTML = `<div class="rx-rx-title" style="color:${col}">${rxSymbolSVG}</div>`;
+    } else {
+      pBannerHTML = `
+        <div class="rx-continuation-banner" style="color:${col}">
+          <u><strong>Continuation of the ${getOrdinal(pNum - 1)} page of the prescription.</strong></u>
+        </div>
+      `;
+    }
+
+    const pageBadgeHTML = totalPages > 1 ? `<div class="rx-page-indicator">Page ${pNum} of ${totalPages}</div>` : '';
+
+    const pageHTML = `
+      <div class="rx-page" data-page="${pNum}" data-total-pages="${totalPages}">
+        ${pageBadgeHTML}
+        ${chamberHTML}
+        ${headerHTML}
+        <hr class="rx-divider" style="border-top-color:${col}">
+        ${patientRowHTML}
+        <div class="rx-body">
+          ${hasLeft ? `<div class="rx-left" style="width:${leftW}px; border-right: 1.5px solid ${col};">${pLeftHTML || '&nbsp;'}</div>` : ''}
+          <div class="rx-right">
+            ${pBannerHTML}
+            ${pDrugsHTML ? `<div class="rx-drug-list">${pDrugsHTML}</div>` : ''}
+            ${isLastPage ? adviceHTML : ''}
+            ${isLastPage ? followupHTML : ''}
+            ${isLastPage ? signatureHTML : ''}
+          </div>
+        </div>
+        ${footerHTML}
+      </div>
+    `;
+
+    pagesHTML.push(pageHTML);
+  }
+
+  return pagesHTML.join('\n');
 }
 
 function viewRx(id) {
@@ -1349,62 +2118,27 @@ function renderRxPreview(rx) {
   if (!container) return;
   container.innerHTML = renderRxHTML(rx);
   fitRxPad(container);
-  // Metrics change once layout settles and webfonts arrive, so re-fit.
-  requestAnimationFrame(() => fitRxPad(container));
-  if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => fitRxPad(container));
-}
-
-// ── PAD AUTO-FIT (two-column medicines) ──
-// The pad is a fixed A4 page whose footer rule is pinned near the bottom. A long
-// medication list would spill past that rule, so we switch it to a balanced
-// two-column layout (dotted vertical divider) and, if it still overflows, step
-// the type size down to the largest size that fits. Runs for the preview, print
-// and image export.
-const RX_DRUG_MIN_FONT = 9;   // px — never shrink below this
-const RX_DRUG_MAX_FONT = 14.5; // px — the normal list size
-const RX_DRUG_FONT_STEP = 0.5; // px
-
-function measureRxPad(pad) {
-  const right = pad.querySelector('.rx-right');
-  const footer = pad.querySelector('.rx-footer-container');
-  if (!right || !footer) return null;
-  const availTop = right.offsetTop;
-  const availH = (footer.offsetTop - availTop) - 10; // keep clear of the footer rule
-  if (availH <= 0) return null; // pad not laid out yet (its modal is hidden)
-  let flowBottom = null;
-  for (const el of right.children) {
-    if (el.classList.contains('rx-signature')) continue;
-    const b = el.offsetTop + el.offsetHeight;
-    if (flowBottom === null || b > flowBottom) flowBottom = b;
+  requestAnimationFrame(() => {
+    fitRxPad(container);
+    zoomRxPreview(0.0);
+  });
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(() => {
+      fitRxPad(container);
+      zoomRxPreview(0.0);
+    });
   }
-  if (flowBottom === null) return null;
-  const sig = right.querySelector('.rx-signature');
-  const required = (flowBottom - availTop) + (sig ? sig.offsetHeight : 0);
-  return { ok: required <= availH, required, availH };
 }
 
+// ── PAD AUTO-FIT ──
 function fitRxPad(pad) {
-  const list = pad && pad.querySelector('.rx-drug-list');
-  if (!list) return;
-  // Reset to the default layout so this is idempotent.
-  list.className = 'rx-drug-list';
-  list.style.fontSize = '';
-  // measureRxPad returns null while the pad isn't laid out (e.g. its modal is
-  // still hidden). There is nothing to fit against yet, so keep the defaults.
-  let m = measureRxPad(pad);
-  if (!m) return;
-  if (m.ok) return;                         // one column, normal size
-  list.className = 'rx-drug-list is-2col';  // two columns, dotted divider
-  m = measureRxPad(pad);
-  if (!m) return;
-  if (m.ok) return;
-  for (let fs = RX_DRUG_MAX_FONT - RX_DRUG_FONT_STEP; fs >= RX_DRUG_MIN_FONT; fs -= RX_DRUG_FONT_STEP) {
-    list.style.fontSize = fs + 'px';
-    m = measureRxPad(pad);
-    if (!m) return;
-    if (m.ok) return;
-  }
-  // Genuinely over-long even at the minimum size: keep the tightest layout.
+  if (!pad) return;
+  const pages = pad.classList.contains('rx-page') ? [pad] : pad.querySelectorAll('.rx-page');
+  pages.forEach(page => {
+    const list = page.querySelector('.rx-drug-list');
+    if (!list) return;
+    list.style.fontSize = '';
+  });
 }
 
 function printPrescription() {
@@ -1416,7 +2150,6 @@ function printPrescription() {
     return;
   }
 
-  // Resolve the stylesheet relative to this page rather than the blank window.
   const baseHref = location.href.replace(/[^/]*$/, '');
 
   w.document.write(`
@@ -1426,37 +2159,46 @@ function printPrescription() {
     <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600;700&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
     <style>
-      /* Fit the prescription on exactly one A4 page.
-         The on-screen pad is 794x1123px, but A4 at 96dpi is 1122.52px tall, so
-         1123px overflowed the page by ~0.5px and Chrome pushed a blank second
-         page. body{min-height:100vh} also makes the body a full page tall on
-         its own. Size the printed page explicitly in mm instead. */
       @page { size: A4 portrait; margin: 0; }
-      html, body { margin: 0 !important; padding: 0 !important; background: #fff; }
-      html, body { min-height: 0 !important; height: auto !important; }
+      html, body { margin: 0 !important; padding: 0 !important; background: #fff !important; min-height: 0 !important; height: auto !important; }
       #rx-a4 {
         position: relative !important;
         box-shadow: none !important;
         width: 210mm !important; min-width: 0 !important; max-width: none !important;
-        height: 296.8mm !important; min-height: 0 !important; max-height: 296.8mm !important;
-        overflow: hidden !important;
-        page-break-after: avoid; break-after: avoid;
+        margin: 0 !important; padding: 0 !important;
+        display: block !important;
+        gap: 0 !important;
+        background: transparent !important;
       }
+      .rx-page {
+        position: relative !important;
+        box-shadow: none !important;
+        width: 210mm !important; min-width: 210mm !important; max-width: 210mm !important;
+        height: 296.8mm !important; min-height: 296.8mm !important; max-height: 296.8mm !important;
+        padding: 26px 30px !important;
+        margin: 0 !important;
+        box-sizing: border-box !important;
+        overflow: hidden !important;
+        page-break-after: always !important;
+        break-after: page !important;
+      }
+      .rx-page:last-child {
+        page-break-after: avoid !important;
+        break-after: avoid !important;
+      }
+      .rx-page-indicator { display: none !important; }
     </style>
     </head><body><div id="rx-a4">${rxHTML}</div></body></html>
   `);
   w.document.close();
 
-  // Print once the window (and its stylesheet/fonts) has loaded, with a
-  // fallback in case the load event already fired before we could listen.
-  // Fit the two-column medicines before the print layout is captured.
   let printed = false;
   const doPrint = () => {
     if (printed) return;
     printed = true;
     try {
-      fitRxPad(w.document.getElementById('rx-a4'));
-      w.focus(); w.print();
+      w.focus();
+      w.print();
     } catch (e) { console.error('Print error:', e); }
   };
   const printWhenReady = () => {
@@ -1608,6 +2350,42 @@ let isOpeningPatientFromRx = false;
 let rxReturnPatientId = '';
 let lastValidRxPatientId = '';
 
+function updateRxPatientInfoStrip(patientId) {
+  const strip = document.getElementById('rx-patient-info-strip');
+  if (!strip) return;
+  const p = state.patients.find(x => x.id === patientId);
+  if (!p) {
+    strip.classList.add('hidden');
+    strip.innerHTML = '';
+    return;
+  }
+
+  const chips = [
+    p.age ? `<strong>Age:</strong> ${esc(p.age)}` : '',
+    p.gender ? `<strong>Sex:</strong> ${esc(p.gender)}` : '',
+    p.weight ? `<strong>Weight:</strong> ${esc(p.weight)}` : '',
+    p.bloodGroup ? `<strong>Blood:</strong> ${esc(p.bloodGroup)}` : '',
+    p.phone ? `<strong>Phone:</strong> ${esc(p.phone)}` : ''
+  ].filter(Boolean);
+
+  const allergiesHTML = p.allergies ? `
+    <div style="background:#fff5f5; border:1.5px solid #feb2b2; border-radius:8px; padding:7px 12px; margin-top:8px; display:flex; align-items:center; gap:8px; color:#c53030; font-weight:700; font-size:13px;">
+      <span style="font-size:16px;">⚠️</span>
+      <span>ALLERGY ALERT: ${esc(p.allergies)}</span>
+    </div>
+  ` : '';
+
+  strip.innerHTML = `
+    <div style="background:var(--surface2); border:1px solid var(--border); border-radius:10px; padding:10px 14px;">
+      <div style="display:flex; flex-wrap:wrap; gap:8px 16px; font-size:12.5px; color:var(--text);">
+        ${chips.map(c => `<div>${c}</div>`).join('')}
+      </div>
+      ${allergiesHTML}
+    </div>
+  `;
+  strip.classList.remove('hidden');
+}
+
 function populateRxPatientSelect(selectedId = '') {
   const sel = document.getElementById('rx-patient-select');
   if (!sel) return;
@@ -1631,6 +2409,7 @@ function populateRxPatientSelect(selectedId = '') {
 
   optionsHTML += `<option value="__NEW_PATIENT__">➕ Add New Patient Profile...</option>`;
   sel.innerHTML = optionsHTML;
+  updateRxPatientInfoStrip(selectedId);
 }
 
 function checkRxPatientSelect(selectEl) {
@@ -1638,6 +2417,7 @@ function checkRxPatientSelect(selectEl) {
     openPatientModalFromRx();
   } else {
     lastValidRxPatientId = selectEl.value;
+    updateRxPatientInfoStrip(selectEl.value);
   }
 }
 
@@ -1677,6 +2457,10 @@ function savePatient() {
   if (state.editingPatientId) {
     const idx = state.patients.findIndex(p => p.id === state.editingPatientId);
     if (idx >= 0) state.patients[idx] = patientData;
+    // Synchronize prescriptions if patient was renamed
+    (state.prescriptions || []).forEach(r => {
+      if (r.patientId === patientData.id) r.patientName = name;
+    });
   } else {
     state.patients.unshift(patientData);
   }
@@ -1687,6 +2471,7 @@ function savePatient() {
   closeModal('modal-patient');
   renderPatients();
   renderDashboard();
+  renderAllRx();
   scheduleCloudSync(true);
   toast('✅ Patient saved');
 
@@ -1698,6 +2483,13 @@ function savePatient() {
 }
 
 function openRxModalForPatient(pid) {
+  const bmdcNum = extractBmdcNumber(state.profile.reg);
+  if (!bmdcNum) {
+    toast('⚠️ Please configure your BMDC Registration Number (Category A) first');
+    showSection('profile');
+    setTimeout(() => document.getElementById('prof-reg')?.focus(), 200);
+    return;
+  }
   state.currentRx = null;
   openModal('modal-rx');
   populateRxPatientSelect(pid);
@@ -1712,8 +2504,12 @@ function clearRxForm() {
   ['rx-complaints','rx-diagnosis','rx-history','rx-findings','rx-investigation','rx-advice','rx-notes'].forEach(id => setV(id, ''));
   setV('rx-date', new Date().toISOString().split('T')[0]);
   setV('rx-visit', 'New Visit');
+  setV('rx-followup-days', '');
+  setV('rx-followup-unit', 'days');
+  state.currentRx = null;
   document.getElementById('drug-rows').innerHTML = '';
   addDrugRow();
+  updateRxPatientInfoStrip(v('rx-patient-select'));
 }
 
 // ── DASHBOARD & STATS ──
@@ -1774,7 +2570,11 @@ function renderAllRx() {
       (r.patientName || '').toLowerCase().includes(currentRxSearchQuery) ||
       (r.diagnosis || '').toLowerCase().includes(currentRxSearchQuery) ||
       (r.complaints || '').toLowerCase().includes(currentRxSearchQuery) ||
-      (r.date || '').toLowerCase().includes(currentRxSearchQuery)
+      (r.date || '').toLowerCase().includes(currentRxSearchQuery) ||
+      (r.drugs || []).some(d => 
+        (d.name || '').toLowerCase().includes(currentRxSearchQuery) ||
+        (d.generic || '').toLowerCase().includes(currentRxSearchQuery)
+      )
     );
   }
 
@@ -1835,7 +2635,7 @@ function populateProfileForm() {
   setV('prof-quals', p.qualifications || '');
   setV('prof-desig', p.designation || '');
   setV('prof-hosp', p.hospital || '');
-  setV('prof-reg', p.reg || '');
+  setV('prof-reg', extractBmdcNumber(p.reg));
   setV('prof-phone', p.phone || '');
   setV('prof-hours', p.hours || '');
   setV('prof-address', p.address || '');
@@ -1843,12 +2643,20 @@ function populateProfileForm() {
 }
 
 function saveProfile(silent = false) {
+  const rawReg = v('prof-reg').trim();
+  const bmdcNum = extractBmdcNumber(rawReg);
+  if (!bmdcNum) {
+    if (!silent) toast('⚠️ BMDC Registration Number (Category A) is required');
+    document.getElementById('prof-reg')?.focus();
+    return;
+  }
+
   state.profile.name = v('prof-name');
   state.profile.chamberName = v('prof-chamber');
   state.profile.qualifications = v('prof-quals');
   state.profile.designation = v('prof-desig');
   state.profile.hospital = v('prof-hosp');
-  state.profile.reg = v('prof-reg');
+  state.profile.reg = `BMDC Reg No: A-${bmdcNum}`;
   state.profile.phone = v('prof-phone');
   state.profile.hours = v('prof-hours');
   state.profile.address = v('prof-address');
@@ -1898,45 +2706,171 @@ function updatePadPreview() {
 }
 
 // ── OFFLINE LOCAL BACKUP EXPORT & IMPORT ──
+let pendingRestoreData = null;
+
 function exportBackupData() {
-  const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(state, null, 2));
-  const downloadAnchor = document.createElement('a');
-  downloadAnchor.setAttribute("href", dataStr);
-  downloadAnchor.setAttribute("download", `prescribepro_backup_${new Date().toISOString().split('T')[0]}.json`);
-  document.body.appendChild(downloadAnchor);
-  downloadAnchor.click();
-  downloadAnchor.remove();
-  toast('📥 Local backup file downloaded');
+  const now = new Date();
+  const backupPayload = {
+    app: 'PrescribePro-Rx',
+    version: '4.0 Pro',
+    exportedAt: now.toISOString(),
+    summary: {
+      patientsCount: (state.patients || []).length,
+      prescriptionsCount: (state.prescriptions || []).length,
+      customDrugsCount: (state.customDrugs || []).length
+    },
+    user: state.user || {},
+    profile: state.profile || {},
+    padSettings: state.padSettings || {},
+    patients: state.patients || [],
+    prescriptions: state.prescriptions || [],
+    customDrugs: state.customDrugs || [],
+    theme: state.theme || 'light'
+  };
+
+  const jsonStr = JSON.stringify(backupPayload, null, 2);
+  const dateStr = now.toISOString().split('T')[0];
+  const fileName = `prescribepro_backup_${dateStr}.json`;
+
+  try {
+    const blob = new Blob([jsonStr], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const downloadAnchor = document.createElement('a');
+    downloadAnchor.href = url;
+    downloadAnchor.download = fileName;
+    document.body.appendChild(downloadAnchor);
+    downloadAnchor.click();
+    downloadAnchor.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  } catch (err) {
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(jsonStr);
+    const downloadAnchor = document.createElement('a');
+    downloadAnchor.href = dataStr;
+    downloadAnchor.download = fileName;
+    document.body.appendChild(downloadAnchor);
+    downloadAnchor.click();
+    downloadAnchor.remove();
+  }
+  toast(`📥 Backup downloaded (${backupPayload.summary.patientsCount} patients, ${backupPayload.summary.prescriptionsCount} prescriptions)`);
 }
 
 function importBackupData(input) {
-  const file = input.files[0];
+  const file = input.files && input.files[0];
   if (!file) return;
 
   const reader = new FileReader();
   reader.onload = function(e) {
     try {
-      const imported = JSON.parse(e.target.result);
-      if (imported && (imported.patients || imported.prescriptions)) {
-        Object.assign(state, imported);
-        saveState();
-        scheduleCloudSync(true);
-        renderDashboard();
-        renderPatients();
-        renderAllRx();
-        populateProfileForm();
-        if (state.theme) applyTheme(state.theme, true);
-        toast('✅ Backup data restored successfully');
-      } else {
+      const parsed = JSON.parse(e.target.result);
+      if (!parsed || (
+        !Array.isArray(parsed.patients) &&
+        !Array.isArray(parsed.prescriptions) &&
+        !Array.isArray(parsed.customDrugs) &&
+        !parsed.profile
+      )) {
         toast('❌ Invalid backup JSON file structure');
+        return;
       }
+
+      const imported = {
+        app: parsed.app || 'PrescribePro-Rx',
+        version: parsed.version || 'Legacy V3 / Cloud DB',
+        exportedAt: parsed.exportedAt || null,
+        profile: parsed.profile || null,
+        padSettings: parsed.padSettings || null,
+        patients: Array.isArray(parsed.patients) ? parsed.patients : [],
+        prescriptions: Array.isArray(parsed.prescriptions) ? parsed.prescriptions : [],
+        customDrugs: Array.isArray(parsed.customDrugs) ? parsed.customDrugs : [],
+        theme: parsed.theme || null
+      };
+
+      pendingRestoreData = imported;
+      showRestoreConfirmModal(file.name, imported);
     } catch(err) {
+      console.error('Error reading JSON backup file:', err);
       toast('❌ Error reading JSON backup file');
     } finally {
       input.value = '';
     }
   };
   reader.readAsText(file);
+}
+
+function showRestoreConfirmModal(fileName, imported) {
+  const modal = document.getElementById('modal-restore-confirm');
+  if (!modal) {
+    const doMerge = confirm(`Restore backup: ${imported.patients.length} patients, ${imported.prescriptions.length} prescriptions found.\n\nClick OK to MERGE safely (keeps local records safe).\nClick Cancel to abort.`);
+    if (doMerge) executeRestore('merge');
+    return;
+  }
+
+  const nameEl = document.getElementById('restore-file-name');
+  const metaEl = document.getElementById('restore-file-meta');
+  const patCountEl = document.getElementById('restore-count-patients');
+  const patLocalEl = document.getElementById('restore-local-patients');
+  const rxCountEl = document.getElementById('restore-count-rx');
+  const rxLocalEl = document.getElementById('restore-local-rx');
+  const drugCountEl = document.getElementById('restore-count-drugs');
+  const drugLocalEl = document.getElementById('restore-local-drugs');
+
+  if (nameEl) nameEl.textContent = fileName || 'backup.json';
+  if (metaEl) {
+    const dateStr = imported.exportedAt ? new Date(imported.exportedAt).toLocaleString() : 'Date unspecified';
+    const ver = imported.version ? `Version ${imported.version}` : 'Version 4.0 Pro';
+    metaEl.textContent = `Exported: ${dateStr} · ${ver}`;
+  }
+
+  if (patCountEl) patCountEl.textContent = imported.patients.length;
+  if (patLocalEl) patLocalEl.textContent = `Current: ${(state.patients || []).length}`;
+  if (rxCountEl) rxCountEl.textContent = imported.prescriptions.length;
+  if (rxLocalEl) rxLocalEl.textContent = `Current: ${(state.prescriptions || []).length}`;
+  if (drugCountEl) drugCountEl.textContent = imported.customDrugs.length;
+  if (drugLocalEl) drugLocalEl.textContent = `Current: ${(state.customDrugs || []).length}`;
+
+  openModal('modal-restore-confirm');
+}
+
+function executeRestore(mode) {
+  if (!pendingRestoreData) return;
+  const imported = pendingRestoreData;
+
+  const prevPatientCount = (state.patients || []).length;
+  const prevRxCount = (state.prescriptions || []).length;
+
+  if (mode === 'merge') {
+    const merged = mergeState(state, imported);
+    Object.assign(state, merged);
+  } else if (mode === 'overwrite') {
+    if (imported.profile) state.profile = { ...imported.profile };
+    if (imported.padSettings) state.padSettings = { ...imported.padSettings };
+    state.patients = [...imported.patients];
+    state.prescriptions = [...imported.prescriptions];
+    state.customDrugs = [...imported.customDrugs];
+    if (imported.theme) state.theme = imported.theme;
+  }
+
+  if (!Array.isArray(state.customDrugs)) state.customDrugs = [];
+  if (!Array.isArray(state.patients)) state.patients = [];
+  if (!Array.isArray(state.prescriptions)) state.prescriptions = [];
+
+  saveState();
+  scheduleCloudSync(true);
+  renderDashboard();
+  renderPatients();
+  renderAllRx();
+  populateProfileForm();
+  if (state.theme) applyTheme(state.theme, true);
+
+  closeModal('modal-restore-confirm');
+  pendingRestoreData = null;
+
+  if (mode === 'merge') {
+    const addedPatients = Math.max(0, state.patients.length - prevPatientCount);
+    const addedRx = Math.max(0, state.prescriptions.length - prevRxCount);
+    toast(`✅ Merged successfully: ${state.patients.length} patients (+${addedPatients}), ${state.prescriptions.length} prescriptions (+${addedRx})`);
+  } else {
+    toast(`✅ Restored backup: ${state.patients.length} patients, ${state.prescriptions.length} prescriptions`);
+  }
 }
 
 // ── HYBRID LOCAL-FIRST & GOOGLE CLOUD REAL-TIME SYNC ENGINE ──
@@ -1972,6 +2906,25 @@ function scheduleCloudSync(immediate = false) {
   }, 1500);
 }
 
+function getRecordTimestamp(obj, fallback = 0) {
+  if (!obj) return fallback;
+  if (typeof obj.updatedAt === 'number' && !isNaN(obj.updatedAt)) return obj.updatedAt;
+  if (typeof obj.updatedAt === 'string' && obj.updatedAt.trim()) {
+    const t = new Date(obj.updatedAt).getTime();
+    if (!isNaN(t)) return t;
+    const n = Number(obj.updatedAt);
+    if (!isNaN(n)) return n;
+  }
+  if (typeof obj.createdAt === 'number' && !isNaN(obj.createdAt)) return obj.createdAt;
+  if (typeof obj.createdAt === 'string' && obj.createdAt.trim()) {
+    const t = new Date(obj.createdAt).getTime();
+    if (!isNaN(t)) return t;
+    const n = Number(obj.createdAt);
+    if (!isNaN(n)) return n;
+  }
+  return fallback;
+}
+
 function mergeState(local, cloud) {
   if (!cloud) return local;
 
@@ -1979,24 +2932,27 @@ function mergeState(local, cloud) {
 
   // Merge Doctor Profile
   if (cloud.profile) {
-    if (!merged.profile || (cloud.profile.updatedAt || 0) > (merged.profile.updatedAt || 0)) {
-      merged.profile = { ...cloud.profile };
+    if (!merged.profile || getRecordTimestamp(cloud.profile) >= getRecordTimestamp(merged.profile)) {
+      merged.profile = { ...(merged.profile || {}), ...cloud.profile };
     }
   }
 
   // Merge Pad Settings
   if (cloud.padSettings) {
-    if (!merged.padSettings || (cloud.padSettings.updatedAt || 0) > (merged.padSettings.updatedAt || 0)) {
-      merged.padSettings = { ...cloud.padSettings };
+    if (!merged.padSettings || getRecordTimestamp(cloud.padSettings) >= getRecordTimestamp(merged.padSettings)) {
+      merged.padSettings = { ...(merged.padSettings || {}), ...cloud.padSettings };
     }
   }
 
   // Merge Patient Profiles (by ID)
   const patientMap = new Map();
-  (merged.patients || []).forEach(p => patientMap.set(p.id, p));
+  (merged.patients || []).forEach(p => {
+    if (p && p.id) patientMap.set(p.id, p);
+  });
   (cloud.patients || []).forEach(p => {
+    if (!p || !p.id) return;
     const existing = patientMap.get(p.id);
-    if (!existing || (p.updatedAt || 0) > (existing.updatedAt || 0)) {
+    if (!existing || getRecordTimestamp(p) >= getRecordTimestamp(existing)) {
       patientMap.set(p.id, p);
     }
   });
@@ -2004,14 +2960,32 @@ function mergeState(local, cloud) {
 
   // Merge Prescriptions (by ID)
   const rxMap = new Map();
-  (merged.prescriptions || []).forEach(r => rxMap.set(r.id, r));
+  (merged.prescriptions || []).forEach(r => {
+    if (r && r.id) rxMap.set(r.id, r);
+  });
   (cloud.prescriptions || []).forEach(r => {
+    if (!r || !r.id) return;
     const existing = rxMap.get(r.id);
-    if (!existing || (r.updatedAt || 0) > (existing.updatedAt || 0)) {
+    if (!existing || getRecordTimestamp(r) >= getRecordTimestamp(existing)) {
       rxMap.set(r.id, r);
     }
   });
   merged.prescriptions = Array.from(rxMap.values());
+
+  // Merge Custom Drugs (by unique id or lowercased name)
+  const drugMap = new Map();
+  (merged.customDrugs || []).forEach(d => {
+    if (d && (d.id || d.name)) drugMap.set(String(d.id || d.name).toLowerCase().trim(), d);
+  });
+  (cloud.customDrugs || []).forEach(d => {
+    if (!d || (!d.id && !d.name)) return;
+    const key = String(d.id || d.name).toLowerCase().trim();
+    const existing = drugMap.get(key);
+    if (!existing || getRecordTimestamp(d) >= getRecordTimestamp(existing)) {
+      drugMap.set(key, d);
+    }
+  });
+  merged.customDrugs = Array.from(drugMap.values());
 
   return merged;
 }
@@ -2075,13 +3049,14 @@ async function syncWithGoogleCloud(showToast = false) {
     // 3. Prepare payload for Cloud Upload
     state.lastSyncedTimestamp = Date.now();
     const payload = {
-      version: '3.0',
+      version: '4.0',
       updatedAt: Date.now(),
       user: state.user,
       profile: state.profile,
       padSettings: state.padSettings,
       patients: state.patients,
-      prescriptions: state.prescriptions
+      prescriptions: state.prescriptions,
+      customDrugs: state.customDrugs || []
     };
 
     const payloadStr = JSON.stringify(payload, null, 2);
@@ -2151,6 +3126,13 @@ function closeModal(id) {
     isOpeningPatientFromRx = false;
     openModal('modal-rx');
     populateRxPatientSelect(rxReturnPatientId);
+  }
+  if (id === 'modal-rx') {
+    state.currentRx = null;
+    updateRxPatientInfoStrip('');
+  }
+  if (id === 'modal-restore-confirm') {
+    pendingRestoreData = null;
   }
 }
 

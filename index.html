@@ -16,7 +16,7 @@
   <title>PrescribePro-Rx — Free Offline Digital Prescription Pad for Doctors</title>
   <meta name="description" content="Write, manage, and print clinical prescriptions in seconds. 100% free, offline-first digital prescription pad for doctors with 41k drug formulary & cloud sync.">
   <meta name="keywords" content="digital prescription pad, prescription maker for doctors, free prescription software, offline medical prescription app, doctor prescription format A4, MBBS prescription pad, clinical prescription writer, electronic prescription software free, Bangladesh doctor prescription">
-  <meta name="author" content="Dr. Gazi Md Emran Ahmed">
+  <meta name="author" content="Dr. Someone">
   <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
   <meta name="google-site-verification" content="S2mK2X0yK3BCPrNjq-pFqDr83YC9B392iiXCWACYxqo">
   <link rel="canonical" href="https://eabgitbd.github.io/PrescribePro-Rx/">
@@ -77,7 +77,7 @@
         ],
         "author": {
           "@type": "Person",
-          "name": "Dr. Gazi Md Emran Ahmed"
+          "name": "Dr. Someone"
         },
         "screenshot": "https://eabgitbd.github.io/PrescribePro-Rx/screenshots/write-prescription.jpg"
       },
@@ -161,12 +161,16 @@
     <div id="panel-auth-local" class="auth-panel active">
       <div class="pin-login-box">
         <div class="form-group">
-          <label>Doctor Name</label>
-          <input type="text" id="local-doc-name" placeholder="e.g. Dr. Gazi Md Emran Ahmed" value="Dr. Emran Ahmed">
+          <label>Doctor Name <span style="color:var(--danger)">*</span></label>
+          <input type="text" id="local-doc-name" placeholder="e.g. Dr. Someone" value="Dr. Someone" required>
         </div>
         <div class="form-group">
-          <label>BMDC Reg. No. (Optional)</label>
-          <input type="text" id="local-bmdc-reg" placeholder="e.g. Regi: A-12345">
+          <label>BMDC Reg. No. <span style="color:var(--danger)">*</span> (Category A)</label>
+          <div class="bmdc-input-wrapper">
+            <span class="bmdc-prefix-badge"><strong>A-</strong></span>
+            <input type="text" id="local-bmdc-reg" placeholder="e.g. 12345" inputmode="numeric" pattern="[0-9]*" oninput="this.value = this.value.replace(/\D/g, '')" autocomplete="off" required>
+          </div>
+          <div style="font-size:11px; color:var(--text-3); margin-top:4px">BMDC MBBS/BDS Medical Registration Number (Digits Only)</div>
         </div>
         <button class="btn btn-primary" onclick="startLocalLogin()" style="width:100%; margin-top:6px; padding:12px">Enter Prescription Workspace</button>
       </div>
@@ -200,13 +204,14 @@
 <div id="topnav" class="hidden">
   <div class="nav-brand">
     Prescribe<span class="rx-accent">Pro</span> Rx
-    <span class="version-badge">v3.0 Pro</span>
+    <span class="version-badge">v4.0 Pro</span>
   </div>
   <div class="nav-right">
     <div class="drive-status" id="drive-status">
       <div class="drive-dot" style="background:var(--warn)"></div>
       <span style="color:var(--text-3)">Drive Offline</span>
     </div>
+    <button class="btn-icon" onclick="openModal('modal-about')" title="About PrescribePro-Rx" id="about-btn" aria-label="About PrescribePro-Rx">ℹ️</button>
     <button class="btn-icon" onclick="toggleTheme()" title="Toggle Dark/Light Mode" id="theme-toggle-btn">🌙</button>
     <button class="btn-icon" onclick="syncWithGoogleCloud(true)" title="Real-Time Google Cloud Sync">☁️</button>
     <button class="btn-icon" onclick="logout()" title="Log out">🚪</button>
@@ -222,10 +227,12 @@
     <button class="sidebar-btn active" onclick="showSection('dashboard')" id="sb-dashboard"><span class="ico">📊</span> Dashboard</button>
     <button class="sidebar-btn" onclick="showSection('patients')" id="sb-patients"><span class="ico">👥</span> Patients</button>
     <button class="sidebar-btn" onclick="showSection('prescriptions')" id="sb-prescriptions"><span class="ico">📋</span> Prescriptions</button>
+    <button class="sidebar-btn" onclick="openCustomDrugsManager()"><span class="ico">💊</span> My Formulary</button>
     <button class="sidebar-btn" onclick="showSection('paddesign')" id="sb-paddesign"><span class="ico">📑</span> Pad Settings</button>
 
     <div class="sidebar-section" style="margin-top:16px">Account</div>
     <button class="sidebar-btn" onclick="showSection('profile')" id="sb-profile"><span class="ico">👨‍⚕️</span> Doctor Profile</button>
+    <button class="sidebar-btn" onclick="openModal('modal-about')"><span class="ico">ℹ️</span> About PrescribePro</button>
   </div>
 
   <!-- Content Workspace -->
@@ -326,8 +333,12 @@
             <input type="text" id="prof-desig" placeholder="Assistant Professor / Specialist">
           </div>
           <div class="form-group">
-            <label>BMDC Registration No.</label>
-            <input type="text" id="prof-reg" placeholder="Regi: A-12345">
+            <label>BMDC Registration No. <span style="color:var(--danger)">*</span> (Category A)</label>
+            <div class="bmdc-input-wrapper">
+              <span class="bmdc-prefix-badge"><strong>A-</strong></span>
+              <input type="text" id="prof-reg" placeholder="e.g. 12345" inputmode="numeric" pattern="[0-9]*" oninput="this.value = this.value.replace(/\D/g, '')" required>
+            </div>
+            <div style="font-size:11px; color:var(--text-3); margin-top:4px">Digits only — Category "A" is automatically prefixed</div>
           </div>
           <div class="form-group full">
             <label>Hospital / Institute Affiliation</label>
@@ -360,7 +371,7 @@
       <!-- Offline JSON Data Backup Export & Import -->
       <div class="card" style="margin-top:20px">
         <div style="font-weight:700; font-size:16px; margin-bottom:6px; color:var(--rx-blue)">💾 Offline Data Backup & Export</div>
-        <div style="font-size:13px; color:var(--text-3); margin-bottom:16px">Download a full JSON backup of your patient database to keep offline safely.</div>
+        <div style="font-size:13px; color:var(--text-3); margin-bottom:16px">Download a full JSON backup of your clinic database or restore from a backup file with smart non-destructive merging.</div>
         <div style="display:flex; gap:12px; flex-wrap:wrap">
           <button class="btn btn-secondary" onclick="exportBackupData()">📥 Export Backup File (.json)</button>
           <label class="btn btn-secondary" style="margin:0; cursor:pointer">
@@ -573,6 +584,9 @@
         </div>
       </div>
 
+      <!-- Active Patient Demographics & Critical Allergy Alert Banner -->
+      <div id="rx-patient-info-strip" class="hidden" style="margin-bottom:16px;"></div>
+
       <div class="form-grid" id="sec-rx-clinical">
         <div class="form-group">
           <label>Chief Complaints</label>
@@ -601,13 +615,20 @@
       </div>
 
       <div class="divider"></div>
-      <div id="sec-rx-drugs" style="font-size:16px; font-weight:700; color:var(--rx-blue); margin-bottom:12px; display:flex; justify-content:space-between; align-items:center">
+      <div id="sec-rx-drugs" style="font-size:16px; font-weight:700; color:var(--rx-blue); margin-bottom:12px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px">
         <span>💊 Medications (Rx)</span>
-        <button class="btn btn-secondary btn-sm" onclick="addDrugRow()">+ Add Medication</button>
+        <button type="button" class="btn btn-secondary btn-sm" onclick="openCustomDrugsManager()">📋 My Formulary</button>
       </div>
 
       <!-- Drug Rows Container -->
       <div id="drug-rows"></div>
+
+      <!-- Bottom Add Medication Button (Directly below last medication row) -->
+      <div id="rx-add-drug-bottom" style="margin-top:14px; margin-bottom:18px;">
+        <button type="button" class="btn btn-primary" onclick="addDrugRow(true)" style="width:100%; padding:13px; font-size:14px; font-weight:700; display:flex; align-items:center; justify-content:center; gap:8px; box-shadow:var(--shadow-sm); border-radius:10px;">
+          <span>➕ Add Medication</span>
+        </button>
+      </div>
 
       <div class="divider"></div>
       <div class="form-grid" id="sec-rx-advice">
@@ -665,6 +686,190 @@
       <button class="btn btn-secondary" onclick="editCurrentRx()">✏️ Edit Prescription</button>
       <button class="btn btn-secondary" onclick="downloadRxImage()">🖼️ Download HD Image</button>
       <button class="btn btn-primary" onclick="printPrescription()">🖨️ Print Prescription</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── MODAL: ADD / EDIT CUSTOM MEDICINE ── -->
+<div id="modal-custom-drug" class="modal-overlay hidden" style="z-index: 2100;">
+  <div class="modal">
+    <div class="modal-header">
+      <div class="modal-title" id="cd-modal-title">💊 Add Custom Medicine</div>
+      <button class="modal-close" onclick="closeModal('modal-custom-drug')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group">
+          <label>Brand / Trade Name <span style="color:var(--danger)">*</span></label>
+          <input type="text" id="cd-name" placeholder="e.g. Napa, Ace, Seclo..." style="font-weight:700; color:var(--rx-blue)">
+        </div>
+        <div class="form-group">
+          <label>Strength / Dose</label>
+          <input type="text" id="cd-dose" placeholder="e.g. 500 mg, 20 mg, 120 mg/5 ml">
+        </div>
+        <div class="form-group">
+          <label>Dosage Form</label>
+          <select id="cd-form" onchange="onCustomDrugFormChange()"></select>
+        </div>
+        <div class="form-group">
+          <label>Molecule / Generic Name</label>
+          <input type="text" id="cd-generic" placeholder="e.g. Paracetamol, Omeprazole..." style="font-style:italic">
+        </div>
+        <div class="form-group">
+          <label>Company / Manufacturer</label>
+          <input type="text" id="cd-company" placeholder="e.g. Square Pharma, Beximco...">
+        </div>
+        <div class="form-group">
+          <label>Default Route</label>
+          <select id="cd-route">
+            <option value="">Auto by form</option>
+            <option value="Oral [মুখে]">Oral [মুখে]</option>
+            <option value="IM/IV [মাংসপেশীতে বা শিরায়]">IM/IV [মাংসপেশীতে বা শিরায়]</option>
+            <option value="IV [শিরায়]">IV [শিরায়]</option>
+            <option value="IM [মাংসপেশীতে]">IM [মাংসপেশীতে]</option>
+            <option value="SC [ত্বকের নিচে]">SC [ত্বকের নিচে]</option>
+            <option value="Topical [ত্বকে ব্যবহার্য]">Topical [ত্বকে ব্যবহার্য]</option>
+            <option value="Inhalation [নিঃশ্বাসের সাথে]">Inhalation [নিঃশ্বাসের সাথে]</option>
+            <option value="Ophthalmic/Otic [চোখে/কানে]">Ophthalmic/Otic [চোখে/কানে]</option>
+            <option value="Nasal [নাকে]">Nasal [নাকে]</option>
+            <option value="Rectal [মলদ্বারে]">Rectal [মলদ্বারে]</option>
+            <option value="Sublingual [জিহ্বার নিচে]">Sublingual [জিহ্বার নিচে]</option>
+            <option value="Oral Rinse [কুলকুচা/গার্গল]">Oral Rinse [কুলকুচা/গার্গল]</option>
+            <option value="Vaginal [যোনিপথে]">Vaginal [যোনিপথে]</option>
+          </select>
+        </div>
+        <div class="form-group full">
+          <label>Default Advice / Note (Optional)</label>
+          <input type="text" id="cd-notes" placeholder="e.g. Take after meal with plenty of water">
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modal-custom-drug')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveCustomDrug()">Save to Formulary</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── MODAL: CUSTOM FORMULARY MANAGER ── -->
+<div id="modal-custom-drugs-manager" class="modal-overlay hidden" style="z-index: 2050;">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <div>
+        <div class="modal-title">📋 Custom Medicines Formulary</div>
+        <div style="font-size:12px; color:var(--text-3); margin-top:2px">Personalized drugs saved locally & backed up to Google Drive</div>
+      </div>
+      <button class="modal-close" onclick="closeModal('modal-custom-drugs-manager')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="cdm-header-bar">
+        <div class="cdm-search-wrap">
+          <input type="text" id="cdm-search-inp" placeholder="Search custom medicines…" oninput="renderCustomDrugsManager(this.value)">
+        </div>
+        <div style="display:flex; align-items:center; gap:8px">
+          <span id="cdm-count" style="font-size:12px; font-weight:600; color:var(--text-2)">0 medicines</span>
+          <button class="btn btn-primary btn-sm" onclick="openAddDrugModal()">+ New Medicine</button>
+        </div>
+      </div>
+      <div id="cdm-list" class="cdm-list"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('modal-custom-drugs-manager')">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── MODAL: ABOUT PRESCRIBEPRO-RX ── -->
+<div id="modal-about" class="modal-overlay hidden" style="z-index: 2200;">
+  <div class="modal" style="max-width: 580px;">
+    <div class="modal-header">
+      <div class="modal-title">ℹ️ About PrescribePro-Rx</div>
+      <button class="modal-close" onclick="closeModal('modal-about')">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="about-card">
+        <div class="about-header-meta">
+          <div>
+            <div class="about-author-name">Dr. Gazi Md Emran Ahmed</div>
+            <div class="about-author-sub">MBBS · Registered Medical Practitioner · Bangladesh</div>
+          </div>
+        </div>
+
+        <div class="about-cursive-msg">
+          &ldquo;Assalamu Alaikum, I am Dr. Gazi Md Emran Ahmed, a proud Muslim and Bangladeshi citizen. This project is free for all the registered doctor brothers and sisters all over the world who have completed their MBBS degree. However, selling this project to others is not allowed. But you can use this software for your private practice and take an honorarium from patients. Please pray for me, my family, and for the rest of the Muslim Ummah suffering all over the world. Jazakallahu Khayran for using my software. If you want to reach me, please email me at <a href="mailto:emranahmed.bd@gmail.com" class="about-email-link">emranahmed.bd@gmail.com</a>.&rdquo;
+        </div>
+
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:16px; flex-wrap:wrap; gap:8px;">
+          <span class="about-version-tag">Version 4.0 Pro · BMDC Cat. A</span>
+          <span style="font-size:12px; color:var(--text-3); font-family:'DM Sans',sans-serif;">Free for Registered Doctors</span>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-primary" onclick="closeModal('modal-about')">Close</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── MODAL: BACKUP RESTORE REVIEW & MERGE ── -->
+<div id="modal-restore-confirm" class="modal-overlay hidden" style="z-index: 2200;">
+  <div class="modal" style="max-width: 580px;">
+    <div class="modal-header">
+      <div class="modal-title">💾 Restore Offline Backup</div>
+      <button class="modal-close" onclick="closeModal('modal-restore-confirm')">✕</button>
+    </div>
+    <div class="modal-body" style="display:flex; flex-direction:column; gap:16px;">
+      <div style="background:var(--surface2); padding:14px 16px; border-radius:10px; border:1px solid var(--border);">
+        <div style="font-weight:700; font-size:14px; color:var(--text); margin-bottom:4px;" id="restore-file-name">backup.json</div>
+        <div style="font-size:12.5px; color:var(--text-3);" id="restore-file-meta">Exported: 24 Oct 2026 · Version 4.0 Pro</div>
+      </div>
+
+      <div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:10px;">
+        <div style="background:var(--surface2); padding:12px; border-radius:8px; border:1px solid var(--border); text-align:center;">
+          <div style="font-size:11px; font-weight:700; color:var(--text-3); text-transform:uppercase;">Patients</div>
+          <div style="font-size:18px; font-weight:800; color:var(--accent); margin:4px 0;" id="restore-count-patients">0</div>
+          <div style="font-size:11.5px; color:var(--text-2);" id="restore-local-patients">Current: 0</div>
+        </div>
+        <div style="background:var(--surface2); padding:12px; border-radius:8px; border:1px solid var(--border); text-align:center;">
+          <div style="font-size:11px; font-weight:700; color:var(--text-3); text-transform:uppercase;">Prescriptions</div>
+          <div style="font-size:18px; font-weight:800; color:var(--accent); margin:4px 0;" id="restore-count-rx">0</div>
+          <div style="font-size:11.5px; color:var(--text-2);" id="restore-local-rx">Current: 0</div>
+        </div>
+        <div style="background:var(--surface2); padding:12px; border-radius:8px; border:1px solid var(--border); text-align:center;">
+          <div style="font-size:11px; font-weight:700; color:var(--text-3); text-transform:uppercase;">Custom Formulary</div>
+          <div style="font-size:18px; font-weight:800; color:var(--accent); margin:4px 0;" id="restore-count-drugs">0</div>
+          <div style="font-size:11.5px; color:var(--text-2);" id="restore-local-drugs">Current: 0</div>
+        </div>
+      </div>
+
+      <div style="font-size:13px; font-weight:600; color:var(--text); margin-top:2px;">
+        Select restoration method:
+      </div>
+
+      <div style="display:flex; flex-direction:column; gap:12px;">
+        <div style="border:1.5px solid var(--accent); background:var(--accent-light); padding:14px; border-radius:10px; cursor:pointer;" onclick="executeRestore('merge')">
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:4px; flex-wrap:wrap; gap:4px;">
+            <strong style="color:var(--accent); font-size:14px;">🔀 Merge with Existing Data (Recommended)</strong>
+            <span class="tag tag-blue" style="font-size:11px;">Zero Data Loss</span>
+          </div>
+          <div style="font-size:12.5px; color:var(--text); line-height:1.5;">
+            Intelligently combines backup with this device. Any new patients or prescriptions on this device will <strong>NOT</strong> be deleted. Older records are updated if a newer version exists in backup.
+          </div>
+        </div>
+
+        <div style="border:1px solid var(--border); background:var(--surface); padding:14px; border-radius:10px; cursor:pointer;" onclick="executeRestore('overwrite')">
+          <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:4px; flex-wrap:wrap; gap:4px;">
+            <strong style="color:var(--danger); font-size:14px;">⚠️ Clean Overwrite (Replace All)</strong>
+            <span style="font-size:11px; color:var(--danger); font-weight:700;">Deletes Current Local Data</span>
+          </div>
+          <div style="font-size:12.5px; color:var(--text-3); line-height:1.5;">
+            Completely overwrites this device's patient database and prescriptions with the backup file.
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer" style="display:flex; justify-content:flex-end;">
+      <button class="btn btn-secondary" onclick="closeModal('modal-restore-confirm')">Cancel</button>
     </div>
   </div>
 </div>

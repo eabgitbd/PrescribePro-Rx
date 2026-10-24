@@ -1,38 +1,36 @@
-# PrescriptionPro-Rx (Version 3) 🩺
+# PrescribePro-Rx (Version 4.0 Pro) 🩺
 
-> **A professional, offline-first digital prescription pad and clinical practice management software for registered medical practitioners.**
+> **A professional, offline-first digital prescription pad and clinical practice management software for registered medical practitioners worldwide.**
 
 [![Live Web App](https://img.shields.io/badge/Live_App-Launch_PrescribePro--Rx-1e3a8a?style=for-the-badge&logo=googlechrome&logoColor=white)](https://eabgitbd.github.io/PrescribePro-Rx/)
-[![Version](https://img.shields.io/badge/Version-3.0_Pro-blue.svg?style=flat-square)](https://github.com/eabgitbd/PrescribePro-Rx)
+[![Version](https://img.shields.io/badge/Version-4.0_Pro-blue.svg?style=flat-square)](https://github.com/eabgitbd/PrescribePro-Rx)
 [![Status](https://img.shields.io/badge/Status-Active_Production-success.svg?style=flat-square)](https://github.com/eabgitbd/PrescribePro-Rx)
 [![Platform](https://img.shields.io/badge/Platform-Web_|_Mobile_|_Tablet-lightgrey.svg?style=flat-square)](https://github.com/eabgitbd/PrescribePro-Rx)
 [![Data Privacy](https://img.shields.io/badge/Privacy-100%25_Local_First_|_Zero_Telemetry-success.svg?style=flat-square)](https://github.com/eabgitbd/PrescribePro-Rx)
-[![Standard](https://img.shields.io/badge/Standard-WHO_|_ISO_216_A4_|_WCAG_2.1-orange.svg?style=flat-square)](https://github.com/eabgitbd/PrescribePro-Rx)
+[![Standard](https://img.shields.io/badge/Standard-WHO_|_ISO_216_A4_|_BMDC_Cat_A-orange.svg?style=flat-square)](https://github.com/eabgitbd/PrescribePro-Rx)
 
 🌐 **Live Web Application**: [https://eabgitbd.github.io/PrescribePro-Rx/](https://eabgitbd.github.io/PrescribePro-Rx/)
 
 ---
 
-## 🌟 What is PrescriptionPro-Rx Version 3?
+## 🌟 What is PrescribePro-Rx Version 4?
 
-**PrescriptionPro-Rx Version 3** is a modernized, clinical-grade medical prescription pad designed specifically for doctors to write, manage, archive, and print clean, professional prescriptions within seconds.
+**PrescribePro-Rx Version 4** is a modernized, clinical-grade digital prescription suite authored by **Dr. Someone** and designed specifically for registered doctors to write, manage, archive, and print clean, professional A4 prescriptions within seconds.
 
-Built on an **offline-first, zero-friction architecture**, it runs directly in any modern browser without requiring database setups, server hosting, or software installations. All patient information and clinical notes stay securely stored on the doctor's local device, with an optional encrypted background sync to the doctor's private Google Drive (`appDataFolder`).
+Built on an **offline-first, zero-friction architecture**, it runs directly in any modern browser without requiring backend servers, SQL setups, or recurring subscription fees. All patient records and prescriptions remain 100% private on the doctor's local machine, with optional real-time synchronization to private Google Drive storage.
 
 ---
 
-## 🚀 What's New in Version 3?
+## 🚀 Key Highlights in Version 4.0
 
-* **⚡ Zero-Friction Quick Local Login**: Eliminated unnecessary offline lock PIN barriers. Doctors can enter their workspace immediately with just their name and BMDC registration.
-* **🔍 Real-Time Multi-Attribute Live Search**:
-  * **Patient Directory Search**: Instant filtering by Patient Name, Phone Number, Blood Group, or Medical Allergies.
-  * **Prescription Archive Search**: Filter past prescriptions in real-time by Patient Name, Diagnosis, Chief Complaints, or Date (`YYYY-MM-DD`).
-* **✒️ Configurable Doctor's Signature Block**: Added a toggle under **Pad Settings** allowing doctors to show or hide the formal signature line depending on clinic preference.
-* **📄 Smart Two-Column Medicine Auto-Fit**: Intelligently switches medicine lists to a balanced two-column format when multiple drugs are prescribed, ensuring the prescription never overflows past the footer rule.
-* **🖨️ Precision Single-Page A4 Printing Engine**: Strict millimeter sizing (`210mm × 296.8mm`) eliminates trailing blank pages during browser print.
-* **🖼️ Off-Screen HD 300 DPI Image Export**: Renders crisp, print-ready PNG images off-screen at natural aspect ratio without font or layout distortion.
-* **🔄 Synchronized Profile & Disclaimer Architecture**: Updating footer disclaimers in either Doctor Profile or Pad Settings immediately updates both fields and saves in real-time.
-* **📱 Enhanced Mobile Navigation**: Responsive bottom navigation bar with a central Floating Action Button (FAB) for instant prescription writing on smartphones and tablets.
+* **📄 Automatic Multi-Page Overflow Continuation**: Automatically splits extensive prescriptions into Page 1, Page 2, Page 3+ with continuous drug numbering, identical doctor letterhead, persistent patient demographics, and standard continuation headers (`Continuation of the 1st page of the prescription.`).
+* **🇧🇩 Strict BMDC Category 'A' Compliance**: Enforces numeric BMDC registration with fixed bold `A-` badge (`BMDC Reg No: A-XXXXX`).
+* **💊 Bilingual Clinical Suggestions**: Frequency (`১+০+১` / `1+0+1`), Duration (`(৭ দিন)` / `(7 days)`), Timing, and bilingual administration routes (`Oral [মুখে]`, `IV [শিরায়]`, `Eye Drop [চোখে]`, `Ear Drop [কানে]`).
+* **🚨 Real-Time Allergy & Safety Alerts**: Active real-time patient demographics banner and critical allergy interaction warnings during drug entry.
+* **⚡ Zero-Latency IndexedDB Database**: 39,950+ normalized clinical medicines cached locally with instant search relevance.
+* **📋 Custom Formulary Manager**: Add, edit, and organize custom medicines with cloud backup.
+* **💾 Smart-Merge Offline Backup & Restore**: Blob-streamed JSON backups with interactive review modal, conflict-free timestamp merging (zero risk of local data loss), and legacy/cloud format support.
+* **🖨️ Crisp Multi-Page Print & HD Image Export**: High-DPI canvas capture and clean CSS `@page` printing.
 
 ---
 
@@ -57,7 +55,7 @@ Built on an **offline-first, zero-friction architecture**, it runs directly in a
 ### 4. Data Security & Multi-Layer Backup
 * **100% Local-First**: Zero patient data is sent to external third-party database servers.
 * **Google Drive Private Cloud Sync**: Seamless background synchronization with Google Drive AppData folder (`drive.appdata`), isolated from other applications.
-* **JSON Backup Export/Import**: One-click download of the complete patient database as a portable `.json` backup file for archival or device migration.
+* **Smart-Merge JSON Backup Export/Import**: Fast, blob-streamed download of the complete practice database. When restoring, doctors can choose **Smart Merge** (deduplicates by ID and latest timestamp without deleting any records created on the current device) or **Clean Overwrite**. Fully compatible with V3 legacy exports and Google Drive cloud backups.
 
 ---
 
@@ -97,9 +95,9 @@ Built on an **offline-first, zero-friction architecture**, it runs directly in a
 |---|---|
 | **Frontend Runtime** | Pure Vanilla JavaScript (ES6+), HTML5, CSS3 Variables |
 | **Design System** | Responsive Grid & Flexbox, Dark/Light mode theme system |
-| **Formulary Database** | Indexed/Memory-cached 41,000+ medicine catalog (`data/drugs.json`) |
+| **Formulary Database** | IndexedDB 0ms cached 39,950+ clinical medicine catalog (`data/drugs.json`) |
 | **Export Engines** | High-DPI Canvas (`html2canvas`), Native Browser Print CSS (`@page size: A4`) |
-| **Data Persistence** | Local Storage (`localStorage`), Portable JSON schema v3.0 |
+| **Data Persistence** | Local Storage (`localStorage`), Portable JSON schema v4.0 |
 | **Cloud Synchronization** | Google Identity Services (GSI OAuth 2.0) + Google Drive AppData REST API |
 | **Typography** | Crimson Pro (Serif Letterhead) & DM Sans (Medical Body Font) |
 
@@ -107,7 +105,7 @@ Built on an **offline-first, zero-friction architecture**, it runs directly in a
 
 ## 🌐 International Healthcare & Medical Software Standards
 
-PrescriptionPro-Rx Version 3 is architected with strict adherence to global digital health guidelines:
+PrescribePro-Rx Version 4 is architected with strict adherence to global digital health guidelines:
 
 ### 1. Data Privacy & Sovereign Storage (HIPAA / GDPR / Data Protection Act)
 * **Local-First Privacy**: Patient records (PHI/PII) reside exclusively in browser storage on the practitioner's physical device. No telemetry, third-party analytics trackers on medical records, or central database liabilities exist.
@@ -129,6 +127,6 @@ PrescriptionPro-Rx Version 3 is architected with strict adherence to global digi
 
 ---
 
-## 📄 License
+## 📄 License & Attribution
 
-PrescriptionPro-Rx is open source software released under the GNU General Public License v3.0 (GPL-3.0). Free for registered doctors, clinics, and medical practitioners worldwide.
+PrescribePro-Rx Version 4 is open-source medical software authored by **Dr. Someone** and released under the GNU General Public License v3.0 (GPL-3.0). Free for registered doctor brothers and sisters worldwide who have completed their MBBS degree. Commercial re-selling of this project is strictly prohibited. Medical practitioners are warmly welcome to use it in private practice and clinical chambers.
