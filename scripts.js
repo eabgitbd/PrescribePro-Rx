@@ -181,7 +181,8 @@ const CLINICAL_PRESETS = {
   'rx-history': ['No HTN', 'No DM', 'Non-smoker', 'Non-alcoholic', 'Known asthmatic', 'Known IHD', 'Known CKD', 'Previous surgery', 'Family history of DM'],
   'rx-findings': ['BP: / mmHg', 'Temp: °F', 'Pulse: /min', 'Chest: Clear', 'Abdomen: Soft, non-tender', 'No pedal edema', 'Conscious, oriented', 'Anaemia: present'],
   'rx-investigation': ['CBC with ESR', 'RBS', 'Serum creatinine', 'Lipid profile', 'Chest X-Ray (P/A view)', 'ECG', 'USG whole abdomen', 'Urine R/E'],
-  'rx-diagnosis': ['Acute URTI', 'Acute Gastroenteritis', 'Type 2 Diabetes Mellitus', 'Hypertension', 'Bronchial Asthma', 'Iron deficiency anaemia', 'URTI with Bronchitis', 'Peptic ulcer disease']
+  'rx-diagnosis': ['Acute URTI', 'Acute Gastroenteritis', 'Type 2 Diabetes Mellitus', 'Hypertension', 'Bronchial Asthma', 'Iron deficiency anaemia', 'URTI with Bronchitis', 'Peptic ulcer disease'],
+  'rx-plan': ['Scaling & Polishing', 'Root Canal Treatment (RCT)', 'Restoration / Filling', 'Tooth Extraction', 'Crown & Bridge Work', 'Operculectomy', 'Re-evaluation after 7 days', 'Refer to specialist']
 };
 
 // ── BUILT-IN FALLBACK DRUG DATABASE ──
@@ -327,7 +328,7 @@ function saveRxDraft() {
   if (!modalRx || modalRx.classList.contains('hidden')) return;
 
   const rx = collectRxData();
-  const hasContent = rx.complaints || rx.diagnosis || rx.history || rx.findings || rx.investigation || rx.advice || (rx.drugs && rx.drugs.length > 0 && rx.drugs[0].name);
+  const hasContent = rx.complaints || rx.diagnosis || rx.plan || rx.history || rx.findings || rx.investigation || rx.advice || (rx.drugs && rx.drugs.length > 0 && rx.drugs[0].name);
   if (hasContent) {
     localStorage.setItem('prescribepro_rx_draft', JSON.stringify(rx));
   } else {
@@ -367,6 +368,12 @@ function restoreRxDraft(expectedPatientId) {
     setV('rx-investigation', draft.investigation || '');
     setV('rx-advice', draft.advice || '');
     setV('rx-notes', draft.notes || '');
+    setV('rx-plan', draft.plan || '');
+    const planCheck = document.getElementById('rx-plan-check');
+    if (planCheck) {
+      planCheck.checked = Boolean(draft.plan && draft.plan.trim());
+      togglePlanField();
+    }
     setV('rx-followup-days', draft.followupDays || '');
     setV('rx-followup-unit', draft.followupUnit || 'days');
 
@@ -561,6 +568,24 @@ function appendToField(fieldId, text) {
   }
   ta.focus();
   ta.dispatchEvent(new Event('input', { bubbles: true }));
+}
+
+function togglePlanField() {
+  const check = document.getElementById('rx-plan-check');
+  const container = document.getElementById('rx-plan-container');
+  if (!check || !container) return;
+  if (check.checked) {
+    container.classList.remove('hidden');
+    const editor = container.querySelector('.rx-quad-editor');
+    if (editor) {
+      setTimeout(() => editor.focus(), 50);
+    } else {
+      const ta = document.getElementById('rx-plan');
+      if (ta) setTimeout(() => ta.focus(), 50);
+    }
+  } else {
+    container.classList.add('hidden');
+  }
 }
 
 // ── AUTH TAB & LOGIN METHODS ──
@@ -1595,6 +1620,7 @@ function collectRxData() {
     patientName: patient ? patient.name : 'Unassigned Patient',
     complaints: v('rx-complaints'),
     diagnosis: v('rx-diagnosis'),
+    plan: (document.getElementById('rx-plan-check')?.checked ? v('rx-plan') : ''),
     history: v('rx-history'),
     findings: v('rx-findings'),
     investigation: v('rx-investigation'),
@@ -1644,6 +1670,12 @@ function editCurrentRx() {
   setV('rx-investigation', rx.investigation || '');
   setV('rx-advice', rx.advice || '');
   setV('rx-notes', rx.notes || '');
+  setV('rx-plan', rx.plan || '');
+  const planCheck = document.getElementById('rx-plan-check');
+  if (planCheck) {
+    planCheck.checked = Boolean(rx.plan && rx.plan.trim());
+    togglePlanField();
+  }
   setV('rx-followup-days', rx.followupDays || '');
   setV('rx-followup-unit', rx.followupUnit || 'days');
 
@@ -1901,6 +1933,13 @@ function renderRxHTML(rx) {
       key: 'diagnosis',
       label: 'DIAGNOSIS',
       html: `<div><div class="rx-section-label" style="color:${col}">DIAGNOSIS</div><div class="rx-section-content" style="font-weight:700; color:#1a202c;">${renderField(rx.diagnosis)}</div></div>` // [QUAD]
+    });
+  }
+  if (rx.plan) {
+    leftUnits.push({
+      key: 'plan',
+      label: 'PLAN',
+      html: `<div><div class="rx-section-label" style="color:${col}">PLAN</div><div class="rx-section-content">${renderField(rx.plan)}</div></div>` // [QUAD]
     });
   }
 
@@ -2526,7 +2565,12 @@ function openRxModalForPatient(pid) {
 }
 
 function clearRxForm() {
-  ['rx-complaints','rx-diagnosis','rx-history','rx-findings','rx-investigation','rx-advice','rx-notes'].forEach(id => setV(id, ''));
+  ['rx-complaints','rx-diagnosis','rx-plan','rx-history','rx-findings','rx-investigation','rx-advice','rx-notes'].forEach(id => setV(id, ''));
+  const planCheck = document.getElementById('rx-plan-check');
+  if (planCheck) {
+    planCheck.checked = false;
+    togglePlanField();
+  }
   setV('rx-date', new Date().toISOString().split('T')[0]);
   setV('rx-visit', 'New Visit');
   setV('rx-followup-days', '');
@@ -2594,6 +2638,7 @@ function renderAllRx() {
     prescriptions = prescriptions.filter(r => 
       (r.patientName || '').toLowerCase().includes(currentRxSearchQuery) ||
       ((window.RxQuad ? RxQuad.plain(r.diagnosis) : r.diagnosis) || '').toLowerCase().includes(currentRxSearchQuery) ||
+      ((window.RxQuad ? RxQuad.plain(r.plan) : r.plan) || '').toLowerCase().includes(currentRxSearchQuery) ||
       ((window.RxQuad ? RxQuad.plain(r.complaints) : r.complaints) || '').toLowerCase().includes(currentRxSearchQuery) ||
       (r.date || '').toLowerCase().includes(currentRxSearchQuery) ||
       (r.drugs || []).some(d => 

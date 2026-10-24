@@ -632,6 +632,15 @@
           <label>Diagnosis</label>
           <textarea id="rx-diagnosis" class="rx-quad" placeholder="e.g. Acute Upper Respiratory Tract Infection (URTI)"></textarea>
         </div>
+        <div class="form-group full" id="group-rx-plan">
+          <label class="check-label" for="rx-plan-check" style="margin-bottom:2px">
+            <input type="checkbox" id="rx-plan-check" onchange="togglePlanField()">
+            <span>Plan</span>
+          </label>
+          <div id="rx-plan-container" class="hidden" style="margin-top:4px">
+            <textarea id="rx-plan" class="rx-quad" placeholder="e.g. Scaling & Polishing, RCT, Restoration, Re-evaluation after 7 days..."></textarea>
+          </div>
+        </div>
         <div class="form-group full">
           <label>Private Doctor Notes / Internal Remarks (Not Printed)</label>
           <textarea id="rx-notes" class="rx-quad" placeholder="e.g. Patient reluctant for admission. Advised re-evaluation in 3 days." style="min-height:50px"></textarea>
