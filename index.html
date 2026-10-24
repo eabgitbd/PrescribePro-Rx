@@ -568,7 +568,10 @@
 <div id="modal-rx" class="modal-overlay hidden">
   <div class="modal modal-lg">
     <div class="modal-header">
-      <div class="modal-title">Write Digital Prescription</div>
+      <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap">
+        <div class="modal-title">Write Digital Prescription</div>
+        <button type="button" class="btn btn-secondary btn-sm" id="btn-clear-rx" onclick="clearRxFieldsExceptPatient()" title="Clear all fields except selected patient" style="color:var(--danger); border-color:rgba(229,62,62,0.35); font-size:12px; padding:3px 10px; min-height:28px">🗑️ Clear Form</button>
+      </div>
       <button class="modal-close" onclick="closeModal('modal-rx')">✕</button>
     </div>
 

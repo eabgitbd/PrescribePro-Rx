@@ -2581,6 +2581,18 @@ function clearRxForm() {
   updateRxPatientInfoStrip(v('rx-patient-select'));
 }
 
+function clearRxFieldsExceptPatient() {
+  clearRxForm();
+  clearRxDraft();
+  toast('🧹 Prescription fields cleared (patient kept)');
+  const comp = document.getElementById('rx-complaints');
+  if (comp) {
+    const editor = comp.parentNode?.querySelector('.rx-quad-editor');
+    if (editor) editor.focus();
+    else comp.focus();
+  }
+}
+
 // ── DASHBOARD & STATS ──
 function renderDashboard() {
   document.getElementById('stat-patients').textContent = state.patients.length;
