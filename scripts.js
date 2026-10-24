@@ -576,16 +576,22 @@ function switchAuthTab(mode) {
   }
 }
 
-// ── BMDC CATEGORY A REGISTRATION HELPERS ──
-function extractBmdcNumber(raw) {
+// ── BMDC REGISTRATION HELPERS ──
+function cleanBmdcValue(raw) {
   if (!raw) return '';
-  return String(raw).replace(/\D/g, '');
+  let str = String(raw).trim();
+  str = str.replace(/^(BMDC\s*(?:Reg(?:\s*No)?\.?)?:?|Reg(?:\s*No)?\.?:?)\s*/i, '').trim();
+  return str;
+}
+
+function extractBmdcNumber(raw) {
+  return cleanBmdcValue(raw);
 }
 
 function formatBmdcReg(raw) {
-  const num = extractBmdcNumber(raw);
-  if (!num) return '';
-  return `BMDC Reg No: A-${num}`;
+  const cleaned = cleanBmdcValue(raw);
+  if (!cleaned) return '';
+  return `BMDC Reg No: ${cleaned}`;
 }
 
 function startLocalLogin() {
@@ -598,9 +604,9 @@ function startLocalLogin() {
     return;
   }
 
-  const bmdcNum = extractBmdcNumber(rawBmdc);
-  if (!bmdcNum) {
-    toast('⚠️ BMDC Registration Number (Category A) is required to enter workspace');
+  const bmdcVal = cleanBmdcValue(rawBmdc);
+  if (!bmdcVal) {
+    toast('⚠️ BMDC Registration Number is required to enter workspace');
     document.getElementById('local-bmdc-reg')?.focus();
     return;
   }
@@ -611,7 +617,7 @@ function startLocalLogin() {
   if (!state.profile.name || state.profile.name === 'Dr. Someone') {
     state.profile.name = docName;
   }
-  state.profile.reg = `BMDC Reg No: A-${bmdcNum}`;
+  state.profile.reg = formatBmdcReg(bmdcVal);
 
   saveState();
   showApp();
@@ -2495,9 +2501,9 @@ function savePatient() {
 }
 
 function openRxModalForPatient(pid) {
-  const bmdcNum = extractBmdcNumber(state.profile.reg);
+  const bmdcNum = cleanBmdcValue(state.profile.reg);
   if (!bmdcNum) {
-    toast('⚠️ Please configure your BMDC Registration Number (Category A) first');
+    toast('⚠️ Please configure your BMDC Registration Number first');
     showSection('profile');
     setTimeout(() => document.getElementById('prof-reg')?.focus(), 200);
     return;
@@ -2660,9 +2666,9 @@ function populateProfileForm() {
 
 function saveProfile(silent = false) {
   const rawReg = v('prof-reg').trim();
-  const bmdcNum = extractBmdcNumber(rawReg);
+  const bmdcNum = cleanBmdcValue(rawReg);
   if (!bmdcNum) {
-    if (!silent) toast('⚠️ BMDC Registration Number (Category A) is required');
+    if (!silent) toast('⚠️ BMDC Registration Number is required');
     document.getElementById('prof-reg')?.focus();
     return;
   }
@@ -2671,7 +2677,7 @@ function saveProfile(silent = false) {
   state.profile.qualifications = v('prof-quals');
   state.profile.designation = v('prof-desig');
   state.profile.hospital = v('prof-hosp');
-  state.profile.reg = `BMDC Reg No: A-${bmdcNum}`;
+  state.profile.reg = formatBmdcReg(bmdcNum);
   state.profile.phone = v('prof-phone');
 
   state.profile.chamberName = v('prof-chamber');

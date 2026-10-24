@@ -165,12 +165,9 @@
           <input type="text" id="local-doc-name" placeholder="e.g. Dr. Someone" value="Dr. Someone" required>
         </div>
         <div class="form-group">
-          <label>BMDC Reg. No. <span style="color:var(--danger)">*</span> (Category A)</label>
-          <div class="bmdc-input-wrapper">
-            <span class="bmdc-prefix-badge"><strong>A-</strong></span>
-            <input type="text" id="local-bmdc-reg" placeholder="e.g. 12345" inputmode="numeric" pattern="[0-9]*" oninput="this.value = this.value.replace(/\D/g, '')" autocomplete="off" required>
-          </div>
-          <div style="font-size:11px; color:var(--text-3); margin-top:4px">BMDC MBBS/BDS Medical Registration Number (Digits Only)</div>
+          <label>BMDC Reg. No. <span style="color:var(--danger)">*</span></label>
+          <input type="text" id="local-bmdc-reg" placeholder="e.g. A-12345 or 12345" autocomplete="off" required>
+          <div style="font-size:11px; color:var(--text-3); margin-top:4px">BMDC Registration Number (e.g. A-12345 or 12345)</div>
         </div>
         <button class="btn btn-primary" onclick="startLocalLogin()" style="width:100%; margin-top:6px; padding:12px">Enter Prescription Workspace</button>
       </div>
@@ -337,12 +334,9 @@
             <input type="text" id="prof-desig" placeholder="Assistant Professor / Specialist">
           </div>
           <div class="form-group">
-            <label>BMDC Registration No. <span style="color:var(--danger)">*</span> (Category A)</label>
-            <div class="bmdc-input-wrapper">
-              <span class="bmdc-prefix-badge"><strong>A-</strong></span>
-              <input type="text" id="prof-reg" placeholder="e.g. 12345" inputmode="numeric" pattern="[0-9]*" oninput="this.value = this.value.replace(/\D/g, '')" required>
-            </div>
-            <div style="font-size:11px; color:var(--text-3); margin-top:4px">Digits only — Category "A" is automatically prefixed</div>
+            <label>BMDC Registration No. <span style="color:var(--danger)">*</span></label>
+            <input type="text" id="prof-reg" placeholder="e.g. A-12345 or 12345" required>
+            <div style="font-size:11px; color:var(--text-3); margin-top:4px">BMDC Registration Number (e.g. A-12345 or 12345)</div>
           </div>
           <div class="form-group">
             <label>Hospital / Institute Affiliation</label>
@@ -826,7 +820,7 @@
         </div>
 
         <div style="display:flex; justify-content:space-between; align-items:center; margin-top:16px; flex-wrap:wrap; gap:8px;">
-          <span class="about-version-tag">Version 4.0 Pro · BMDC Cat. A</span>
+          <span class="about-version-tag">Version 4.0 Pro · BMDC Compliant</span>
           <span style="font-size:12px; color:var(--text-3); font-family:'DM Sans',sans-serif;">Free for Registered Doctors</span>
         </div>
       </div>

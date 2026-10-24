@@ -7,7 +7,7 @@
 [![Status](https://img.shields.io/badge/Status-Active_Production-success.svg?style=flat-square)](https://github.com/eabgitbd/PrescribePro-Rx)
 [![Platform](https://img.shields.io/badge/Platform-Web_|_Mobile_|_Tablet-lightgrey.svg?style=flat-square)](https://github.com/eabgitbd/PrescribePro-Rx)
 [![Data Privacy](https://img.shields.io/badge/Privacy-100%25_Local_First_|_Zero_Telemetry-success.svg?style=flat-square)](https://github.com/eabgitbd/PrescribePro-Rx)
-[![Standard](https://img.shields.io/badge/Standard-WHO_|_ISO_216_A4_|_BMDC_Cat_A-orange.svg?style=flat-square)](https://github.com/eabgitbd/PrescribePro-Rx)
+[![Standard](https://img.shields.io/badge/Standard-WHO_|_ISO_216_A4_|_BMDC_Compliant-orange.svg?style=flat-square)](https://github.com/eabgitbd/PrescribePro-Rx)
 
 🌐 **Live Web Application**: [https://eabgitbd.github.io/PrescribePro-Rx/](https://eabgitbd.github.io/PrescribePro-Rx/)
 
@@ -24,7 +24,7 @@ Built on an **offline-first, zero-friction architecture**, it runs directly in a
 ## 🚀 Key Highlights in Version 4.0
 
 * **📄 Automatic Multi-Page Overflow Continuation**: Automatically splits extensive prescriptions into Page 1, Page 2, Page 3+ with continuous drug numbering, identical doctor letterhead, persistent patient demographics, and standard continuation headers (`Continuation of the 1st page of the prescription.`).
-* **🇧🇩 Strict BMDC Category 'A' Compliance**: Enforces numeric BMDC registration with fixed bold `A-` badge (`BMDC Reg No: A-XXXXX`).
+* **🇧🇩 Flexible BMDC Registration Format**: Open input supporting both alphanumeric and numeric registration formats (e.g. `A-12345` or `12345`) with automatic prescription letterhead formatting (`BMDC Reg No: ...`). Mandatory for offline practice entry.
 * **💊 Bilingual Clinical Suggestions**: Frequency (`১+০+১` / `1+0+1`), Duration (`(৭ দিন)` / `(7 days)`), Timing, and bilingual administration routes (`Oral [মুখে]`, `IV [শিরায়]`, `Eye Drop [চোখে]`, `Ear Drop [কানে]`).
 * **🚨 Real-Time Allergy & Safety Alerts**: Active real-time patient demographics banner and critical allergy interaction warnings during drug entry.
 * **⚡ Zero-Latency IndexedDB Database**: 39,950+ normalized clinical medicines cached locally with instant search relevance.
