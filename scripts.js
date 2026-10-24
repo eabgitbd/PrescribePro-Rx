@@ -1789,22 +1789,36 @@ function renderRxHTML(rx) {
     if (idx >= 0) serial = String(idx + 1);
   }
 
-  // Letterhead: chamber / contact strip.
-  const chamberLeft = [p.chamberName, p.address].map(esc).filter(Boolean).join('  ·  ');
-  const chamberRight = [p.phone, p.hours].map(esc).filter(Boolean).join('  ·  ');
-  const chamberHTML = (chamberLeft || chamberRight) ? `
-    <div class="rx-chamber-strip">
-      <span class="rx-chamber-left">${chamberLeft}</span>
-      <span class="rx-chamber-right">${chamberRight}</span>
-    </div>` : '';
+  // Letterhead: Doctor details on Left, Chamber details on Right opposite each other.
+  // If no chamber details, Doctor details are placed in center.
+  const hasChamber = Boolean((p.chamberName && p.chamberName.trim()) || (p.address && p.address.trim()));
 
-  const headerHTML = `
-    <div class="rx-header" style="text-align:${headerAlign}">
+  const headerHTML = hasChamber ? `
+    <div class="rx-header-two-col">
+      <div class="rx-header-doc-col">
+        <div class="rx-doc-name" style="color:${col}">${esc(p.name) || 'Doctor Name'}</div>
+        ${p.qualifications ? `<div class="rx-doc-quals">${esc(p.qualifications)}</div>` : ''}
+        ${p.designation ? `<div class="rx-doc-quals">${esc(p.designation)}</div>` : ''}
+        ${p.hospital ? `<div class="rx-doc-quals">${esc(p.hospital)}</div>` : ''}
+        ${p.reg ? `<div class="rx-doc-reg" style="color:${col}; font-weight:700">${esc(formatBmdcReg(p.reg))}</div>` : ''}
+        ${p.phone ? `<div class="rx-doc-phone">Mob: ${esc(p.phone)}</div>` : ''}
+      </div>
+      <div class="rx-header-chamber-col">
+        <div class="rx-chamber-name" style="color:${col}">${esc(p.chamberName) || 'Chamber / Clinic'}</div>
+        ${p.address ? `<div class="rx-chamber-detail">${esc(p.address)}</div>` : ''}
+        ${p.hours ? `<div class="rx-chamber-detail"><span style="font-weight:700">Visiting:</span> ${esc(p.hours)}</div>` : ''}
+        ${p.chamberPhone ? `<div class="rx-chamber-phone"><span style="font-weight:700">Serial/Appt:</span> ${esc(p.chamberPhone)}</div>` : ''}
+        ${p.chamberNote ? `<div class="rx-chamber-note">${esc(p.chamberNote)}</div>` : ''}
+      </div>
+    </div>
+  ` : `
+    <div class="rx-header-single-col" style="text-align:${headerAlign}">
       <div class="rx-doc-name" style="color:${col}">${esc(p.name) || 'Doctor Name'}</div>
       ${p.qualifications ? `<div class="rx-doc-quals">${esc(p.qualifications)}</div>` : ''}
       ${p.designation ? `<div class="rx-doc-quals">${esc(p.designation)}</div>` : ''}
       ${p.hospital ? `<div class="rx-doc-quals">${esc(p.hospital)}</div>` : ''}
       ${p.reg ? `<div class="rx-doc-reg" style="color:${col}; font-weight:700">${esc(formatBmdcReg(p.reg))}</div>` : ''}
+      ${p.phone ? `<div class="rx-doc-phone">Mob: ${esc(p.phone)}</div>` : ''}
     </div>
   `;
 
@@ -1827,7 +1841,7 @@ function renderRxHTML(rx) {
   `;
 
   const footerText = (p.footer || ps.footer || 'নিয়ম মাফিক ঔষধ খাবেন। ডাক্তারের পরামর্শ ব্যতীত ঔষধ পরিবর্তন নিষেধ।').trim();
-  const footerContact = [p.address, p.phone, p.hours].map(esc).filter(Boolean).join('  ·  ');
+  const footerContact = (!hasChamber && (p.address || p.phone || p.hours)) ? [p.address, p.phone, p.hours].map(esc).filter(Boolean).join('  ·  ') : '';
   const footerHTML = (footerText || footerContact) ? `
     <div class="rx-footer-container" style="border-top-color:${col};">
       ${footerText ? `<div class="rx-footer-note">${esc(footerText)}</div>` : ''}
@@ -1925,7 +1939,6 @@ function renderRxHTML(rx) {
       measurer.style.cssText = 'position:fixed;left:-9999px;top:0;width:794px;visibility:hidden;pointer-events:none;font-family:"Crimson Pro",serif;box-sizing:border-box;padding:26px 30px;background:#fff;';
       measurer.innerHTML = `
         <div id="m-top">
-          ${chamberHTML}
           ${headerHTML}
           <hr class="rx-divider" style="border-top-color:${col}">
           ${patientRowHTML}
@@ -2075,7 +2088,6 @@ function renderRxHTML(rx) {
     const pageHTML = `
       <div class="rx-page" data-page="${pNum}" data-total-pages="${totalPages}">
         ${pageBadgeHTML}
-        ${chamberHTML}
         ${headerHTML}
         <hr class="rx-divider" style="border-top-color:${col}">
         ${patientRowHTML}
@@ -2629,16 +2641,20 @@ function deleteRx(id) {
 
 // ── PROFILE & PAD DESIGN ──
 function populateProfileForm() {
-  const p = state.profile;
+  const p = state.profile || {};
   setV('prof-name', p.name || '');
-  setV('prof-chamber', p.chamberName || '');
   setV('prof-quals', p.qualifications || '');
   setV('prof-desig', p.designation || '');
   setV('prof-hosp', p.hospital || '');
   setV('prof-reg', extractBmdcNumber(p.reg));
   setV('prof-phone', p.phone || '');
-  setV('prof-hours', p.hours || '');
+
+  setV('prof-chamber', p.chamberName || '');
   setV('prof-address', p.address || '');
+  setV('prof-hours', p.hours || '');
+  setV('prof-chamber-phone', p.chamberPhone || '');
+  setV('prof-chamber-note', p.chamberNote || '');
+
   setV('prof-footer', p.footer || 'নিয়ম মাফিক ঔষধ খাবেন। ডাক্তারের পরামর্শ ব্যতীত ঔষধ পরিবর্তন নিষেধ।');
 }
 
@@ -2652,14 +2668,18 @@ function saveProfile(silent = false) {
   }
 
   state.profile.name = v('prof-name');
-  state.profile.chamberName = v('prof-chamber');
   state.profile.qualifications = v('prof-quals');
   state.profile.designation = v('prof-desig');
   state.profile.hospital = v('prof-hosp');
   state.profile.reg = `BMDC Reg No: A-${bmdcNum}`;
   state.profile.phone = v('prof-phone');
-  state.profile.hours = v('prof-hours');
+
+  state.profile.chamberName = v('prof-chamber');
   state.profile.address = v('prof-address');
+  state.profile.hours = v('prof-hours');
+  state.profile.chamberPhone = v('prof-chamber-phone');
+  state.profile.chamberNote = v('prof-chamber-note');
+
   state.profile.footer = v('prof-footer');
   state.padSettings.footer = v('prof-footer');
   setV('pad-footer', v('prof-footer'));
@@ -2667,7 +2687,12 @@ function saveProfile(silent = false) {
 
   saveState();
   scheduleCloudSync(true);
-  if (!silent) toast('✅ Profile saved');
+  renderDashboard();
+  renderAllRx();
+  if (state.currentRx && !document.getElementById('modal-rx-preview')?.classList.contains('hidden')) {
+    renderRxPreview(state.currentRx);
+  }
+  if (!silent) toast('✅ Doctor profile and chamber details saved');
 }
 
 function initPadDesignSection() {

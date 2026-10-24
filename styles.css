@@ -563,12 +563,114 @@ textarea { resize: vertical; min-height: 80px; }
   text-decoration: underline;
   text-underline-offset: 3px;
 }
+/* ── PRESCRIPTION HEADER (TWO-COLUMN DOCTOR & CHAMBER OPPOSITE) ── */
+.rx-header-two-col {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 24px;
+  width: 100%;
+  box-sizing: border-box;
+  margin-bottom: 6px;
+}
+
+.rx-header-doc-col {
+  flex: 1 1 50%;
+  max-width: 50%;
+  min-width: 0;
+  text-align: left;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.rx-header-chamber-col {
+  flex: 1 1 50%;
+  max-width: 50%;
+  min-width: 0;
+  text-align: right;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.rx-header-single-col {
+  width: 100%;
+  text-align: center;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  margin-bottom: 6px;
+}
+
+.rx-doc-name,
+.rx-chamber-name {
+  font-size: 24px;
+  font-weight: 800;
+  letter-spacing: -.3px;
+  color: #1a365d;
+  line-height: 1.25;
+  margin-bottom: 3px;
+  font-family: 'DM Sans', sans-serif;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+}
+
+.rx-doc-quals {
+  font-size: 13px;
+  font-weight: 700;
+  color: #1a202c;
+  line-height: 1.45;
+  font-family: 'DM Sans', sans-serif;
+  word-wrap: break-word;
+}
+
+.rx-doc-reg {
+  font-size: 12.5px;
+  font-weight: 800;
+  font-family: 'DM Sans', sans-serif;
+  margin-top: 3px;
+  letter-spacing: .2px;
+  word-wrap: break-word;
+}
+
+.rx-doc-phone {
+  font-size: 12px;
+  font-weight: 600;
+  color: #4a5568;
+  font-family: 'DM Sans', sans-serif;
+  margin-top: 2px;
+  word-wrap: break-word;
+}
+
+.rx-chamber-detail {
+  font-size: 13px;
+  font-weight: 600;
+  color: #1a202c;
+  line-height: 1.45;
+  font-family: 'DM Sans', sans-serif;
+  word-wrap: break-word;
+}
+
+.rx-chamber-phone {
+  font-size: 12.5px;
+  font-weight: 700;
+  color: #1a202c;
+  margin-top: 2px;
+  font-family: 'DM Sans', sans-serif;
+  word-wrap: break-word;
+}
+
+.rx-chamber-note {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: #4a5568;
+  margin-top: 2px;
+  font-style: italic;
+  font-family: 'DM Sans', sans-serif;
+  word-wrap: break-word;
+}
+
 .rx-chamber-strip { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; font-family: 'DM Sans', sans-serif; font-size: 10.5px; font-weight: 600; color: #4a5568; padding-bottom: 6px; }
 .rx-chamber-right { text-align: right; white-space: nowrap; }
 .rx-header { text-align: center; margin-bottom: 4px; }
-.rx-doc-reg { font-size: 12.5px; font-weight: 800; font-family: 'DM Sans', sans-serif; margin-top: 3px; letter-spacing: .2px; }
-.rx-doc-name { font-size: 26px; font-weight: 800; letter-spacing: -.3px; color: #1a365d; line-height: 1.25; margin-bottom: 3px; font-family: 'DM Sans', sans-serif; }
-.rx-doc-quals { font-size: 13.5px; font-weight: 700; color: #1a202c; line-height: 1.5; font-family: 'DM Sans', sans-serif; }
 .rx-divider { border: none; border-top: 2px solid #1a202c; margin: 8px 0 6px; }
 .rx-patient-row { display: flex; flex-wrap: wrap; gap: 4px 18px; font-size: 13px; font-family: 'DM Sans', sans-serif; font-weight: 600; border-bottom: 1.5px solid #1a202c; padding-bottom: 6px; margin-bottom: 0; }
 .rx-pfield { flex: 0 0 auto; }
