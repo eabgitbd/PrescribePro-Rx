@@ -985,3 +985,165 @@ textarea { resize: vertical; min-height: 80px; }
 @keyframes spin { to { transform: rotate(360deg); } }
 
 @media print { body { background: white; } #topnav, #sidebar, .mobile-bottom-nav { display: none; } #content { padding: 0; } }
+
+/* ===== [QUAD] Dental quadrant chip ===== */
+.dq {
+  display: inline-grid;
+  grid-template-columns: auto auto;
+  grid-template-rows: auto auto;
+  vertical-align: middle;
+  font-size: .82em;            /* slightly smaller than surrounding text */
+  line-height: 1.1;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  margin: -.4em .22em;         /* negative vertical margin => chip does NOT increase line height */
+  white-space: nowrap;
+  text-rendering: geometricPrecision;
+  -webkit-font-smoothing: antialiased;
+}
+.dq > i {
+  font-style: normal;
+  min-width: .75em;
+  min-height: 1.05em;
+  padding: 0 .3em;
+  display: block;
+}
+.dq .ur { grid-area: 1/1; text-align: right; border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor; }
+.dq .ul { grid-area: 1/2; text-align: left;  border-bottom: 1.5px solid currentColor; }
+.dq .lr { grid-area: 2/1; text-align: right; border-right: 1.5px solid currentColor; }
+.dq .ll { grid-area: 2/2; text-align: left; }
+
+@media print {
+  .dq {
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+}
+
+/* ===== [QUAD] Editor & Interactive Chip Styles ===== */
+.rx-quad-wrap {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+}
+.rx-quad-hidden {
+  display: none !important;
+}
+.rx-quad-editor {
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 13.5px;
+  line-height: 1.55;
+  outline: none;
+  transition: border-color .15s, box-shadow .15s;
+  min-height: 80px;
+  box-sizing: border-box;
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow-y: auto;
+  cursor: text;
+}
+.rx-quad-editor:focus {
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(43, 108, 176, 0.12);
+}
+.rx-quad-editor:empty::before {
+  content: attr(data-placeholder);
+  color: var(--text-3);
+  pointer-events: none;
+  font-style: normal;
+}
+.rx-quad-btn {
+  position: absolute;
+  right: 8px;
+  bottom: 8px;
+  background: var(--surface2);
+  color: var(--accent);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 3px 8px;
+  font-size: 11.5px;
+  font-weight: 600;
+  cursor: pointer;
+  z-index: 2;
+  opacity: 0.85;
+  transition: opacity .15s, background .15s;
+  user-select: none;
+}
+.rx-quad-btn:hover {
+  opacity: 1;
+  background: var(--accent-light);
+}
+
+/* Interactive Edit-Mode Chip Inputs */
+.dq-edit {
+  display: inline-grid;
+  grid-template-columns: auto auto;
+  grid-template-rows: auto auto;
+  vertical-align: middle;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 1px 2px;
+  margin: -.2em .2em;
+  user-select: none;
+}
+.dq-edit input {
+  font-family: inherit;
+  font-size: .82em;
+  font-weight: 700;
+  line-height: 1.1;
+  color: var(--text);
+  background: transparent;
+  border: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+  padding: 2px 3px;
+  min-height: 24px;
+  min-width: 1.2ch;
+  box-sizing: content-box;
+  text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
+}
+.dq-edit input::placeholder {
+  color: var(--text-3);
+  opacity: 0.55;
+  font-weight: 500;
+  font-size: .75em;
+}
+.dq-edit input:focus {
+  background: var(--accent-light);
+  border-radius: 2px;
+}
+.dq-edit input.ur { grid-area: 1/1; text-align: right; border-right: 1.5px solid var(--border-strong) !important; border-bottom: 1.5px solid var(--border-strong) !important; }
+.dq-edit input.ul { grid-area: 1/2; text-align: left;  border-bottom: 1.5px solid var(--border-strong) !important; }
+.dq-edit input.lr { grid-area: 2/1; text-align: right; border-right: 1.5px solid var(--border-strong) !important; }
+.dq-edit input.ll { grid-area: 2/2; text-align: left; }
+
+/* ===== [QUAD] Instruction Hint Box ===== */
+.rx-quad-hint {
+  grid-column: 1 / -1;
+  margin-bottom: 6px;
+}
+.rx-quad-hint-box {
+  background: var(--accent-light);
+  border: 1px solid rgba(43, 108, 176, 0.25);
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 12.5px;
+  font-style: italic;
+  color: var(--accent);
+  line-height: 1.45;
+  box-sizing: border-box;
+  width: 100%;
+}
+[data-theme="dark"] .rx-quad-hint-box {
+  background: rgba(56, 189, 248, 0.12);
+  border-color: rgba(56, 189, 248, 0.3);
+  color: #38bdf8;
+}

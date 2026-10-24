@@ -608,29 +608,33 @@
       <div id="rx-patient-info-strip" class="hidden" style="margin-bottom:16px;"></div>
 
       <div class="form-grid" id="sec-rx-clinical">
+        <!-- [QUAD] Instruction hint box for dental quadrant feature -->
+        <div class="form-group full rx-quad-hint" id="rx-quad-hint" role="note">
+          <div class="rx-quad-hint-box">For dental prescription: use /q to insert quadrant anywhere. Press backspace to delete it.</div>
+        </div>
         <div class="form-group">
           <label>Chief Complaints</label>
-          <textarea id="rx-complaints" placeholder="e.g. Fever x 3 days, Dry cough, Headache..."></textarea>
+          <textarea id="rx-complaints" class="rx-quad" placeholder="e.g. Fever x 3 days, Dry cough, Headache..."></textarea>
         </div>
         <div class="form-group">
           <label>History</label>
-          <textarea id="rx-history" placeholder="e.g. No HTN, Non-diabetic"></textarea>
+          <textarea id="rx-history" class="rx-quad" placeholder="e.g. No HTN, Non-diabetic"></textarea>
         </div>
         <div class="form-group">
           <label>Clinical Findings / O/E</label>
-          <textarea id="rx-findings" placeholder="e.g. BP: 120/80 mmHg, Temp: 101°F, Chest: Clear"></textarea>
+          <textarea id="rx-findings" class="rx-quad" placeholder="e.g. BP: 120/80 mmHg, Temp: 101°F, Chest: Clear"></textarea>
         </div>
         <div class="form-group">
           <label>Investigation / Tests Advised</label>
-          <textarea id="rx-investigation" placeholder="e.g. CBC with ESR, Chest X-Ray (P/A view)"></textarea>
+          <textarea id="rx-investigation" class="rx-quad" placeholder="e.g. CBC with ESR, Chest X-Ray (P/A view)"></textarea>
         </div>
         <div class="form-group full">
           <label>Diagnosis</label>
-          <textarea id="rx-diagnosis" placeholder="e.g. Acute Upper Respiratory Tract Infection (URTI)"></textarea>
+          <textarea id="rx-diagnosis" class="rx-quad" placeholder="e.g. Acute Upper Respiratory Tract Infection (URTI)"></textarea>
         </div>
         <div class="form-group full">
           <label>Private Doctor Notes / Internal Remarks (Not Printed)</label>
-          <textarea id="rx-notes" placeholder="e.g. Patient reluctant for admission. Advised re-evaluation in 3 days." style="min-height:50px"></textarea>
+          <textarea id="rx-notes" class="rx-quad" placeholder="e.g. Patient reluctant for admission. Advised re-evaluation in 3 days." style="min-height:50px"></textarea>
         </div>
       </div>
 
@@ -665,7 +669,7 @@
         </div>
         <div class="form-group">
           <label>General Advice</label>
-          <textarea id="rx-advice" placeholder="e.g. Take rest, drink plenty of warm water, avoid cold items..."></textarea>
+          <textarea id="rx-advice" class="rx-quad" placeholder="e.g. Take rest, drink plenty of warm water, avoid cold items..."></textarea>
         </div>
       </div>
 
@@ -898,6 +902,8 @@
 <div id="toast"></div>
 
 <!-- External Modernized Logic -->
+<!-- [QUAD] Dental Quadrant Module -->
+<script src="quadrant.js"></script>
 <script src="scripts.js"></script>
 
 </body>

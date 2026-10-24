@@ -518,6 +518,7 @@ function initUI() {
   });
 
   initClinicalQuickPicks();
+  if (window.RxQuad && typeof RxQuad.init === 'function') RxQuad.init(); // [QUAD]
 }
 
 // Add a collapsible "Quick picks" chip row above each clinical text field.
@@ -798,6 +799,8 @@ function showApp() {
 
   const avatar = document.getElementById('user-avatar');
   if (avatar) avatar.textContent = state.user.initials || 'DR';
+
+  if (window.RxQuad && typeof RxQuad.init === 'function') RxQuad.init(); // [QUAD]
 
   showSection('dashboard');
 }
@@ -1860,41 +1863,44 @@ function renderRxHTML(rx) {
     </svg>
   `;
 
+  // [QUAD] Safe rich rendering helper: converts {{q:...}} tokens into dental quadrant chips
+  const renderField = text => (window.RxQuad ? RxQuad.renderRich(formatClinicalBulletLines(text)) : esc(formatClinicalBulletLines(text))); // [QUAD]
+
   // Build left-sided sections
   const leftUnits = [];
   if (rx.complaints) {
     leftUnits.push({
       key: 'complaints',
       label: 'COMPLAINTS',
-      html: `<div><div class="rx-section-label" style="color:${col}">COMPLAINTS</div><div class="rx-section-content">${esc(formatClinicalBulletLines(rx.complaints))}</div></div>`
+      html: `<div><div class="rx-section-label" style="color:${col}">COMPLAINTS</div><div class="rx-section-content">${renderField(rx.complaints)}</div></div>` // [QUAD]
     });
   }
   if (rx.history && ps.showHistory !== false) {
     leftUnits.push({
       key: 'history',
       label: 'HISTORY',
-      html: `<div><div class="rx-section-label" style="color:${col}">HISTORY</div><div class="rx-section-content">${esc(formatClinicalBulletLines(rx.history))}</div></div>`
+      html: `<div><div class="rx-section-label" style="color:${col}">HISTORY</div><div class="rx-section-content">${renderField(rx.history)}</div></div>` // [QUAD]
     });
   }
   if (rx.findings && ps.showFindings !== false) {
     leftUnits.push({
       key: 'findings',
       label: 'FINDINGS',
-      html: `<div><div class="rx-section-label" style="color:${col}">FINDINGS</div><div class="rx-section-content">${esc(formatClinicalBulletLines(rx.findings))}</div></div>`
+      html: `<div><div class="rx-section-label" style="color:${col}">FINDINGS</div><div class="rx-section-content">${renderField(rx.findings)}</div></div>` // [QUAD]
     });
   }
   if (rx.investigation && ps.showInvestigation !== false) {
     leftUnits.push({
       key: 'investigation',
       label: 'INVESTIGATION',
-      html: `<div><div class="rx-section-label" style="color:${col}">INVESTIGATION</div><div class="rx-section-content">${esc(formatClinicalBulletLines(rx.investigation))}</div></div>`
+      html: `<div><div class="rx-section-label" style="color:${col}">INVESTIGATION</div><div class="rx-section-content">${renderField(rx.investigation)}</div></div>` // [QUAD]
     });
   }
   if (rx.diagnosis) {
     leftUnits.push({
       key: 'diagnosis',
       label: 'DIAGNOSIS',
-      html: `<div><div class="rx-section-label" style="color:${col}">DIAGNOSIS</div><div class="rx-section-content" style="font-weight:700; color:#1a202c;">${esc(formatClinicalBulletLines(rx.diagnosis))}</div></div>`
+      html: `<div><div class="rx-section-label" style="color:${col}">DIAGNOSIS</div><div class="rx-section-content" style="font-weight:700; color:#1a202c;">${renderField(rx.diagnosis)}</div></div>` // [QUAD]
     });
   }
 
@@ -1908,19 +1914,20 @@ function renderRxHTML(rx) {
     const dur = formatDuration(d.duration);
     const route = formatRoute(d.route);
     const sig = [freq, d.timing, dur, route].map(esc).filter(Boolean).join('  ·  ');
+    const drugNoteRich = d.drugNotes ? (window.RxQuad ? RxQuad.renderRich(d.drugNotes) : esc(d.drugNotes)) : ''; // [QUAD]
     const html = `
       <div class="rx-drug-item">
         <div class="rx-drug-name"><span class="rx-drug-num">${i + 1}.</span>${rawForm} ${esc(d.name)}${d.dose ? ' — ' + esc(d.dose) : ''}</div>
         ${(showGeneric && d.generic) ? `<div class="rx-drug-generic">(${esc(d.generic)})</div>` : ''}
         ${sig ? `<div class="rx-drug-sig">${sig}</div>` : ''}
-        ${d.drugNotes ? `<div class="rx-drug-note">📝 ${esc(d.drugNotes)}</div>` : ''}
+        ${d.drugNotes ? `<div class="rx-drug-note">📝 ${drugNoteRich}</div>` : ''}
       </div>
     `;
     return { index: i + 1, html, data: d };
   });
 
   const followupHTML = (rx.followupDays && ps.showFollowup !== false) ? `<div class="rx-followup" style="color:${col}"><strong>Follow-up:</strong> After ${esc(rx.followupDays)} ${esc(rx.followupUnit || 'days')}</div>` : '';
-  const adviceHTML = (rx.advice && ps.showAdvice !== false) ? `<div class="rx-advice-section"><div class="rx-section-label" style="color:${col}">ADVICE / নির্দেশনা</div><div class="rx-advice-content">${esc(rx.advice)}</div></div>` : '';
+  const adviceHTML = (rx.advice && ps.showAdvice !== false) ? `<div class="rx-advice-section"><div class="rx-section-label" style="color:${col}">ADVICE / নির্দেশনা</div><div class="rx-advice-content">${(window.RxQuad ? RxQuad.renderRich(rx.advice) : esc(rx.advice))}</div></div>` : ''; // [QUAD]
   const signatureHTML = (ps.showSignature !== false) ? `
     <div class="rx-signature">
       <div class="rx-sign-line"></div>
@@ -2314,8 +2321,8 @@ function openPatientHistory(pid) {
           </div>
           <div style="flex:1">
             <div style="font-weight:700; font-size:15px; color:var(--rx-blue)">${rx.date} — ${rx.visitType||'Visit'}</div>
-            <div style="font-size:13px; color:var(--text); margin-top:2px">${rx.diagnosis ? '<strong>Diagnosis:</strong> ' + rx.diagnosis : ''}</div>
-            <div class="text-muted">${rx.complaints ? 'Complaints: ' + rx.complaints.substring(0,60) + '...' : ''}</div>
+            <div style="font-size:13px; color:var(--text); margin-top:2px">${rx.diagnosis ? '<strong>Diagnosis:</strong> ' + esc(window.RxQuad ? RxQuad.plain(rx.diagnosis) : rx.diagnosis) : ''}</div>
+            <div class="text-muted">${rx.complaints ? 'Complaints: ' + esc(window.RxQuad ? RxQuad.plain(rx.complaints) : rx.complaints).substring(0,60) + '...' : ''}</div>
           </div>
           <div style="display:flex; gap:6px; align-items:center" onclick="event.stopPropagation()">
             <button class="btn btn-secondary btn-sm" onclick="viewRx('${rx.id}')" title="View Prescription">👁️ View</button>
@@ -2558,7 +2565,7 @@ function renderDashboard() {
         </div>
         <div style="flex:1">
           <div style="font-weight:600; font-size:14.5px">${rx.patientName} — ${rx.visitType||'Visit'}</div>
-          <div class="text-muted">${rx.complaints ? rx.complaints.substring(0,50) + '...' : ''}</div>
+          <div class="text-muted">${rx.complaints ? esc(window.RxQuad ? RxQuad.plain(rx.complaints) : rx.complaints).substring(0,50) + '...' : ''}</div>
         </div>
         <div style="display:flex; gap:6px; align-items:center" onclick="event.stopPropagation()">
           <button class="btn btn-secondary btn-sm" onclick="viewRx('${rx.id}')" title="View Prescription">👁️ View</button>
@@ -2586,8 +2593,8 @@ function renderAllRx() {
   if (currentRxSearchQuery) {
     prescriptions = prescriptions.filter(r => 
       (r.patientName || '').toLowerCase().includes(currentRxSearchQuery) ||
-      (r.diagnosis || '').toLowerCase().includes(currentRxSearchQuery) ||
-      (r.complaints || '').toLowerCase().includes(currentRxSearchQuery) ||
+      ((window.RxQuad ? RxQuad.plain(r.diagnosis) : r.diagnosis) || '').toLowerCase().includes(currentRxSearchQuery) ||
+      ((window.RxQuad ? RxQuad.plain(r.complaints) : r.complaints) || '').toLowerCase().includes(currentRxSearchQuery) ||
       (r.date || '').toLowerCase().includes(currentRxSearchQuery) ||
       (r.drugs || []).some(d => 
         (d.name || '').toLowerCase().includes(currentRxSearchQuery) ||
@@ -2607,7 +2614,7 @@ function renderAllRx() {
       <div style="flex:1">
         <div style="font-weight:700; font-size:15px">${esc(rx.patientName)}</div>
         <div class="text-muted">${esc(rx.date)} · ${esc(rx.visitType||'')}</div>
-        ${rx.diagnosis ? `<div style="font-size:13px; color:var(--text); margin-top:2px"><strong>Diagnosis:</strong> ${esc(rx.diagnosis)}</div>` : ''}
+        ${rx.diagnosis ? `<div style="font-size:13px; color:var(--text); margin-top:2px"><strong>Diagnosis:</strong> ${esc(window.RxQuad ? RxQuad.plain(rx.diagnosis) : rx.diagnosis)}</div>` : ''}
       </div>
       <div style="display:flex; gap:6px; align-items:center" onclick="event.stopPropagation()">
         <button class="btn btn-secondary btn-sm" onclick="viewRx('${rx.id}')" title="View Prescription">👁️ View</button>
