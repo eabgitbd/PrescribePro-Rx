@@ -50,6 +50,11 @@ let state = {
   patients: [],
   prescriptions: [],
   customDrugs: [],
+  tombstones: {
+    patients: {},
+    prescriptions: {},
+    customDrugs: {}
+  },
   currentRx: null,
   editingPatientId: null
 };
@@ -408,13 +413,23 @@ function toggleTheme() {
   toast(newTheme === 'dark' ? '🌙 Dark Mode Enabled' : '☀️ Light Mode Enabled');
 }
 
-// ── PERSISTENCE & SESSION LOCK ──
+// ── PERSISTENCE & TOMBSTONE TRACKING ──
+function ensureTombstones() {
+  if (!state.tombstones || typeof state.tombstones !== 'object') {
+    state.tombstones = { patients: {}, prescriptions: {}, customDrugs: {} };
+  }
+  if (!state.tombstones.patients || typeof state.tombstones.patients !== 'object') state.tombstones.patients = {};
+  if (!state.tombstones.prescriptions || typeof state.tombstones.prescriptions !== 'object') state.tombstones.prescriptions = {};
+  if (!state.tombstones.customDrugs || typeof state.tombstones.customDrugs !== 'object') state.tombstones.customDrugs = {};
+}
+
 function getStorageKey() {
   const email = (state.user && state.user.email) ? state.user.email : 'local_doctor';
   return 'prescribepro_state_' + email;
 }
 
 function saveState() {
+  ensureTombstones();
   if (state.loggedIn) {
     localStorage.setItem('prescribepro_session_active', 'true');
     localStorage.setItem('prescribepro_session_method', state.loginMethod || 'local');
@@ -450,9 +465,13 @@ function loadState() {
       const loaded = JSON.parse(s);
       Object.assign(state, loaded);
       if (!Array.isArray(state.customDrugs)) state.customDrugs = [];
+      ensureTombstones();
     } catch(e) {
       console.error('Failed to parse local state:', e);
+      ensureTombstones();
     }
+  } else {
+    ensureTombstones();
   }
 
   if (sessionActive) {
@@ -1453,6 +1472,10 @@ function saveCustomDrug() {
     }
   }
 
+  ensureTombstones();
+  if (savedDrug.id) delete state.tombstones.customDrugs[savedDrug.id];
+  if (savedDrug.name) delete state.tombstones.customDrugs[String(savedDrug.name).toLowerCase().trim()];
+
   saveState();
   scheduleCloudSync(true);
   closeModal('modal-custom-drug');
@@ -1569,6 +1592,11 @@ function deleteCustomDrug(id) {
   if (!d) return;
 
   if (confirm(`Remove "${d.name}" from your custom formulary?`)) {
+    const now = Date.now();
+    ensureTombstones();
+    if (d.id) state.tombstones.customDrugs[d.id] = now;
+    if (d.name) state.tombstones.customDrugs[String(d.name).toLowerCase().trim()] = now;
+
     state.customDrugs = state.customDrugs.filter(x => x.id !== id);
     saveState();
     scheduleCloudSync(true);
@@ -1636,6 +1664,9 @@ function saveRx() {
   const rx = collectRxData();
   if (!rx.patientId) { toast('⚠️ Please select a patient'); return; }
   if (rx.drugs.length === 0) { toast('⚠️ Add at least one medication'); return; }
+
+  ensureTombstones();
+  delete state.tombstones.prescriptions[rx.id];
 
   const idx = state.prescriptions.findIndex(r => r.id === rx.id);
   if (idx >= 0) state.prescriptions[idx] = rx;
@@ -2398,6 +2429,13 @@ function deletePatient(pid) {
   const warningMsg = `⚠️ Are you sure you want to delete the profile for "${p.name}"?\n\nWarning: All ${rxCount} prescription(s) associated with this patient will also be permanently deleted!`;
 
   if (confirm(warningMsg)) {
+    const now = Date.now();
+    ensureTombstones();
+    state.tombstones.patients[pid] = now;
+    (state.prescriptions || []).filter(r => r && r.patientId === pid).forEach(r => {
+      if (r.id) state.tombstones.prescriptions[r.id] = now;
+    });
+
     state.patients = state.patients.filter(x => x.id !== pid);
     state.prescriptions = state.prescriptions.filter(r => r.patientId !== pid);
     saveState();
@@ -2528,6 +2566,9 @@ function savePatient() {
   } else {
     state.patients.unshift(patientData);
   }
+
+  ensureTombstones();
+  delete state.tombstones.patients[patientData.id];
 
   saveState();
   const wasAddingFromRx = isOpeningPatientFromRx;
@@ -2694,6 +2735,10 @@ function deleteRx(id) {
   const rx = state.prescriptions.find(r => r.id === id);
   if (!rx) return;
   if (confirm('Delete this prescription permanently?')) {
+    const now = Date.now();
+    ensureTombstones();
+    state.tombstones.prescriptions[id] = now;
+
     state.prescriptions = state.prescriptions.filter(r => r.id !== id);
     if (state.currentRx && state.currentRx.id === id) state.currentRx = null;
     saveState();
@@ -2820,7 +2865,8 @@ function exportBackupData() {
     patients: state.patients || [],
     prescriptions: state.prescriptions || [],
     customDrugs: state.customDrugs || [],
-    theme: state.theme || 'light'
+    theme: state.theme || 'light',
+    tombstones: state.tombstones || { patients: {}, prescriptions: {}, customDrugs: {} }
   };
 
   const jsonStr = JSON.stringify(backupPayload, null, 2);
@@ -2876,7 +2922,8 @@ function importBackupData(input) {
         patients: Array.isArray(parsed.patients) ? parsed.patients : [],
         prescriptions: Array.isArray(parsed.prescriptions) ? parsed.prescriptions : [],
         customDrugs: Array.isArray(parsed.customDrugs) ? parsed.customDrugs : [],
-        theme: parsed.theme || null
+        theme: parsed.theme || null,
+        tombstones: parsed.tombstones || null
       };
 
       pendingRestoreData = imported;
@@ -2942,6 +2989,7 @@ function executeRestore(mode) {
     state.prescriptions = [...imported.prescriptions];
     state.customDrugs = [...imported.customDrugs];
     if (imported.theme) state.theme = imported.theme;
+    state.tombstones = imported.tombstones || { patients: {}, prescriptions: {}, customDrugs: {} };
   }
 
   if (!Array.isArray(state.customDrugs)) state.customDrugs = [];
@@ -3025,6 +3073,18 @@ function mergeState(local, cloud) {
 
   const merged = { ...local };
 
+  // Ensure tombstones structure
+  const localTombstones = (local && local.tombstones) || { patients: {}, prescriptions: {}, customDrugs: {} };
+  const cloudTombstones = (cloud && cloud.tombstones) || { patients: {}, prescriptions: {}, customDrugs: {} };
+
+  // Merge tombstones taking the latest deletion timestamp
+  const mergedTombstones = {
+    patients: { ...(cloudTombstones.patients || {}), ...(localTombstones.patients || {}) },
+    prescriptions: { ...(cloudTombstones.prescriptions || {}), ...(localTombstones.prescriptions || {}) },
+    customDrugs: { ...(cloudTombstones.customDrugs || {}), ...(localTombstones.customDrugs || {}) }
+  };
+  merged.tombstones = mergedTombstones;
+
   // Merge Doctor Profile
   if (cloud.profile) {
     if (!merged.profile || getRecordTimestamp(cloud.profile) >= getRecordTimestamp(merged.profile)) {
@@ -3039,13 +3099,25 @@ function mergeState(local, cloud) {
     }
   }
 
+  // Helper to determine if an entity is deleted/tombstoned
+  function isTombstoned(type, id, record) {
+    if (!id) return false;
+    const tombstoneTime = mergedTombstones[type]?.[id];
+    if (!tombstoneTime) return false;
+    const recordTime = getRecordTimestamp(record, 0);
+    return tombstoneTime >= recordTime;
+  }
+
   // Merge Patient Profiles (by ID)
   const patientMap = new Map();
   (merged.patients || []).forEach(p => {
-    if (p && p.id) patientMap.set(p.id, p);
+    if (p && p.id && !isTombstoned('patients', p.id, p)) {
+      patientMap.set(p.id, p);
+    }
   });
   (cloud.patients || []).forEach(p => {
     if (!p || !p.id) return;
+    if (isTombstoned('patients', p.id, p)) return;
     const existing = patientMap.get(p.id);
     if (!existing || getRecordTimestamp(p) >= getRecordTimestamp(existing)) {
       patientMap.set(p.id, p);
@@ -3056,10 +3128,16 @@ function mergeState(local, cloud) {
   // Merge Prescriptions (by ID)
   const rxMap = new Map();
   (merged.prescriptions || []).forEach(r => {
-    if (r && r.id) rxMap.set(r.id, r);
+    if (r && r.id && !isTombstoned('prescriptions', r.id, r)) {
+      if (!isTombstoned('patients', r.patientId, r)) {
+        rxMap.set(r.id, r);
+      }
+    }
   });
   (cloud.prescriptions || []).forEach(r => {
     if (!r || !r.id) return;
+    if (isTombstoned('prescriptions', r.id, r)) return;
+    if (isTombstoned('patients', r.patientId, r)) return;
     const existing = rxMap.get(r.id);
     if (!existing || getRecordTimestamp(r) >= getRecordTimestamp(existing)) {
       rxMap.set(r.id, r);
@@ -3070,11 +3148,16 @@ function mergeState(local, cloud) {
   // Merge Custom Drugs (by unique id or lowercased name)
   const drugMap = new Map();
   (merged.customDrugs || []).forEach(d => {
-    if (d && (d.id || d.name)) drugMap.set(String(d.id || d.name).toLowerCase().trim(), d);
+    if (!d || (!d.id && !d.name)) return;
+    const key = String(d.id || d.name).toLowerCase().trim();
+    if (!isTombstoned('customDrugs', d.id, d) && !isTombstoned('customDrugs', key, d)) {
+      drugMap.set(key, d);
+    }
   });
   (cloud.customDrugs || []).forEach(d => {
     if (!d || (!d.id && !d.name)) return;
     const key = String(d.id || d.name).toLowerCase().trim();
+    if (isTombstoned('customDrugs', d.id, d) || isTombstoned('customDrugs', key, d)) return;
     const existing = drugMap.get(key);
     if (!existing || getRecordTimestamp(d) >= getRecordTimestamp(existing)) {
       drugMap.set(key, d);
@@ -3143,6 +3226,7 @@ async function syncWithGoogleCloud(showToast = false) {
 
     // 3. Prepare payload for Cloud Upload
     state.lastSyncedTimestamp = Date.now();
+    ensureTombstones();
     const payload = {
       version: '4.0',
       updatedAt: Date.now(),
@@ -3151,7 +3235,8 @@ async function syncWithGoogleCloud(showToast = false) {
       padSettings: state.padSettings,
       patients: state.patients,
       prescriptions: state.prescriptions,
-      customDrugs: state.customDrugs || []
+      customDrugs: state.customDrugs || [],
+      tombstones: state.tombstones || { patients: {}, prescriptions: {}, customDrugs: {} }
     };
 
     const payloadStr = JSON.stringify(payload, null, 2);
